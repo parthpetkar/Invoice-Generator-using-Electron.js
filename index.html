@@ -3,28 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>lol</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.content-section').hide();
+
+            $('#create_invoices').show();
+
+            $('.nav-menu-item').click(function (e) {
+                e.preventDefault();
+
+                const sectionToShow = $(this).attr('href');
+
+                $('.content-section').hide();
+                $(sectionToShow).show();
+            })
+
+        });
+    </script>
 </head>
 <body>
     <div>
         <nav class="main-menu">
             <ul>
                 <li>
-                    <a href="#invoice">
+                    <a href="#invoices">
                         <i class="fa fa-file-invoice"></i>
                         <span class="nav-text">Invoices</span>
                     </a>
-                    <ul>
+                    <ul class="submenu">
                         <li>
-                            <a href="#">
+                            <a href="#create_invoices" class="nav-menu-item">
                                 <i class="fa fa-plus"></i>
                                 <span class="nav-text">Create Invoices</span>
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="#manage_invoices" class="nav-menu-item">
                                 <i class="fa fa-tasks"></i>
                                 <span class="nav-text">Manage Invoices</span>
                             </a>
@@ -33,19 +51,19 @@
                 </li>
     
                 <li>
-                    <a href="/studentdashboard#project">
+                    <a href="#customers">
                         <i class="fa fa-users"></i>
                         <span class="nav-text">Customers</span>
                     </a>
-                    <ul>
+                    <ul class="submenu">
                         <li>
-                            <a href="#">
+                            <a href="#create_customers" class="nav-menu-item">
                                 <i class="fa fa-user-plus"></i>
                                 <span class="nav-text">Create Customer</span>
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="#manage_customers" class="nav-menu-item">
                                 <i class="fa fa-user-cog"></i>
                                 <span class="nav-text">Manage Customers</span>
                             </a>
@@ -53,7 +71,7 @@
                     </ul>
                 </li>
                 <li>
-                    <a href="/studentdashboard#settings">
+                    <a href="#settings" class="nav-menu-item">
                         <i class="fa fa-cogs"></i>
                         <span class="nav-text">Settings</span>
                     </a>
@@ -61,5 +79,20 @@
             </ul>
         </nav>
     </div>
+    <section id="create_invoices" class="content-section">
+        <h2>Create Invoices</h2>
+    </section>
+    <section id="manage_invoices" class="content-section">
+        <h2>Manage Invoices</h2>
+    </section>
+    <section id="create_customers" class="content-section">
+        <h2>Create Customers</h2>
+    </section>
+    <section id="manage_customers" class="content-section">
+        <h2>Manage Customers</h2>
+    </section>
+    <section id="settings" class="content-section">
+        <h2>Settings</h2>
+    </section>
 </body>
 </html>
