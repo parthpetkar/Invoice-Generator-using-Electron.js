@@ -1,0 +1,17 @@
+{
+  "name": "invoice_gen",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "watch": "nodemon --exec electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^29.0.1",
+    "nodemon": "^3.1.0"
+  }
+}
