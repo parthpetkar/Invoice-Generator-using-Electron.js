@@ -72,9 +72,45 @@
     </section>
     <section id="create_customers" class="content-section">
         <h2>Create Customers</h2>
+        <form id="create_customer_form">
+            <div class="form-group">
+                <input type="text" id="customer_company_name" name="customer_company_name" placeholder="Company Name" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="customer_address" name="customer_address" placeholder="Address" required>
+            </div>
+            <div class="form-group">
+                <input type="tel" id="customer_phone" name="customer_phone" placeholder="Phone Number" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="customer_gstin" name="customer_gstin" placeholder="GSTIN" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="customer_pan" name="customer_pan" placeholder="PAN Number">
+            </div>
+            <div class="form-group">
+                <input type="text" id="customer_cin" name="customer_cin" placeholder="CIN">
+            </div>
+            <button type="submit">Create Customer</button>
+        </form>
     </section>
+    
     <section id="manage_customers" class="content-section">
         <h2>Manage Customers</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer Name</th>
+                    <th>GSTIN Number</th>
+                </tr>
+            </thead>
+            <!-- <tbody>
+                                <tr>
+                                    <td>Sharp Tanks & Structural (P) Ltd</td>
+                                    <td>08AABCS1445B2ZT</td>
+                                </tr>
+                            </tbody> -->
+        </table>
     </section>
     <section id="settings" class="content-section">
         <h2>Settings</h2>

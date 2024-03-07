@@ -1,7 +1,7 @@
 $(document).ready(function () {
     $('.content-section').hide();
 
-    $('#create_invoices').show();
+    $('#create_customers').show();
 
     $('.nav-menu-item').click(function (e) {
         e.preventDefault();
