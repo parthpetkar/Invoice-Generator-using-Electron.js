@@ -187,42 +187,55 @@ button[type="submit"]:hover {
 }
 
 /* Manage Customers*/
-#customer_table {
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    padding: 20px;
-    max-width: 600px;
-    margin: 20px auto;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-    margin-top: 0;
-    font-size: 24px;
-    color: #333;
+#searchInput {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+    font-size: 16px;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    border-radius: 8px;
 }
 
-thead {
-    background-color: #007bff;
-    color: white;
+table,
+th,
+td {
+    border: 1px solid #ddd;
 }
 
 th,
 td {
-    padding: 12px;
+    padding: 10px;
     text-align: left;
 }
 
-tbody tr:nth-child(even) {
+tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 
-tbody tr:hover {
+.pagination {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.pagination button {
+    padding: 8px 16px;
+    margin: 0 5px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+}
+
+.pagination button:hover {
+    background-color: #0056b3;
+}
+
+.pagination button:disabled {
     background-color: #ddd;
+    color: #666;
+        cursor: not-allowed;
 }
