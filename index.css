@@ -141,7 +141,7 @@ nav.main-menu li.active>a,
     font-weight: 300;
     src: local('Titillium WebLight'), local('TitilliumWeb-Light'), url(http://themes.googleusercontent.com/static/fonts/titilliumweb/v2/anMUvcNT0H1YN4FII8wpr24bNCNEoFTpS2BTjF6FB5E.woff) format('woff');
 }
-/* Create Customers */
+/*content section*/
 .content-section {
     background-color: #f9f9f9;
     border-radius: 8px;
@@ -157,33 +157,41 @@ h2 {
     color: #333;
 }
 
-.form-group {
-    margin-bottom: 20px;
+/* Create Customers */
+.form-page {
+    display: none;
 }
 
-input[type="text"],
-input[type="tel"] {
-    width: 100%;
-    padding: 12px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-    font-size: 16px;
+.form-page.active {
+    display: block;
 }
 
-button[type="submit"] {
+.btn {
+    cursor: pointer;
     background-color: #007bff;
     color: white;
-    padding: 12px 20px;
+    padding: 10px 20px;
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
+    border-radius: 5px;
 }
 
-button[type="submit"]:hover {
-    background-color: #0056b3;
+.input-group {
+    margin-bottom: 10px;
+}
+
+.input-group input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+        width: 100%;
+    box-sizing: border-box;
+}
+.input-group input[type="button"] {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 10px 20px;
 }
 
 /* Manage Customers*/
