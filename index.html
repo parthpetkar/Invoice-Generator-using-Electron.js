@@ -66,9 +66,80 @@
     </div>
     <section id="create_invoices" class="content-section">
         <h2>Create Invoices</h2>
+        <div class="container">
+            <div class="header">
+                <img src="Assets\company-logo.png" alt="Company Logo" class="logo">
+                <h1>INVOICE</h1>
+                <div class="status-picker">
+                    <label for="status">Status:</label>
+                    <select id="status" name="status">
+                        <option value="paid">Paid</option>
+                        <option value="unpaid">Unpaid</option>
+                    </select>
+                </div>
+            </div>
+            <form id="invoiceForm">
+                <label for="invoiceNumber">Invoice Number:</label>
+                <input type="text" id="invoiceNumber" name="invoiceNumber" required>
+    
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
+    
+                <div class="invoice-items">
+                    <h2>Invoice Items</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Milestones</th>
+                                <th>Total Price</th>
+                                <th>Claimed</th>
+                                <th>Taxed</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" name="description[]" required></td>
+                                <td><input type="text" name="milestones[]" required></td>
+                                <td><input type="number" name="totalPrice[]" required></td>
+                                <td><input type="number" name="claimed[]" required></td>
+                                <td><input type="number" name="taxed[]" required></td>
+                                <td><input type="number" name="amount[]" required></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" id="addItem">Add Item</button>
+                </div>
+    
+                <button type="submit">Generate Invoice</button>
+            </form>
+            <div id="invoiceResult" class="hidden">
+                <h2>Generated Invoice:</h2>
+                <div id="invoiceDetails"></div>
+            </div>
+        </div>
     </section>
     <section id="manage_invoices" class="content-section">
         <h2>Manage Invoices</h2>
+        <table id="dataTable">
+            <thead>
+                <tr>
+        <th>No</th>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Due</th>
+        <th>Status</th>
+        <th>Action</th>
+        </tr>
+        </thead>
+    <tbody>
+    </tbody>
+    </table>
+    <div class="pagination">
+        <button id="prevBtn">Previous</button>
+        <button id="nextBtn">Next</button>
+    </div>
     </section>
     <section id="create_customers" class="content-section">
         <h2>Create Customers</h2>

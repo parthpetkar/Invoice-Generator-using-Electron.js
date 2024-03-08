@@ -240,3 +240,91 @@ tr:nth-child(even) {
     color: #666;
         cursor: not-allowed;
 }
+
+.container {
+    width: 80%; /* Set the container width */
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 50px;
+    height: auto;
+}
+
+h1 {
+    margin: 0;
+    flex-grow: 1;
+}
+
+.status-picker {
+    flex-shrink: 0;
+    margin-left: 20px;
+    text-align: right;
+}
+
+.bill-to {
+    margin-bottom: 20px;
+}
+
+.bill-to h2 {
+    margin-bottom: 10px;
+}
+
+.invoice-items {
+    margin-bottom: 20px;
+    overflow-x: auto; /* Add horizontal scroll if needed */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* Force table to use full width */
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 12px; /* Increase padding for better spacing */
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflowing content */
+    text-overflow: ellipsis; /* Display ellipsis for overflow */
+}
+
+th {
+    background-color: #f0f0f0;
+}
+
+button {
+    padding: 12px 24px; /* Increase padding for better spacing */
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.hidden {
+    display: none;
+}
+
+#invoiceDetails {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
