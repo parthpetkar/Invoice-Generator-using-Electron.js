@@ -68,7 +68,6 @@
         <h2>Create Invoices</h2>
         <div class="container">
             <div class="header">
-                <!-- <img src="Assets\company-logo.png" alt="Company Logo" class="logo"> -->
                 <h1>INVOICE</h1>
                 <div class="status-picker">
                     <label for="status">Status:</label>
@@ -122,24 +121,24 @@
     </section>
     <section id="manage_invoices" class="content-section">
         <h2>Manage Invoices</h2>
-        <table id="dataTable">
+        <table id="InvoiceDataTable">
             <thead>
                 <tr>
-        <th>No</th>
-        <th>Name</th>
-        <th>Date</th>
-        <th>Due</th>
-        <th>Status</th>
-        <th>Action</th>
-        </tr>
-        </thead>
-    <tbody>
-    </tbody>
-    </table>
-    <div class="pagination">
-        <button id="prevBtn">Previous</button>
-        <button id="nextBtn">Next</button>
-    </div>
+                    <th>No</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Due</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    </table>
+                    <div class="pagination">
+            <button id="prevInvoiceBtn">Previous</button>
+            <button id="nextInvoiceBtn">Next</button>
+            </div>
     </section>
     <section id="create_customers" class="content-section">
         <h2>Create Customers</h2>
@@ -159,33 +158,30 @@
             <div class="form-group">
                 <input type="text" id="customer_pan" name="customer_pan" placeholder="PAN Number">
             </div>
-            <div class="form-group">
-                <input type="text" id="customer_cin" name="customer_cin" placeholder="CIN">
-            </div>
             <button type="submit">Create Customer</button>
         </form>
     </section>
     
     <section id="manage_customers" class="content-section">
         <h2>Manage Customers</h2>
-        <table id="dataTable">
+        <table id="CustomerDataTable">
             <thead>
                 <tr>
-        <th>No</th>
-        <th>Name</th>
-        <th>Date</th>
-        <th>Due</th>
-        <th>Status</th>
-        <th>Action</th>
-        </tr>
-        </thead>
-    <tbody>
-    </tbody>
-    </table>
-    <div class="pagination">
-        <button id="prevBtn">Previous</button>
-        <button id="nextBtn">Next</button>
-    </div>
+                    <th>No</th>
+                    <th>Company</th>
+                    <th>Address</th>
+                    <th>PhoneNo</th>
+                    <th>GSTIN</th>
+                    <th>PANNo</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    </table>
+                    <div class="pagination">
+            <button id="prevCustomerBtn">Previous</button>
+            <button id="nextCustomerBtn">Next</button>
+            </div>
     </section>
     <section id="settings" class="content-section">
         <h2>Settings</h2>
