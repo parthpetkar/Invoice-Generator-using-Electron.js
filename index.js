@@ -16,7 +16,7 @@ $(document).ready(function () {
         // Add more data as needed
     ];
 
-    var itemsPerPage = 8;
+    var itemsPerPage = 15;
     var currentPageInvoice = 1;
     var totalPagesInvoice = Math.ceil(invoiceData.length / itemsPerPage);
 
@@ -32,7 +32,12 @@ $(document).ready(function () {
         $.each(data, function (index, item) {
             var row = $('<tr>');
             $.each(item, function (key, value) {
-                row.append($('<td>').text(value));
+                if (key === 'action') {
+                    var button = $('<button>').text(value).addClass('action-btn');
+                    row.append($('<td>').append(button));
+                } else {
+                    row.append($('<td>').text(value));
+                }
             });
             tbody.append(row);
         });
@@ -126,5 +131,9 @@ $(document).ready(function () {
         if (currentPageCustomer < totalPagesCustomer) {
             renderCustomerPage(currentPageCustomer + 1);
         }
+    });
+    $('#saveButton').click(function () {
+        var name = $('#nameInput').val();
+        window.electron.send('saveToDatabase', { name: name });
     });
 });
