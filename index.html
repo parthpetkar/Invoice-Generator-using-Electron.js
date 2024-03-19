@@ -65,59 +65,68 @@
         </nav>
     </div>
     <section id="create_invoices" class="content-section">
-        <h2>Create Invoices</h2>
         <div class="container">
-            <div class="header">
-                <h1>INVOICE</h1>
-                <div class="status-picker">
-                    <label for="status">Status:</label>
-                    <select id="status" name="status">
-                        <option value="paid">Paid</option>
-                        <option value="unpaid">Unpaid</option>
-                    </select>
+            <h2>Create Invoice</h2>
+            <form action="action="http://localhost:3000/submit_invoice"" method="post">
+                <label for="invoice_number">Invoice Number:</label><br>
+                <input type="text" id="invoice_number" name="invoice_number" required><br><br>
+                
+                <label for="date">Date:</label><br>
+                <input type="date" id="date" name="date" required><br><br>
+                
+                <label for="due_date">Due Date:</label><br>
+                <input type="date" id="due_date" name="due_date" required><br><br>
+                
+                <label for="select_customer">Select Customer:</label><br>
+                <select id="select_customer" name="select_customer" required>
+                    <option value="customer1">Customer 1</option>
+                    <option value="customer2">Customer 2</option>
+                    <option value="customer3">Customer 3</option>
+                </select><br><br>
+                
+                <label for="total_price">Total Price:</label><br>
+                <input type="text" id="total_price" name="total_price" readonly><br><br>
+                
+                <label for="description">Description:</label><br>
+                <textarea id="description" name="description" rows="4" cols="50" required></textarea><br><br>
+                
+                <div id="items_container">
+                    <h3>Add Item</h3>
+                    <div class="item">
+                        <label for="milestone">Milestone:</label>
+                        <input type="text" id="milestone" name="milestone[]">
+                        
+                        <label for="claim_percentage">Claim Percentage:</label>
+                        <input type="text" id="claim_percentage" name="claim_percentage[]">
+                        
+                        <label for="amount">Amount:</label>
+                        <input type="text" id="amount" name="amount[]">
+                    </div>
                 </div>
-            </div>
-            <form id="invoiceForm">
-                <label for="invoiceNumber">Invoice Number:</label>
-                <input type="text" id="invoiceNumber" name="invoiceNumber" required>
-    
-                <label for="date">Date:</label>
-                <input type="date" id="date" name="date" required>
-    
-                <div class="invoice-items">
-                    <h2>Invoice Items</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Description</th>
-                                <th>Milestones</th>
-                                <th>Total Price</th>
-                                <th>Claimed</th>
-                                <th>Taxed</th>
-                                <th>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><input type="text" name="description[]" required></td>
-                                <td><input type="text" name="milestones[]" required></td>
-                                <td><input type="number" name="totalPrice[]" required></td>
-                                <td><input type="number" name="claimed[]" required></td>
-                                <td><input type="number" name="taxed[]" required></td>
-                                <td><input type="number" name="amount[]" required></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <button type="button" id="addItem">Add Item</button>
+                
+                <button type="button" id="add_item">Add Item</button><br><br>
+                
+                <label for="subtotal">Subtotal:</label><br>
+                <input type="text" id="subtotal" name="subtotal" readonly><br><br>
+                
+                <label for="taxes">Taxes:</label><br>
+                <select id="taxes" name="taxes">
+                    <option value="no">No</option>
+                    <option value="yes">Yes</option>
+                </select><br><br>
+                
+                <div id="tax_type">
+                    <label for="type_of_taxes">Type of Taxes:</label><br>
+                    <select id="type_of_taxes" name="type_of_taxes">
+                        <option value="CGST">CGST</option>
+                        <option value="IGST">IGST</option>
+                        <option value="SGST">SGST</option>
+                    </select><br><br>
                 </div>
-    
-                <button type="submit">Generate Invoice</button>
+                
+                <input type="submit" value="Submit">
             </form>
-            <div id="invoiceResult" class="hidden">
-                <h2>Generated Invoice:</h2>
-                <div id="invoiceDetails"></div>
-            </div>
-        </div>
+        </div>        
     </section>
     <section id="manage_invoices" class="content-section">
         <h2>Manage Invoices</h2>
