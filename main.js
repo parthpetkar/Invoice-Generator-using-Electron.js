@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const mysql = require('mysql2');
+require('dotenv').config();
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -33,10 +34,10 @@ app.on('window-all-closed', () => {
 
 // Establish MySQL connection
 const connection = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'root',
-    password: 'sanjayP@37',
-    database: 'invoiceDB'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE
 });
 
 connection.connect();
