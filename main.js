@@ -35,26 +35,27 @@ app.on('window-all-closed', () => {
 const connection = mysql.createConnection({
     host: '127.0.0.1',
     user: 'root',
-    password: 'parthYM8',
-    database: 'test'
+    password: 'sanjayP@37',
+    database: 'invoiceDB'
 });
 
 connection.connect();
 
 // Listen for saveToDatabase event from renderer process
-ipcMain.on('saveToDatabase', (event, data) => {
-    const { name } = data;
+ipcMain.on('createCustomer', (event, data) => {
+    const { name, address, phone, gstin, pan } = data;
 
-    // Perform database query
-    connection.query('INSERT INTO test (name) VALUES (?)', [name], function (error, results, fields) {
+    //console.log(name, address);
+    //Perform database query
+    connection.query('INSERT INTO customers (company_name, address, phone, gstin, pan) VALUES (?, ?, ?, ?, ?)', [name, address, phone, gstin, pan], function (error, results, fields) {
         if (error) {
             console.error(error);
             event.reply('saveToDatabaseResult', { success: false, error: error.message });
         } else {
             console.log('Data saved successfully');
             event.reply('saveToDatabaseResult', { success: true });
-    }
-    });
+        }
+    })
 });
 
 // Close database connection when app is quit

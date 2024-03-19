@@ -132,8 +132,5 @@ $(document).ready(function () {
             renderCustomerPage(currentPageCustomer + 1);
         }
     });
-    $('#saveButton').click(function () {
-        var name = $('#nameInput').val();
-        window.electron.send('saveToDatabase', { name: name });
-    });
+    
 });
