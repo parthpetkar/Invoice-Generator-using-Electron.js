@@ -1,34 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="index.css">
-    <link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="./index.js">
-    </script>
+    <script src="index.js"></script>
+    <script src="invoices.js"></script>
+    <script src="customer.js"></script>
 </head>
+
 <body>
     <div>
-        <nav class="main-menu">
+        <nav class="main-menu" id="mainMenu">
             <ul>
                 <li>
                     <a href="#invoices">
-                        <i class="fa fa-file-invoice"></i>
+                        <img src="Assets/file-invoice-solid.svg" alt="Invoices Icon" class="nav-icon">
                         <span class="nav-text">Invoices</span>
                     </a>
                     <ul class="submenu">
                         <li>
                             <a href="#create_invoices" class="nav-menu-item">
-                                <i class="fa fa-plus"></i>
+                                <img src="Assets/plus-solid.svg" alt="Create Invoice Icon" class="nav-icon">
                                 <span class="nav-text">Create Invoices</span>
                             </a>
                         </li>
                         <li>
                             <a href="#manage_invoices" class="nav-menu-item">
-                                <i class="fa fa-tasks"></i>
+                                <img src="Assets/file-invoice-solid.svg" alt="Manage Invoice Icon" class="nav-icon">
                                 <span class="nav-text">Manage Invoices</span>
                             </a>
                         </li>
@@ -37,19 +39,19 @@
     
                 <li>
                     <a href="#customers">
-                        <i class="fa fa-users"></i>
+                        <img src="Assets/users-solid.svg" alt="Customers Icon" class="nav-icon">
                         <span class="nav-text">Customers</span>
                     </a>
                     <ul class="submenu">
                         <li>
                             <a href="#create_customers" class="nav-menu-item">
-                                <i class="fa fa-user-plus"></i>
+                                <img src="Assets/plus-solid.svg" alt="Create Customer Icon" class="nav-icon">
                                 <span class="nav-text">Create Customer</span>
                             </a>
                         </li>
                         <li>
                             <a href="#manage_customers" class="nav-menu-item">
-                                <i class="fa fa-user-cog"></i>
+                                <img src="Assets/users-solid.svg" alt="Manage Customer Icon" class="nav-icon">
                                 <span class="nav-text">Manage Customers</span>
                             </a>
                         </li>
@@ -57,7 +59,7 @@
                 </li>
                 <li>
                     <a href="#settings" class="nav-menu-item">
-                        <i class="fa fa-cogs"></i>
+                        <img src="Assets/sliders-solid.svg" alt="Settings Icon" class="nav-icon">
                         <span class="nav-text">Settings</span>
                     </a>
                 </li>
@@ -65,130 +67,154 @@
         </nav>
     </div>
     <section id="create_invoices" class="content-section">
-        <h2>Create Invoices</h2>
         <div class="container">
-            <div class="header">
-                <!-- <img src="Assets\company-logo.png" alt="Company Logo" class="logo"> -->
-                <h1>INVOICE</h1>
-                <div class="status-picker">
-                    <label for="status">Status:</label>
-                    <select id="status" name="status">
-                        <option value="paid">Paid</option>
-                        <option value="unpaid">Unpaid</option>
-                    </select>
+            <h2>Create Invoice</h2>
+            <form>
+                <label for="invoice_number">Invoice Number:</label><br>
+                <input type="text" id="invoice_number" name="invoice_number" required><br><br>
+
+                <label for="date">Date:</label><br>
+                <input type="date" id="date" name="date" required><br><br>
+
+                <label for="due_date">Due Date:</label><br>
+                <input type="date" id="due_date" name="due_date" required><br><br>
+
+                <label for="select_customer">Select Customer:</label><br>
+                <select id="select_customer" name="select_customer" required>
+                    <option value="customer1">Customer 1</option>
+                    <option value="customer2">Customer 2</option>
+                    <option value="customer3">Customer 3</option>
+                </select><br><br>
+
+                <label for="total_price">Total Price:</label><br>
+                <input type="text" id="total_price" name="total_price" readonly><br><br>
+
+                <label for="description">Description:</label><br>
+                <textarea id="description" name="description" rows="4" cols="50" required></textarea><br><br>
+
+                <div id="items_container">
+                    <h3>Add Item</h3>
+                    <div class="item">
+                        <label for="milestone">Milestone:</label>
+                        <input type="text" id="milestone" name="milestone[]">
+
+                        <label for="claim_percentage">Claim Percentage:</label>
+                        <input type="text" id="claim_percentage" name="claim_percentage[]">
+
+                        <label for="amount">Amount:</label>
+                        <input type="text" id="amount" name="amount[]">
+                    </div>
                 </div>
-            </div>
-            <form id="invoiceForm">
-                <label for="invoiceNumber">Invoice Number:</label>
-                <input type="text" id="invoiceNumber" name="invoiceNumber" required>
-    
-                <label for="date">Date:</label>
-                <input type="date" id="date" name="date" required>
-    
-                <div class="invoice-items">
-                    <h2>Invoice Items</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Description</th>
-                                <th>Milestones</th>
-                                <th>Total Price</th>
-                                <th>Claimed</th>
-                                <th>Taxed</th>
-                                <th>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><input type="text" name="description[]" required></td>
-                                <td><input type="text" name="milestones[]" required></td>
-                                <td><input type="number" name="totalPrice[]" required></td>
-                                <td><input type="number" name="claimed[]" required></td>
-                                <td><input type="number" name="taxed[]" required></td>
-                                <td><input type="number" name="amount[]" required></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <button type="button" id="addItem">Add Item</button>
+
+                <button type="button" id="add_item">Add Item</button><br><br>
+
+                <label for="subtotal">Subtotal:</label><br>
+                <input type="text" id="subtotal" name="subtotal" readonly><br><br>
+
+                <label for="taxes">Taxes:</label><br>
+                <select id="taxes" name="taxes">
+                    <option value="no">No</option>
+                    <option value="yes">Yes</option>
+                </select><br><br>
+
+                <div id="tax_type">
+                    <label for="type_of_taxes">Type of Taxes:</label><br>
+                    <select id="type_of_taxes" name="type_of_taxes">
+                        <option value="CGST">CGST</option>
+                        <option value="IGST">IGST</option>
+                        <option value="SGST">SGST</option>
+                    </select><br><br>
                 </div>
-    
-                <button type="submit">Generate Invoice</button>
+
+                <input type="submit" value="Submit">
             </form>
-            <div id="invoiceResult" class="hidden">
-                <h2>Generated Invoice:</h2>
-                <div id="invoiceDetails"></div>
-            </div>
         </div>
     </section>
     <section id="manage_invoices" class="content-section">
         <h2>Manage Invoices</h2>
-        <table id="dataTable">
+        <table id="InvoiceDataTable">
             <thead>
                 <tr>
-        <th>No</th>
-        <th>Name</th>
-        <th>Date</th>
-        <th>Due</th>
-        <th>Status</th>
-        <th>Action</th>
-        </tr>
-        </thead>
-    <tbody>
-    </tbody>
-    </table>
-    <div class="pagination">
-        <button id="prevBtn">Previous</button>
-        <button id="nextBtn">Next</button>
-    </div>
+                    <th>No</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Due</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+                </table>
+                <div class="pagination">
+            <button id="prevInvoiceBtn">Previous</button>
+            <button id="nextInvoiceBtn">Next</button>
+        </div>
     </section>
     <section id="create_customers" class="content-section">
         <h2>Create Customers</h2>
-        <form id="create_customer_form">
-            <div class="form-group">
-                <input type="text" id="customer_company_name" name="customer_company_name" placeholder="Company Name" required>
-            </div>
-            <div class="form-group">
-                <input type="text" id="customer_address" name="customer_address" placeholder="Address" required>
-            </div>
-            <div class="form-group">
-                <input type="tel" id="customer_phone" name="customer_phone" placeholder="Phone Number" required>
-            </div>
-            <div class="form-group">
-                <input type="text" id="customer_gstin" name="customer_gstin" placeholder="GSTIN" required>
-            </div>
-            <div class="form-group">
-                <input type="text" id="customer_pan" name="customer_pan" placeholder="PAN Number">
-            </div>
-            <div class="form-group">
-                <input type="text" id="customer_cin" name="customer_cin" placeholder="CIN">
-            </div>
-            <button type="submit">Create Customer</button>
-        </form>
+        <div class="form-container">
+            <form id="myForm">
+                <div class="form-group">
+                    <label for="companyName">Company Name</label>
+                    <input type="text" id="customer_company_name" name="companyName" required>
+                    </div>
+                    <div class="form-group">
+                    <label for="address">Address</label>
+                    <input type="text" id="customer_address" name="address" required>
+                    </div>
+                    <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="text" id="customer_phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                    <label for="gstin">GSTIN</label>
+                    <input type="text" id="customer_gstin" name="gstin" required>
+                    </div>
+                    <div class="form-group">
+                    <label for="pan">PAN</label>
+                    <input type="text" id="customer_pan" name="pan" required>
+                    </div>
+                <div class="form-group">
+                    <label for="cin">CIN</label>
+                    <input type="text" id="customer_cin" name="cin" required>
+                </div>
+                <div class="form-group">
+                    <label for="poNo">PO NO</label>
+                    <input type="text" id="customer_poNo" name="poNo" required>
+                </div>
+                <button type="submit" id="save_customer">Submit</button>
+                </form>
+        </div>
     </section>
-    
     <section id="manage_customers" class="content-section">
         <h2>Manage Customers</h2>
-        <table id="dataTable">
+        <table id="CustomerDataTable">
             <thead>
                 <tr>
-        <th>No</th>
-        <th>Name</th>
-        <th>Date</th>
-        <th>Due</th>
-        <th>Status</th>
-        <th>Action</th>
-        </tr>
-        </thead>
-    <tbody>
-    </tbody>
-    </table>
-    <div class="pagination">
-        <button id="prevBtn">Previous</button>
-        <button id="nextBtn">Next</button>
-    </div>
+                    <th>No</th>
+                    <th>Company</th>
+                    <th>Address</th>
+                    <th>PhoneNo</th>
+                    <th>GSTIN</th>
+                    <th>PAN NO</th>
+                    <th>CIN</th>
+                    <th>PO NO</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    </table>
+                    <div class="pagination">
+            <button id="prevCustomerBtn">Previous</button>
+            <button id="nextCustomerBtn">Next</button>
+        </div>
     </section>
     <section id="settings" class="content-section">
         <h2>Settings</h2>
+        <input type="text" id="nameInput" placeholder="Enter Name">
+        <button id="saveButton">Save</button>
     </section>
 </body>
+
 </html>
