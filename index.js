@@ -9,6 +9,7 @@ $(document).ready(function () {
         $(sectionToShow).show();
     });
 
+    var itemsPerPage = 14;
     // Sample data for demonstration
     var invoiceData = [
         { no: 1, name: "Task 1", date: "2024-03-08", due: "2024-03-15", status: "Pending", action: "Edit" },
@@ -16,7 +17,6 @@ $(document).ready(function () {
         // Add more data as needed
     ];
 
-    var itemsPerPage = 15;
     var currentPageInvoice = 1;
     var totalPagesInvoice = Math.ceil(invoiceData.length / itemsPerPage);
 
@@ -71,21 +71,25 @@ $(document).ready(function () {
         }
     });
 
-    var customerData = [
-        { no: 1, Company: "Task 1", Address: "2024-03-08", PhoneNo: "2024-03-15", GSTIN: "Pending", PANNo: "Edit" },
-        { no: 1, Company: "Task 1", Address: "2024-03-08", PhoneNo: "2024-03-15", GSTIN: "Pending", PANNo: "Edit" },
-        { no: 1, Company: "Task 1", Address: "2024-03-08", PhoneNo: "2024-03-15", GSTIN: "Pending", PANNo: "Edit" },
-        { no: 1, Company: "Task 1", Address: "2024-03-08", PhoneNo: "2024-03-15", GSTIN: "Pending", PANNo: "Edit" },
-        { no: 1, Company: "Task 1", Address: "2024-03-08", PhoneNo: "2024-03-15", GSTIN: "Pending", PANNo: "Edit" },
-        { no: 1, Company: "Task 1", Address: "2024-03-08", PhoneNo: "2024-03-15", GSTIN: "Pending", PANNo: "Edit" },
-        { no: 1, Company: "Task 1", Address: "2024-03-08", PhoneNo: "2024-03-15", GSTIN: "Pending", PANNo: "Edit" },
-        { no: 1, Company: "Task 1", Address: "2024-03-08", PhoneNo: "2024-03-15", GSTIN: "Pending", PANNo: "Edit" },
-        { no: 1, Company: "Task 1", Address: "2024-03-08", PhoneNo: "2024-03-15", GSTIN: "Pending", PANNo: "Edit" },
-        // Add more data as needed
-    ];
+    var customerData = []; // Declare an empty array to hold customer data
+
+    $(document).ready(async () => {
+        try {
+            const data = await window.electron.invoke('fetchData');
+            customerData = data;
+
+            // After fetching data, calculate the total pages
+            totalPagesCustomer = Math.ceil(customerData.length / itemsPerPage);
+
+            // Initial population of the table
+            renderCustomerPage(currentPageCustomer);
+        } catch (error) {
+            console.log(error);
+        }
+    });
 
     var currentPageCustomer = 1;
-    var totalPagesCustomer = Math.ceil(customerData.length / itemsPerPage);
+    var totalPagesCustomer = 0; // Initialize total pages
 
     function paginateCustomerData(page) {
         var startIndex = (page - 1) * itemsPerPage;
@@ -116,9 +120,6 @@ $(document).ready(function () {
         populateCustomerTable("CustomerDataTable", paginatedData);
         updateCustomerPaginationButtons();
     }
-
-    // Initial population of the table
-    renderCustomerPage(currentPageCustomer);
 
     // Pagination event handlers
     $('#prevCustomerBtn').on('click', function () {
