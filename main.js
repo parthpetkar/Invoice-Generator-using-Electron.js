@@ -42,8 +42,6 @@ async function connectToDB() { // Corrected function name and async keyword
             password: 'parthYM8',
             database: 'invoicedb'
         });
-
-        console.log('Connected to database successfully.'); // Corrected log message
     } catch (error) { // Added error parameter
         console.error('Error connecting to database:', error); // Corrected log message and added error parameter
     }

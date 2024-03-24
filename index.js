@@ -1,4 +1,13 @@
 $(document).ready(function () {
+    $('.content-section').hide();
+    $('#create_customers').show();
+
+    $('.nav-menu-item').click(function (e) {
+        e.preventDefault();
+        const sectionToShow = $(this).attr('href');
+        $('.content-section').hide();
+        $(sectionToShow).show();
+    });
     // Function to update the height of the main menu based on window size
     function updateMenuHeight() {
         var windowHeight = $(window).height();
