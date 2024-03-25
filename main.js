@@ -11,11 +11,11 @@ function createWindow() {
         height: 600,
         webPreferences: {
             nodeIntegration: true,
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, 'Backend/preload.js')
         }
     });
 
-    win.loadFile('index.html');
+    win.loadFile('public/index.html');
 }
 
 app.whenReady().then(() => {
@@ -37,10 +37,10 @@ app.on('window-all-closed', () => {
 async function connectToDB() { // Corrected function name and async keyword
     try {
         connection = await mysql.createConnection({ // Assign connection to the global variable
-            host: 'localhost',
-            user: 'root',
-            password: 'parthYM8',
-            database: 'invoicedb'
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_DATABASE
         });
     } catch (error) { // Added error parameter
         console.error('Error connecting to database:', error); // Corrected log message and added error parameter
@@ -63,7 +63,7 @@ ipcMain.on('createCustomer', (event, data) => {
     })
 });
 
-ipcMain.handle('fetchData', async () => {
+ipcMain.handle('fetchData', async (event) => {
     try {
         const [rows] = await connection.execute('SELECT * FROM customers');
         return rows;

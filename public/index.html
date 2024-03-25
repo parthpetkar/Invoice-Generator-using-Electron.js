@@ -7,62 +7,44 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="index.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="index.js"></script>
-    <script src="invoices.js"></script>
-    <script src="customer.js"></script>
+    <script src="./index.js"></script>
+    <script src="../Backend/invoices.js"></script>
+    <script src="../Backend/customer.js"></script>
 </head>
 
 <body>
     <div>
         <nav class="main-menu" id="mainMenu">
-            <ul>
-                <li>
-                    <a href="#invoices">
-                        <img src="Assets/file-invoice-solid.svg" alt="Invoices Icon" class="nav-icon">
-                        <span class="nav-text">Invoices</span>
-                    </a>
-                    <ul class="submenu">
-                        <li>
-                            <a href="#create_invoices" class="nav-menu-item">
-                                <img src="Assets/plus-solid.svg" alt="Create Invoice Icon" class="nav-icon">
-                                <span class="nav-text">Create Invoices</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#manage_invoices" class="nav-menu-item">
-                                <img src="Assets/file-invoice-solid.svg" alt="Manage Invoice Icon" class="nav-icon">
-                                <span class="nav-text">Manage Invoices</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-    
-                <li>
-                    <a href="#customers">
-                        <img src="Assets/users-solid.svg" alt="Customers Icon" class="nav-icon">
-                        <span class="nav-text">Customers</span>
-                    </a>
-                    <ul class="submenu">
-                        <li>
-                            <a href="#create_customers" class="nav-menu-item">
-                                <img src="Assets/plus-solid.svg" alt="Create Customer Icon" class="nav-icon">
-                                <span class="nav-text">Create Customer</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#manage_customers" class="nav-menu-item">
-                                <img src="Assets/users-solid.svg" alt="Manage Customer Icon" class="nav-icon">
-                                <span class="nav-text">Manage Customers</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#settings" class="nav-menu-item">
-                        <img src="Assets/sliders-solid.svg" alt="Settings Icon" class="nav-icon">
-                        <span class="nav-text">Settings</span>
-                    </a>
-                </li>
+            <li>
+                <a href="#create_invoices" class="nav-menu-item">
+                    <img src="../Assets/plus-solid.svg" alt="Create Invoice Icon" class="nav-icon">
+                    <span class="nav-text">Create Invoices</span>
+                </a>
+            </li>
+            <li>
+                <a href="#manage_invoices" class="nav-menu-item">
+                    <img src="../Assets/file-invoice-solid.svg" alt="Manage Invoice Icon" class="nav-icon">
+                    <span class="nav-text">Manage Invoices</span>
+                </a>
+            </li>
+            <li>
+                <a href="#create_customers" class="nav-menu-item">
+                    <img src="../Assets/plus-solid.svg" alt="Create Customer Icon" class="nav-icon">
+                    <span class="nav-text">Create Customer</span>
+                </a>
+            </li>
+            <li>
+                <a href="#manage_customers" class="nav-menu-item">
+                    <img src="../Assets/users-solid.svg" alt="Manage Customer Icon" class="nav-icon">
+                    <span class="nav-text">Manage Customers</span>
+                </a>
+            </li>
+            <li>
+                <a href="#settings" class="nav-menu-item">
+                    <img src="../Assets/sliders-solid.svg" alt="Settings Icon" class="nav-icon">
+                    <span class="nav-text">Settings</span>
+                </a>
+            </li>
             </ul>
         </nav>
     </div>
@@ -142,11 +124,11 @@
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
-                </thead>
-                <tbody>
-                </tbody>
-                </table>
-                <div class="pagination">
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <div class="pagination">
             <button id="prevInvoiceBtn">Previous</button>
             <button id="nextInvoiceBtn">Next</button>
         </div>
@@ -158,23 +140,23 @@
                 <div class="form-group">
                     <label for="companyName">Company Name</label>
                     <input type="text" id="customer_company_name" name="companyName" required>
-                    </div>
-                    <div class="form-group">
+                </div>
+                <div class="form-group">
                     <label for="address">Address</label>
                     <input type="text" id="customer_address" name="address" required>
-                    </div>
-                    <div class="form-group">
+                </div>
+                <div class="form-group">
                     <label for="phone">Phone</label>
                     <input type="text" id="customer_phone" name="phone" required>
-                    </div>
-                    <div class="form-group">
+                </div>
+                <div class="form-group">
                     <label for="gstin">GSTIN</label>
                     <input type="text" id="customer_gstin" name="gstin" required>
-                    </div>
-                    <div class="form-group">
+                </div>
+                <div class="form-group">
                     <label for="pan">PAN</label>
                     <input type="text" id="customer_pan" name="pan" required>
-                    </div>
+                </div>
                 <div class="form-group">
                     <label for="cin">CIN</label>
                     <input type="text" id="customer_cin" name="cin" required>
@@ -184,7 +166,7 @@
                     <input type="text" id="customer_poNo" name="poNo" required>
                 </div>
                 <button type="submit" id="save_customer">Submit</button>
-                </form>
+            </form>
         </div>
     </section>
     <section id="manage_customers" class="content-section">
@@ -200,12 +182,12 @@
                     <th>PAN NO</th>
                     <th>CIN</th>
                     <th>PO NO</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                    </table>
-                    <div class="pagination">
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <div class="pagination">
             <button id="prevCustomerBtn">Previous</button>
             <button id="nextCustomerBtn">Next</button>
         </div>

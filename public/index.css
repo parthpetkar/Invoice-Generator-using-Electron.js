@@ -1,4 +1,5 @@
 @import url(https://fonts.googleapis.com/css?family=Titillium+Web:300);
+
 /*Main*/
 /* sidebar */
 .main-menu:hover,
@@ -50,7 +51,7 @@ nav.main-menu.expanded {
     position: relative;
     display: table-cell;
     width: 60px;
-    height: 30px;
+    height: 23px;
     text-align: center;
     vertical-align: middle;
     padding-bottom: 10px;
@@ -119,6 +120,7 @@ nav.main-menu li.active>a,
     font-weight: 300;
     src: local('Titillium WebLight'), local('TitilliumWeb-Light'), url(http://themes.googleusercontent.com/static/fonts/titilliumweb/v2/anMUvcNT0H1YN4FII8wpr24bNCNEoFTpS2BTjF6FB5E.woff) format('woff');
 }
+
 /*content section*/
 .content-section {
     background-color: #f9f9f9;
@@ -155,6 +157,7 @@ h2 {
         transform: translateY(0);
     }
 }
+
 .form-group {
     margin-bottom: 20px;
 }
@@ -178,13 +181,14 @@ h2 {
     color: #fff;
     border: none;
     border-radius: 5px;
-        cursor: pointer;
+    cursor: pointer;
     transition: background-color 0.3s;
 }
 
 .form-group button:hover {
     background-color: #0056b3;
 }
+
 /* Manage Customers*/
 #searchInput {
     width: 100%;
@@ -236,7 +240,7 @@ tr:nth-child(even) {
 .pagination button:disabled {
     background-color: #ddd;
     color: #666;
-        cursor: not-allowed;
+    cursor: not-allowed;
 }
 
 
@@ -273,21 +277,28 @@ h1 {
 
 .invoice-items {
     margin-bottom: 20px;
-    overflow-x: auto; /* Add horizontal scroll if needed */
+    overflow-x: auto;
+    /* Add horizontal scroll if needed */
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* Force table to use full width */
+    table-layout: fixed;
+    /* Force table to use full width */
 }
 
-th, td {
+th,
+td {
     border: 1px solid #ccc;
-    padding: 12px; /* Increase padding for better spacing */
-    white-space: nowrap; /* Prevent text wrapping */
-    overflow: hidden; /* Hide overflowing content */
-    text-overflow: ellipsis; /* Display ellipsis for overflow */
+    padding: 12px;
+    /* Increase padding for better spacing */
+    white-space: nowrap;
+    /* Prevent text wrapping */
+    overflow: hidden;
+    /* Hide overflowing content */
+    text-overflow: ellipsis;
+    /* Display ellipsis for overflow */
 }
 
 th {
@@ -295,7 +306,8 @@ th {
 }
 
 button {
-    padding: 12px 24px; /* Increase padding for better spacing */
+    padding: 12px 24px;
+    /* Increase padding for better spacing */
     background-color: #007bff;
     color: #fff;
     border: none;
@@ -397,4 +409,3 @@ button:hover {
 #tax_type {
     display: none;
 }
-
