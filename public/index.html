@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../CSS/main_menu.css">
     <link rel="stylesheet" href="../CSS/create_customer.css">
     <link rel="stylesheet" href="../CSS/create_invoice.css">
-    <link rel="stylesheet" href="../CSS/manage_customers.css">
+    <link rel="stylesheet" href="../CSS/milestones.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="./index.js"></script>
     <script src="../Backend/invoices.js"></script>
@@ -26,21 +26,15 @@
                 </a>
             </li>
             <li>
-                <a href="#manage_invoices" class="nav-menu-item">
-                    <img src="../Assets/file-invoice-solid.svg" alt="Manage Invoice Icon" class="nav-icon">
-                    <span class="nav-text">Manage Invoices</span>
-                </a>
-            </li>
-            <li>
                 <a href="#create_customers" class="nav-menu-item">
                     <img src="../Assets/plus-solid.svg" alt="Create Customer Icon" class="nav-icon">
                     <span class="nav-text">Create Customer</span>
                 </a>
             </li>
             <li>
-                <a href="#manage_customers" class="nav-menu-item">
-                    <img src="../Assets/users-solid.svg" alt="Manage Customer Icon" class="nav-icon">
-                    <span class="nav-text">Manage Customers</span>
+                <a href="#milestones" class="nav-menu-item">
+                    <img src="../Assets/users-solid.svg" alt="Milestone Icon" class="nav-icon">
+                    <span class="nav-text">Milestones</span>
                 </a>
             </li>
             <li>
@@ -50,8 +44,8 @@
                 </a>
             </li>
         </ul>
-        </nav>
-    
+    </nav>
+
     <section id="create_invoices" class="content-section">
         <div class="form-container">
             <form>
@@ -115,26 +109,6 @@
             </form>
         </div>
     </section>
-    <section id="manage_invoices" class="content-section">
-        <table id="InvoiceDataTable">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Name</th>
-                    <th>Date</th>
-                    <th>Due</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-        <div class="pagination">
-            <button id="prevInvoiceBtn">Previous</button>
-            <button id="nextInvoiceBtn">Next</button>
-        </div>
-    </section>
     <section id="create_customers" class="content-section">
         <div class="form-container">
             <form id="myForm">
@@ -170,51 +144,29 @@
             </form>
         </div>
     </section>
-    <section id="manage_customers" class="content-section">
-        <table id="CustomerDataTable">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Company</th>
-                    <th>Address</th>
-                    <th>PhoneNo</th>
-                    <th>GSTIN</th>
-                    <th>PAN NO</th>
-                    <th>CIN</th>
-                    <th>PO NO</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-        <div class="pagination">
-            <button id="prevCustomerBtn">Previous</button>
-            <button id="nextCustomerBtn">Next</button>
-        </div>
-    </section>
-    <section id="settings" class="content-section">
-        <div class="frame">
-            <div class="box">
-                <h2 style="margin-top: 0;">ABC Company</h2>
-                <h3 class="show-details">Company Details</h3>
+    <section id="milestones" class="content-section">
+        <div class="box">
+            <h2 style="margin-top: 0;">ABC Company</h2>
+            <h3 class="show-details">Company Details</h3>
+            <div class="milestone-details">
+                <p><strong>Address:</strong> 123 Main Street, City, Country</p>
+                <p><strong>Phone:</strong> +1234567890</p>
+                <p><strong>GSTIN:</strong> XXXXXXXXXX</p>
+                <p><strong>PAN:</strong> XXXXXXXXXX</p>
+                <p><strong>CIN:</strong> XXXXXXXXXX</p>
+                <p><strong>Purchase Order No:</strong> XXXXXXXXXX</p>
+            </div>
+            <div class="milestone">
+                <h3 class="show-details">Milestone Details</h3>
                 <div class="milestone-details">
-                    <p><strong>Address:</strong> 123 Main Street, City, Country</p>
-                    <p><strong>Phone:</strong> +1234567890</p>
-                    <p><strong>GSTIN:</strong> XXXXXXXXXX</p>
-                    <p><strong>PAN:</strong> XXXXXXXXXX</p>
-                    <p><strong>CIN:</strong> XXXXXXXXXX</p>
-                    <p><strong>Purchase Order No:</strong> XXXXXXXXXX</p>
-                </div>
-                <div class="milestone">
-                    <h3 class="show-details">Milestone Details</h3>
-                    <div class="milestone-details">
-                        <p><strong>Description:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                        <p><strong>Total Amount:</strong> $1000</p>
-                        <p><strong>GST Amount:</strong> $100</p>
-                    </div>
+                    <p><strong>Description:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    <p><strong>Total Amount:</strong> $1000</p>
+                    <p><strong>GST Amount:</strong> $100</p>
                 </div>
             </div>
         </div>
+    </section>
+    <section id="settings" class="content-section">
     </section>
 </body>
 

@@ -1,6 +1,6 @@
 $(document).ready(function () {
     $('.content-section').hide();
-    $('#create_customers').show();
+    $('#milestones').show();
 
     $('.nav-menu-item').click(function (e) {
         e.preventDefault();
@@ -12,6 +12,10 @@ $(document).ready(function () {
     $('.menu-toggle').click(function (e) {
         e.stopPropagation(); // Prevent event bubbling
         $('#mainMenu').toggleClass('expanded');
+        if ($(window).width() <= 875) {
+            $('.main-menu').toggleClass('clicked'); // Toggle the class for background color
+            $('.menu-toggle').toggleClass('clicked'); // Toggle the class for background color
+        }
     });
 
     // Close menu when clicking outside

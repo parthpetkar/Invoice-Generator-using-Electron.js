@@ -2,6 +2,9 @@
     text-align: center;
 }
 
+.main-menu.clicked {
+    background-color: #000;
+}
 .menu-items {
     list-style: none;
     padding: 0;
@@ -38,8 +41,13 @@
 
 .menu-toggle {
     display: none;
+    background-color: #000;
 }
 
+.menu-toggle.clicked {
+    background-color: grey;
+    color: white;
+}
 /* Media query to show/hide menu based on screen width */
 @media screen and (max-width: 875px) {
     .menu-items {
