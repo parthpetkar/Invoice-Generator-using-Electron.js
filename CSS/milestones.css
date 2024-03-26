@@ -8,6 +8,9 @@
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
+.company_name {
+    margin-top: 0;
+}
 .milestone {
     margin-top: 20px;
 }
@@ -32,5 +35,5 @@
 }
 
 .show-details:hover {
-    color: #0056b3;
+    color: #014286;
 }
