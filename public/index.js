@@ -9,12 +9,19 @@ $(document).ready(function () {
         $(sectionToShow).show();
     });
     // Function to update the height of the main menu based on window size
-    function updateMenuHeight() {
-        var windowHeight = $(window).height();
-        $('#mainMenu').height(windowHeight);
-    }
+    $('.menu-toggle').click(function (e) {
+        e.stopPropagation(); // Prevent event bubbling
+        $('#mainMenu').toggleClass('expanded');
+    });
 
-    // Call the function initially and whenever the window is resized
-    updateMenuHeight();
-    $(window).resize(updateMenuHeight);
+    // Close menu when clicking outside
+    $(document).click(function (e) {
+        if (!$(e.target).closest('.main-menu').length) {
+            $('#mainMenu').removeClass('expanded');
+        }
+    });
+
+    $('.show-details').click(function () {
+        $(this).next('.milestone-details').slideToggle(300);
+    });
 });
