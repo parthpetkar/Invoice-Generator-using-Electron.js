@@ -1,6 +1,6 @@
 $(document).ready(async () => { //it waits for html to load
 
-    $('#save_customer').click(function () {
+    $('#save_customer').click(async () => {
         var company_name = $('#customer_company_name').val();
         var address = $('#customer_address').val();
         var phone = $('#customer_phone').val();
@@ -9,7 +9,7 @@ $(document).ready(async () => { //it waits for html to load
         var cin = $('#customer_cin').val();
         var poNo = $('#customer_poNo').val();
 
-        window.electron.send('createCustomer', { company_name: company_name, address: address, phone: phone, gstin: gstin, pan: pan, cin: cin, poNo: poNo });
+        await window.electron.send('createCustomer', { company_name: company_name, address: address, phone: phone, gstin: gstin, pan: pan, cin: cin, poNo: poNo });
     });
 
     try {
@@ -38,5 +38,53 @@ $(document).ready(async () => { //it waits for html to load
         });
     } catch (error) {
         console.log(error);
+    }
+
+    try {
+        $('#milestone_table').hide();
+        $('#customer_form').show();
+
+        $('#save_customer').click(async (e) => {
+            e.preventDefault();
+            $('#milestone_table').show();
+            $('#customer_form').hide();
+        });
+        $('#back_btn').click(async (e) => {
+            e.preventDefault();
+            $('#milestone_table').hide();
+            $('#customer_form').show();
+        });
+        const tax = $('#taxes_select').val();
+        console.log(tax === "True")
+        // if (tax === true) {
+        //     $('#tax_type_label').show(   );
+        //     $('#tax_type_select').show();
+        // }
+
+        $('#taxes_select').change(function () {
+            const tax = $(this).val();
+            console.log(tax === "True")
+            if (tax === "True") {
+                $('#tax_type').show();
+            } else {
+                $('#tax_type').hide();
+            }
+        });
+        console.log(tax_type)
+        // const table = $("#dataTable");
+
+        // $("#addRowBtn").click(function () {
+        //     // Create a new row
+        //     const newRow = $("<tr>");
+        //     // Add cells to the new row
+        //     for (let i = 0; i < 3; i++) {
+        //         const cell = $("<td>").text("New Data");
+        //         newRow.append(cell);
+        //     }
+        //     // Append the new row to the table
+        //     table.append(newRow);
+        // });
+    } catch (error) {
+
     }
 });

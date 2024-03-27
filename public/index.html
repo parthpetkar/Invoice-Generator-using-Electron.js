@@ -89,28 +89,12 @@
 
                 <label for="subtotal">Subtotal:</label><br>
                 <input type="text" id="subtotal" name="subtotal" readonly><br><br>
-
-                <label for="taxes">Taxes:</label><br>
-                <select id="taxes" name="taxes">
-                    <option value="no">No</option>
-                    <option value="yes">Yes</option>
-                </select><br><br>
-
-                <div id="tax_type">
-                    <label for="type_of_taxes">Type of Taxes:</label><br>
-                    <select id="type_of_taxes" name="type_of_taxes">
-                        <option value="CGST">CGST</option>
-                        <option value="IGST">IGST</option>
-                        <option value="SGST">SGST</option>
-                    </select><br><br>
-                </div>
-
                 <button type="submit" id="save_invoice">Create Invoice</button>
             </form>
         </div>
     </section>
     <section id="create_customers" class="content-section">
-        <div class="form-container">
+        <div class="form-container" id="customer_form">
             <form id="myForm">
                 <div class="form-group">
                     <label for="companyName">Company Name</label>
@@ -121,8 +105,8 @@
                     <input type="text" id="customer_address" name="address" placeholder="Address" required>
                 </div>
                 <div class="form-group">
-                    <label for="phone">Address</label>
-                    <input type="text" id="customer_phone" name="phone" placeholder="Address" required>
+                    <label for="phone">Phone</label>
+                    <input type="text" id="customer_phone" name="phone" placeholder="Phone" required>
                 </div>
                 <div class="form-group">
                     <label for="gstin">Gst Identification Number</label>
@@ -142,6 +126,42 @@
                 </div>
                 <button type="submit" id="save_customer">Create Customer</button>
             </form>
+        </div>
+        <div id="milestone_table">
+            <!-- Next page with the table -->
+            <div class="form-group">
+                <label for="poNo">Total Price</label>
+                <input type="text" id="total_price" name="total_price" placeholder="Total Price" required>
+            </div>
+            <div id="tax">
+                <label for="taxes_label">Taxes:</label><br>
+                <select id="taxes_select" name="taxes">
+                    <option value="False">No</option>
+                    <option value="True">Yes</option>
+                </select>
+            </div>
+            <div id="tax_type">
+                <label id="tax_type_label">Tax Options</label><br>
+                <select id="tax_type_select" multiple>
+                    <option value="CGST">IGST</option>
+                    <option value="IGST">SGST</option>
+                    <option value="SGST">CGST</option>
+                </select>
+            </div>
+            <button id="back_btn">Back</button>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Column 1</th>
+                        <th>Column 2</th>
+                        <th>Column 3</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data rows will be added dynamically -->
+                </tbody>
+            </table>
+            <button id="addRowBtn">Add Row</button>
         </div>
     </section>
     <section id="milestones" class="content-section">
