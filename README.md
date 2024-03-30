@@ -96,4 +96,4 @@ We welcome contributions from the community! To contribute to this project, plea
 This project is licensed under the [MIT License](LICENSE).
 
 ## Security
-🔒 If you discover any security-related issues, please email [security@example.com](parth.petkar221@vit.edu) instead of using the issue tracker.
+🔒 If you discover any security-related issues, please email [parth.petkar221@vit.edu](parth.petkar221@vit.edu) instead of using the issue tracker.
