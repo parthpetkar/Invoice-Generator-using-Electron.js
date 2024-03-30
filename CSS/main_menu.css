@@ -45,8 +45,9 @@
 }
 
 .menu-toggle.clicked {
-    background-color: grey;
+    background-color: black;
     color: white;
+    font-weight: bold;
 }
 /* Media query to show/hide menu based on screen width */
 @media screen and (max-width: 875px) {
@@ -56,7 +57,6 @@
 
     .main-menu.expanded .menu-items {
         display: block;
-
     }
 
     .menu-toggle {

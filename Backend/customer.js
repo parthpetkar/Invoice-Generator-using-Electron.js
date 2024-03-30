@@ -1,16 +1,16 @@
 $(document).ready(async () => { //it waits for html to load
 
-    $('#save_customer').click(async () => {
-        var company_name = $('#customer_company_name').val();
-        var address = $('#customer_address').val();
-        var phone = $('#customer_phone').val();
-        var gstin = $('#customer_gstin').val();
-        var pan = $('#customer_pan').val();
-        var cin = $('#customer_cin').val();
-        var poNo = $('#customer_poNo').val();
+    // $('#save_customer').click(async () => {
+    //     var company_name = $('#customer_company_name').val();
+    //     var address = $('#customer_address').val();
+    //     var phone = $('#customer_phone').val();
+    //     var gstin = $('#customer_gstin').val();
+    //     var pan = $('#customer_pan').val();
+    //     var cin = $('#customer_cin').val();
+    //     var poNo = $('#customer_poNo').val();
 
-        await window.electron.send('createCustomer', { company_name: company_name, address: address, phone: phone, gstin: gstin, pan: pan, cin: cin, poNo: poNo });
-    });
+    //     await window.electron.send('createCustomer', { company_name: company_name, address: address, phone: phone, gstin: gstin, pan: pan, cin: cin, poNo: poNo });
+    // });
 
     try {
         const data = await window.electron.invoke('fetchData');
@@ -54,12 +54,18 @@ $(document).ready(async () => { //it waits for html to load
             $('#milestone_table').hide();
             $('#customer_form').show();
         });
+
+        $("#total_price").change(function () {
+            var total_price = $(this).val();
+            console.log(total_price); // Ensure a valid number, default to 0 if not
+        });
+
         const tax = $('#taxes_select').val();
+        const tax_options = $('#tax_type_select').val();
         console.log(tax === "True")
-        // if (tax === true) {
-        //     $('#tax_type_label').show(   );
-        //     $('#tax_type_select').show();
-        // }
+        if (tax === true) {
+            $('#tax_type').show();
+        }
 
         $('#taxes_select').change(function () {
             const tax = $(this).val();
@@ -70,20 +76,44 @@ $(document).ready(async () => { //it waits for html to load
                 $('#tax_type').hide();
             }
         });
+        $('#tax_type_select').change(function () {
+            const tax_options = $(this).val();
+        })
         console.log(tax_type)
-        // const table = $("#dataTable");
+        const table = $("#dataTable");
 
-        // $("#addRowBtn").click(function () {
-        //     // Create a new row
-        //     const newRow = $("<tr>");
-        //     // Add cells to the new row
-        //     for (let i = 0; i < 3; i++) {
-        //         const cell = $("<td>").text("New Data");
-        //         newRow.append(cell);
-        //     }
-        //     // Append the new row to the table
-        //     table.append(newRow);
-        // });
+        $("#addRowBtn").click(function () {
+            // Create a new row
+            const newRow = $("<tr>");
+
+            // Add cells to the new row
+            const milestoneCell = $("<td>").text("Milestone Name");
+            const claimPercentageCell = $("<td>").text("Claim Percentage");
+            const amountCell = $("<td>").text("Amount").prop("disabled", true); // Initially disabled
+
+            // Make cells mutable
+            milestoneCell.attr("contenteditable", true);
+            claimPercentageCell.attr("contenteditable", true);
+
+            // Event listener for claimPercentageCell changes
+            claimPercentageCell.on("input", function () {
+                const claimPercentage = parseFloat($(this).text());
+                console.log(claimPercentage)
+                if (!isNaN(claimPercentage)) { // If claim percentage is a valid number
+                    const amount = claimPercentage * total_price;
+                    console.log(amount)
+                    amountCell.text(amount.toFixed(2)).prop("disabled", false); // Enable and display amount
+                } else {
+                    amountCell.text("Amount").prop("disabled", true); // Disable amount if claim percentage is not valid
+                }
+            });
+
+            newRow.append(milestoneCell, claimPercentageCell, amountCell);
+
+            // Append the new row to the table
+            $("#dataTable tbody").append(newRow);
+        });
+
     } catch (error) {
 
     }

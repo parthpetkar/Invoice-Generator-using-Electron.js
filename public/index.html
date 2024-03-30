@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../CSS/create_customer.css">
     <link rel="stylesheet" href="../CSS/create_invoice.css">
     <link rel="stylesheet" href="../CSS/milestones.css">
+    <link rel="stylesheet" href="../CSS/milestone_addition.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="./index.js"></script>
     <script src="../Backend/invoices.js"></script>
@@ -129,9 +130,10 @@
         </div>
         <div id="milestone_table">
             <!-- Next page with the table -->
+            <button id="back_btn">Back</button>
             <div class="form-group">
-                <label for="poNo">Total Price</label>
-                <input type="text" id="total_price" name="total_price" placeholder="Total Price" required>
+                <label>Total Price</label>
+                <input type="text" contenteditable="true" id="total_price" placeholder="Total Price" required>
             </div>
             <div id="tax">
                 <label for="taxes_label">Taxes:</label><br>
@@ -148,7 +150,6 @@
                     <option value="SGST">CGST</option>
                 </select>
             </div>
-            <button id="back_btn">Back</button>
             <table id="dataTable">
                 <thead>
                     <tr>
