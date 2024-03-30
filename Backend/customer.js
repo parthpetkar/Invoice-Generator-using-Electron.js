@@ -1,5 +1,6 @@
 $(document).ready(async () => { //it waits for html to load
     var total_price = 0;
+    var poNo;
     $('#save_customer').click(async () => {
         var company_name = $('#customer_company_name').val();
         var address = $('#customer_address').val();
@@ -7,7 +8,7 @@ $(document).ready(async () => { //it waits for html to load
         var gstin = $('#customer_gstin').val();
         var pan = $('#customer_pan').val();
         var cin = $('#customer_cin').val();
-        var poNo = $('#customer_poNo').val();
+        poNo = $('#customer_poNo').val();
         total_price = parseInt($('#total_price').val());
         await window.electron.send('createCustomer', { company_name: company_name, address: address, phone: phone, gstin: gstin, pan: pan, cin: cin, poNo: poNo, total_price: total_price });
     });
@@ -152,7 +153,15 @@ $(document).ready(async () => { //it waits for html to load
             // Append the new row to the table
             $("#dataTable tbody").append(newRow);
 
-            // Check claim percentage and toggle addRowBtn
+        });
+
+        $("#SaveMilestones").click(async () => {
+            try {
+                await window.electron.send('insertmilestone', { rowDataArray, poNo });
+            } catch (error) {
+                console.log(error)
+            }
+
         });
 
     } catch (error) {

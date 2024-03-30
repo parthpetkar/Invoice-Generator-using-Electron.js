@@ -72,6 +72,33 @@ ipcMain.handle('fetchData', async (event) => {
     }
 });
 
+ipcMain.on('insertmilestone', (event, data) => {
+    const { rowDataArray, poNo } = data;
+    console.log(rowDataArray, poNo);
+
+
+
+    // Use a counter to track the number of successful inserts
+    let successfulInserts = 0;
+
+    rowDataArray.forEach(function (rowData) {
+        console.log(rowData.milestone, rowData.claimPercentage, rowData.amount);
+        connection.query('INSERT INTO milestones (pono, milestonename, claim_percent, amount) VALUES (?, ?, ?, ?)', [poNo, rowData.milestone, rowData.claimPercentage, rowData.amount], function (error) {
+            if (error) {
+                console.error(error);
+                event.reply('saveToDatabaseResult', { success: false, error: error.message });
+            } else {
+                console.log('Data saved successfully');
+                successfulInserts++;
+                if (successfulInserts === rowDataArray.length) {
+                    // Reply with success message once all inserts are done
+                    event.reply('saveToDatabaseResult', { success: true });
+                }
+            }
+        });
+    });
+});
+
 // Close database connection when app is quit
 app.on('quit', () => {
     if (connection) { // Check if connection exists before trying to end it
