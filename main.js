@@ -51,8 +51,8 @@ async function connectToDB() { // Corrected function name and async keyword
 app.whenReady().then(connectToDB);
 
 ipcMain.on('createCustomer', (event, data) => {
-    const { company_name, address, phone, gstin, pan, cin, poNo } = data;
-    connection.query('INSERT INTO customers (company_name, address, phone, gstin, pan, cin, pono) VALUES (?, ?, ?, ?, ?, ?, ?)', [company_name, address, phone, gstin, pan, cin, poNo], function (error) {
+    const { company_name, address, phone, gstin, pan, cin, poNo, total_price } = data;
+    connection.query('INSERT INTO customers (company_name, address, phone, gstin, pan, cin, pono, total_price) VALUES (?, ?, ?, ?, ?, ?, ?,?)', [company_name, address, phone, gstin, pan, cin, poNo, total_price], function (error) {
         if (error) {
             console.error(error);
             event.reply('saveToDatabaseResult', { success: false, error: error.message });

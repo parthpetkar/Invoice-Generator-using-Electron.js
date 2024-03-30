@@ -1,16 +1,17 @@
 $(document).ready(async () => { //it waits for html to load
 
-    // $('#save_customer').click(async () => {
-    //     var company_name = $('#customer_company_name').val();
-    //     var address = $('#customer_address').val();
-    //     var phone = $('#customer_phone').val();
-    //     var gstin = $('#customer_gstin').val();
-    //     var pan = $('#customer_pan').val();
-    //     var cin = $('#customer_cin').val();
-    //     var poNo = $('#customer_poNo').val();
-
-    //     await window.electron.send('createCustomer', { company_name: company_name, address: address, phone: phone, gstin: gstin, pan: pan, cin: cin, poNo: poNo });
-    // });
+    $('#save_customer').click(async () => {
+        var company_name = $('#customer_company_name').val();
+        var address = $('#customer_address').val();
+        var phone = $('#customer_phone').val();
+        var gstin = $('#customer_gstin').val();
+        var pan = $('#customer_pan').val();
+        var cin = $('#customer_cin').val();
+        var poNo = $('#customer_poNo').val();
+        var total_price = parseInt($('#total_price').val())
+        console.log(total_price)
+        await window.electron.send('createCustomer', { company_name: company_name, address: address, phone: phone, gstin: gstin, pan: pan, cin: cin, poNo: poNo, total_price: total_price });
+    });
 
     try {
         const data = await window.electron.invoke('fetchData');
@@ -28,6 +29,7 @@ $(document).ready(async () => { //it waits for html to load
             $('<p>').html(`<strong>PAN:</strong> <span id="client_pan">${customerData.pan}</span>`).appendTo($milestoneDetails);
             $('<p>').html(`<strong>Corporate Identification Number (CIN):</strong> <span id="client_cin">${customerData.cin}</span>`).appendTo($milestoneDetails);
             $('<p>').html(`<strong>Purchase Order Number (PAN):</strong> <span id="client_poNo">${customerData.pono}</span>`).appendTo($milestoneDetails);
+            $('<p>').html(`<strong>Total Price (Without GST):</strong> <span id="total_price">${customerData.total_price}</span>`).appendTo($milestoneDetails);
 
             $clientBox.append($milestoneDetails);
             $('#clientDataContainer').append($clientBox);
@@ -55,10 +57,6 @@ $(document).ready(async () => { //it waits for html to load
             $('#customer_form').show();
         });
 
-        $("#total_price").change(function () {
-            var total_price = $(this).val();
-            console.log(total_price); // Ensure a valid number, default to 0 if not
-        });
 
         const tax = $('#taxes_select').val();
         const tax_options = $('#tax_type_select').val();

@@ -125,16 +125,16 @@
                     <label for="poNo">Purchase Order Number</label>
                     <input type="text" id="customer_poNo" name="poNo" placeholder="Purchase Order Number" required>
                 </div>
+                <div class="form-group">
+                    <label>Total Price</label>
+                    <input type="number" id="total_price" placeholder="Total Price" required>
+                </div>
                 <button type="submit" id="save_customer">Create Customer</button>
             </form>
         </div>
         <div id="milestone_table">
             <!-- Next page with the table -->
             <button id="back_btn">Back</button>
-            <div class="form-group">
-                <label>Total Price</label>
-                <input type="text" contenteditable="true" id="total_price" placeholder="Total Price" required>
-            </div>
             <div id="tax">
                 <label for="taxes_label">Taxes:</label><br>
                 <select id="taxes_select" name="taxes">
