@@ -77,14 +77,60 @@ $(document).ready(async () => { //it waits for html to load
         console.log(tax_type)
         const table = $("#dataTable");
 
+
+        let rowDataArray = [];
+
+        // Function to check if claim percentage exceeds 100%
+        function calculateTotalClaimPercentage() {
+            let totalClaimPercentage = 0;
+            rowDataArray.forEach(function (rowData) {
+                totalClaimPercentage += rowData.claimPercentage;
+                console.log(totalClaimPercentage)
+            });
+            return totalClaimPercentage;
+        }
+
+        // Function to toggle addRowBtn based on total claim percentage
+        function toggleAddRowButton() {
+            const totalClaimPercentage = calculateTotalClaimPercentage();
+            if (totalClaimPercentage === 100) {
+                $("#addRowBtn").prop("disabled", true);
+            } else {
+                $("#addRowBtn").prop("disabled", false);
+            }
+        }
+
+        // Event listener for Save button click
+        $("#dataTable").on("click", ".saveBtn", function () {
+            const row = $(this).closest("tr"); // Get the closest row to the clicked button
+
+            // Get milestone name, claim percentage, and amount from the row
+            const milestone = row.find(".milestoneCell").text();
+            const claimPercentage = parseFloat(row.find(".claimPercentageCell").text());
+            const amount = parseFloat(row.find(".amountCell").text());
+
+            // Create an object representing row data
+            const rowData = {
+                milestone: milestone,
+                claimPercentage: claimPercentage,
+                amount: amount.toFixed(2)
+            };
+
+            // Push the row data object into the array
+            rowDataArray.push(rowData);
+            toggleAddRowButton();
+            console.log(rowDataArray)
+        });
+
         $("#addRowBtn").click(function () {
             // Create a new row
             const newRow = $("<tr>");
 
             // Add cells to the new row
-            const milestoneCell = $("<td>").text("Milestone Name");
-            const claimPercentageCell = $("<td>").text("Claim Percentage");
-            const amountCell = $("<td>").text("Amount").prop("disabled", true); // Initially disabled
+            const milestoneCell = $("<td>").addClass("milestoneCell").text("Milestone Name");
+            const claimPercentageCell = $("<td>").addClass("claimPercentageCell").text("Claim Percentage");
+            const amountCell = $("<td>").addClass("amountCell").text("Amount").prop("disabled", true); // Initially disabled
+            const saveBtn = $("<button>").addClass("saveBtn").text("Save");
 
             // Make cells mutable
             milestoneCell.attr("contenteditable", true);
@@ -93,20 +139,20 @@ $(document).ready(async () => { //it waits for html to load
             // Event listener for claimPercentageCell changes
             claimPercentageCell.on("input", function () {
                 const claimPercentage = parseFloat($(this).text());
-                console.log(claimPercentage)
                 if (!isNaN(claimPercentage)) { // If claim percentage is a valid number
-                    const amount = claimPercentage * total_price;
-                    console.log(amount)
-                    amountCell.text(amount.toFixed(2)).prop("disabled", false); // Enable and display amount
+                    const amount = claimPercentage * total_price / 100;
+                    amountCell.text(amount.toFixed(2)).prop("disabled", false); // Enable and display amount// Check claim percentage and toggle addRowBtn
                 } else {
                     amountCell.text("Amount").prop("disabled", true); // Disable amount if claim percentage is not valid
                 }
             });
 
-            newRow.append(milestoneCell, claimPercentageCell, amountCell);
+            newRow.append(milestoneCell, claimPercentageCell, amountCell, $("<td>").append(saveBtn));
 
             // Append the new row to the table
             $("#dataTable tbody").append(newRow);
+
+            // Check claim percentage and toggle addRowBtn
         });
 
     } catch (error) {
