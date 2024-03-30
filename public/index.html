@@ -65,26 +65,8 @@
                     <option value="customer2">Customer 2</option>
                     <option value="customer3">Customer 3</option>
                 </select><br><br>
-
-                <label for="total_price">Total Price:</label><br>
-                <input type="text" id="total_price" name="total_price" readonly><br><br>
-
                 <label for="description">Description:</label><br>
                 <textarea id="description" name="description" rows="4" cols="50" required></textarea><br><br>
-
-                <div id="items_container">
-                    <h3>Add Item</h3>
-                    <div class="item">
-                        <label for="milestone">Milestone:</label>
-                        <input type="text" id="milestone" name="milestone[]">
-
-                        <label for="claim_percentage">Claim Percentage:</label>
-                        <input type="text" id="claim_percentage" name="claim_percentage[]">
-
-                        <label for="amount">Amount:</label>
-                        <input type="text" id="amount" name="amount[]">
-                    </div>
-                </div>
 
                 <button type="button" id="add_item">Add Item</button><br><br>
 
@@ -126,8 +108,8 @@
                     <input type="text" id="customer_poNo" name="poNo" placeholder="Purchase Order Number" required>
                 </div>
                 <div class="form-group">
-                    <label>Total Price</label>
-                    <input type="number" id="total_price" placeholder="Total Price" required>
+                    <label for="total_price">Total Price</label>
+                    <input type="text" id="total_price" name="total_price" placeholder="Total Price" required>
                 </div>
                 <button type="submit" id="save_customer">Create Customer</button>
             </form>

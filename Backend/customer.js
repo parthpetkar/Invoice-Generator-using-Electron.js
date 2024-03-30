@@ -1,5 +1,5 @@
 $(document).ready(async () => { //it waits for html to load
-
+    var total_price = 0;
     $('#save_customer').click(async () => {
         var company_name = $('#customer_company_name').val();
         var address = $('#customer_address').val();
@@ -8,8 +8,7 @@ $(document).ready(async () => { //it waits for html to load
         var pan = $('#customer_pan').val();
         var cin = $('#customer_cin').val();
         var poNo = $('#customer_poNo').val();
-        var total_price = parseInt($('#total_price').val())
-        console.log(total_price)
+        total_price = parseInt($('#total_price').val());
         await window.electron.send('createCustomer', { company_name: company_name, address: address, phone: phone, gstin: gstin, pan: pan, cin: cin, poNo: poNo, total_price: total_price });
     });
 
@@ -60,14 +59,12 @@ $(document).ready(async () => { //it waits for html to load
 
         const tax = $('#taxes_select').val();
         const tax_options = $('#tax_type_select').val();
-        console.log(tax === "True")
         if (tax === true) {
             $('#tax_type').show();
         }
 
         $('#taxes_select').change(function () {
             const tax = $(this).val();
-            console.log(tax === "True")
             if (tax === "True") {
                 $('#tax_type').show();
             } else {
