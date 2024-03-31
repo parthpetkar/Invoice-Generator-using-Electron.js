@@ -1,0 +1,47 @@
+#dataTable {
+    font-family: Arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    animation: slideIn 0.5s forwards;
+    margin-bottom: 10px;
+}
+
+#dataTable th,
+#dataTable td {
+    border: 1px solid;
+    padding: 8px;
+    text-align: center;
+}
+
+#dataTable th {
+    background-color: #f2f2f2;
+}
+
+#dataTable tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+#dataTable tbody tr {
+    font-size: small;
+}
+
+#dataTable tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#back_btn {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}

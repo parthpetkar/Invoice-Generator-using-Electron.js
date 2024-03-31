@@ -1,0 +1,69 @@
+.main-menu {
+    text-align: center;
+}
+
+.main-menu.clicked {
+    background-color: #000;
+}
+.menu-items {
+    list-style: none;
+    padding: 0;
+    background-color: #000;
+}
+
+.menu-items li {
+    display: inline-block;
+}
+
+.menu-items li a {
+    display: block;
+    padding: 10px;
+    color: #999;
+    text-decoration: none;
+    transition: all 0.1s linear;
+}
+
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.nav-text {
+    font-family: 'Titillium Web', sans-serif;
+}
+
+.menu-items li:hover a,
+.menu-items li.active a {
+    color: black;
+    background-color: gray;
+}
+
+.menu-toggle {
+    display: none;
+    background-color: #000;
+}
+
+.menu-toggle.clicked {
+    background-color: black;
+    color: white;
+    font-weight: bold;
+}
+/* Media query to show/hide menu based on screen width */
+@media screen and (max-width: 875px) {
+    .menu-items {
+        display: none;
+    }
+
+    .main-menu.expanded .menu-items {
+        display: block;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .main-menu {
+        text-align: left;
+    }
+}

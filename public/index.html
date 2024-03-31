@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="../CSS/main_menu.css">
+    <link rel="stylesheet" href="../CSS/create_customer.css">
+    <link rel="stylesheet" href="../CSS/create_invoice.css">
+    <link rel="stylesheet" href="../CSS/milestones.css">
+    <link rel="stylesheet" href="../CSS/milestone_addition.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="./index.js"></script>
+    <script src="../Backend/invoices.js"></script>
+    <script src="../Backend/customer.js"></script>
+</head>
+
+<body>
+    <nav class="main-menu" id="mainMenu">
+        <button class="menu-toggle">Menu</button>
+        <ul class="menu-items">
+            <li>
+                <a href="#create_invoices" class="nav-menu-item">
+                    <img src="../Assets/file-invoice-solid.svg" alt="Create Invoice Icon" class="nav-icon">
+                    <span class="nav-text">Create Invoices</span>
+                </a>
+            </li>
+            <li>
+                <a href="#create_customers" class="nav-menu-item">
+                    <img src="../Assets/users-solid.svg" alt="Create Customer Icon" class="nav-icon">
+                    <span class="nav-text">Create Customer</span>
+                </a>
+            </li>
+            <li>
+                <a href="#milestones" class="nav-menu-item">
+                    <img src="../Assets/plus-solid.svg" alt="Milestone Icon" class="nav-icon">
+                    <span class="nav-text">Milestones</span>
+                </a>
+            </li>
+            <li>
+                <a href="#settings" class="nav-menu-item">
+                    <img src="../Assets/sliders-solid.svg" alt="Settings Icon" class="nav-icon">
+                    <span class="nav-text">Settings</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <section id="create_invoices" class="content-section">
+        <div class="form-container">
+            <form>
+                <label for="invoice_number">Invoice Number:</label><br>
+                <input type="text" id="invoice_number" name="invoice_number" required><br><br>
+
+                <label for="date">Date:</label><br>
+                <input type="date" id="date" name="date" required><br><br>
+
+                <label for="due_date">Due Date:</label><br>
+                <input type="date" id="due_date" name="due_date" required><br><br>
+
+                <label for="select_customer">Select Customer:</label><br>
+                <select id="select_customer" name="select_customer" required>
+                    <option value="customer1">Customer 1</option>
+                    <option value="customer2">Customer 2</option>
+                    <option value="customer3">Customer 3</option>
+                </select><br><br>
+                <label for="description">Description:</label><br>
+                <textarea id="description" name="description" rows="4" cols="50" required></textarea><br><br>
+
+                <button type="button" id="add_item">Add Item</button><br><br>
+
+                <label for="subtotal">Subtotal:</label><br>
+                <input type="text" id="subtotal" name="subtotal" readonly><br><br>
+                <button type="submit" id="save_invoice">Create Invoice</button>
+            </form>
+        </div>
+    </section>
+    <section id="create_customers" class="content-section">
+        <div class="form-container" id="customer_form">
+            <form id="myForm">
+                <div class="form-group">
+                    <label for="companyName">Company Name</label>
+                    <input type="text" id="customer_company_name" name="companyName" placeholder="Company Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <input type="text" id="customer_address" name="address" placeholder="Address" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="text" id="customer_phone" name="phone" placeholder="Phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="gstin">Gst Identification Number</label>
+                    <input type="text" id="customer_gstin" name="gstin" placeholder="Gst Identification Number" required>
+                </div>
+                <div class="form-group">
+                    <label for="pan">Pan Number</label>
+                    <input type="text" id="customer_pan" name="pan" placeholder="Pan Number" required>
+                </div>
+                <div class="form-group">
+                    <label for="cin">Corporate Identification Number</label>
+                    <input type="text" id="customer_cin" name="cin" placeholder="Corporate Identification Number" required>
+                </div>
+                <div class="form-group">
+                    <label for="poNo">Purchase Order Number</label>
+                    <input type="text" id="customer_poNo" name="poNo" placeholder="Purchase Order Number" required>
+                </div>
+                <div class="form-group">
+                    <label for="total_price">Total Price</label>
+                    <input type="text" id="total_price" name="total_price" placeholder="Total Price" required>
+                </div>
+                <button type="submit" id="save_customer">Create Customer</button>
+            </form>
+        </div>
+        <div id="milestone_table">
+            <!-- Next page with the table -->
+            <button id="back_btn">Back</button>
+            <div id="tax">
+                <label for="taxes_label">Taxes:</label><br>
+                <select id="taxes_select" name="taxes">
+                    <option value="False">No</option>
+                    <option value="True">Yes</option>
+                </select>
+            </div>
+            <div id="tax_type">
+                <label id="tax_type_label">Tax Options</label><br>
+                <select id="tax_type_select" multiple>
+                    <option value="CGST">IGST</option>
+                    <option value="IGST">SGST</option>
+                    <option value="SGST">CGST</option>
+                </select>
+            </div>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Milestone Name</th>
+                        <th>Claim Percentage</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data rows will be added dynamically -->
+                </tbody>
+            </table>
+            <button id="addRowBtn">Add Row</button><br>
+            <button id="SaveMilestones">Save</button>
+        </div>
+    </section>
+    <section id="milestones" class="content-section">
+        <div id="clientDataContainer">
+            <!-- Client data will be dynamically generated here -->
+        </div>
+        <!-- <div class="milestone">
+                            <h3 class="show-details">Milestone Details</h3>
+                            <div class="milestone-details">
+                                <p><strong>Description:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                                <p><strong>Total Amount:</strong> $1000</p>
+                                <p><strong>GST Amount:</strong> $100</p>
+                            </div>
+        </div> -->
+    </section>
+    <section id="settings" class="content-section">
+    </section>
+</body>
+
+</html>

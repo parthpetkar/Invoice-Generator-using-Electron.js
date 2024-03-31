@@ -11,11 +11,11 @@ function createWindow() {
         height: 600,
         webPreferences: {
             nodeIntegration: true,
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, 'Backend/preload.js')
         }
     });
 
-    win.loadFile('index.html');
+    win.loadFile('public/index.html');
 }
 
 app.whenReady().then(() => {
@@ -37,10 +37,10 @@ app.on('window-all-closed', () => {
 async function connectToDB() { // Corrected function name and async keyword
     try {
         connection = await mysql.createConnection({ // Assign connection to the global variable
-            host: 'localhost',
-            user: 'root',
-            password: 'parthYM8',
-            database: 'invoicedb'
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_DATABASE
         });
     } catch (error) { // Added error parameter
         console.error('Error connecting to database:', error); // Corrected log message and added error parameter
@@ -51,8 +51,8 @@ async function connectToDB() { // Corrected function name and async keyword
 app.whenReady().then(connectToDB);
 
 ipcMain.on('createCustomer', (event, data) => {
-    const { company_name, address, phone, gstin, pan, cin, poNo } = data;
-    connection.query('INSERT INTO customers (company_name, address, phone, gstin, pan, cin, pono) VALUES (?, ?, ?, ?, ?, ?, ?)', [company_name, address, phone, gstin, pan, cin, poNo], function (error) {
+    const { company_name, address, phone, gstin, pan, cin, poNo, total_price } = data;
+    connection.query('INSERT INTO customers (company_name, address, phone, gstin, pan, cin, pono, total_price) VALUES (?, ?, ?, ?, ?, ?, ?,?)', [company_name, address, phone, gstin, pan, cin, poNo, total_price], function (error) {
         if (error) {
             console.error(error);
             event.reply('saveToDatabaseResult', { success: false, error: error.message });
@@ -63,13 +63,40 @@ ipcMain.on('createCustomer', (event, data) => {
     })
 });
 
-ipcMain.handle('fetchData', async () => {
+ipcMain.handle('fetchData', async (event) => {
     try {
         const [rows] = await connection.execute('SELECT * FROM customers');
         return rows;
     } catch (error) {
         console.error('Error fetching data from database:', error);
     }
+});
+
+ipcMain.on('insertmilestone', (event, data) => {
+    const { rowDataArray, poNo } = data;
+    console.log(rowDataArray, poNo);
+
+
+
+    // Use a counter to track the number of successful inserts
+    let successfulInserts = 0;
+
+    rowDataArray.forEach(function (rowData) {
+        console.log(rowData.milestone, rowData.claimPercentage, rowData.amount);
+        connection.query('INSERT INTO milestones (pono, milestonename, claim_percent, amount) VALUES (?, ?, ?, ?)', [poNo, rowData.milestone, rowData.claimPercentage, rowData.amount], function (error) {
+            if (error) {
+                console.error(error);
+                event.reply('saveToDatabaseResult', { success: false, error: error.message });
+            } else {
+                console.log('Data saved successfully');
+                successfulInserts++;
+                if (successfulInserts === rowDataArray.length) {
+                    // Reply with success message once all inserts are done
+                    event.reply('saveToDatabaseResult', { success: true });
+                }
+            }
+        });
+    });
 });
 
 // Close database connection when app is quit
