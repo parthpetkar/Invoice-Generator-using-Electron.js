@@ -19,7 +19,7 @@
 This project aims to provide a comprehensive solution for generating invoices using Electron.js, MySQL, and Node.js. It offers a user-friendly interface for managing invoices efficiently.
 
 ## Contributors
-- [Contributor Name](https://github.com/parthpetkar)
+- [Parth Petkar](https://github.com/parthpetkar)
 - [Contributor Name](https://github.com/contributor)
 - [Contributor Name](https://github.com/contributor)
 - [Contributor Name](https://github.com/contributor)
@@ -52,28 +52,47 @@ To install and run this project locally, follow these steps:
 4. Set up MySQL database:
 - Create a MySQL database and import the schema from `database_schema.sql`.
    ```sql
-   CREATE TABLE Invoices (
-    invoice_id INT PRIMARY KEY,
-    invoice_number VARCHAR(255) NOT NULL,
-    date DATE NOT NULL,
-    total_price DECIMAL(10, 2) NOT NULL,
-    description TEXT,
-    taxes ENUM('yes', 'no') NOT NULL
-    );
+   create schema invoic;
+   use invoice;
+      CREATE TABLE `customers` (
+      `company_name` varchar(255) DEFAULT NULL,
+      `address` varchar(255) DEFAULT NULL,
+      `phone` varchar(20) DEFAULT NULL,
+      `gstin` varchar(20) DEFAULT NULL,
+      `pan` varchar(20) DEFAULT NULL,
+      `cin` varchar(20) NOT NULL,
+      PRIMARY KEY (`cin`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-    CREATE TABLE Milestones (
-        milestone_id INT PRIMARY KEY,
-        invoice_id INT,
-        milestone_percentage DECIMAL(5, 2) NOT NULL,
-        amount DECIMAL(10, 2) NOT NULL,
-        FOREIGN KEY (invoice_id) REFERENCES Invoices(invoice_id)
-    );
+      CREATE TABLE `projects` (
+      `cin` varchar(20) NOT NULL,
+      `pono` varchar(20) NOT NULL,
+      `total_prices` decimal(10,2) DEFAULT NULL,
+      `taxes` enum('GST','IGST') DEFAULT NULL,
+      `project_name` varchar(255) DEFAULT NULL,
+      PRIMARY KEY (`cin`,`pono`),
+      CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`cin`) REFERENCES `customers` (`cin`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+      CREATE TABLE `milestones` (
+      `cin` varchar(20) NOT NULL,
+      `pono` varchar(20) NOT NULL,
+      `milestone_name` varchar(255) NOT NULL,
+      `claim_percent` decimal(5,2) DEFAULT NULL,
+      `amount` decimal(10,2) DEFAULT NULL,
+      PRIMARY KEY (`cin`,`pono`,`milestone_name`),
+      CONSTRAINT `milestones_ibfk_1` FOREIGN KEY (`cin`, `pono`) REFERENCES `projects` (`cin`, `pono`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 - Update the MySQL connection details in `.env`.
    ```
    DB_HOST
    DB_USER
    DB_PASSWORD
    DB_DATABASE
+
+5. Run the code
+   ```bash
+   npm run watch
 
 
 ## How to Use the Project
