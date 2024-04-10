@@ -2,14 +2,72 @@ $(document).ready(async () => { //it waits for html to load
     var total_price = 0;
     var poNo;
     $('#save_customer').click(async () => {
-        var company_name = $('#customer_company_name').val();
-        var address = $('#customer_address').val();
-        var phone = $('#customer_phone').val();
-        var gstin = $('#customer_gstin').val();
-        var pan = $('#customer_pan').val();
-        var cin = $('#customer_cin').val();
-        poNo = $('#customer_poNo').val();
-        total_price = parseInt($('#total_price').val());
+        var company_name = $('#customer_company_name').val().trim();
+        var address = $('#customer_address').val().trim();
+        var phone = $('#customer_phone').val().trim();
+        var gstin = $('#customer_gstin').val().trim();
+        var pan = $('#customer_pan').val().trim();
+        var cin = $('#customer_cin').val().trim();
+        poNo = $('#customer_poNo').val().trim();
+        total_price = parseInt($('#total_price').val().trim());
+        
+       
+    //Empty field     
+        if (company_name === '') {
+            alert('Please enter Company Name');
+            return;
+        }
+        if (address === '') {
+            alert('Please enter Address');
+            return;
+        }
+        if (phone === '') {
+            alert('Please enter Phone');
+            return;
+        }
+        if (gstin === '') {
+            alert('Please enter GST Identification Number');
+            return;
+        }
+        if (pan === '') {
+            alert('Please enter PAN Number');
+            return;
+        }
+        if (cin === '') {
+            alert('Please enter Corporate Identification Number');
+            return;
+        }
+        if (poNo === '') {
+            alert('Please enter Purchase Order Number');
+            return;
+        }
+        if (isNaN(total_price) || total_price <= 0) {
+            alert('Please enter a valid Total Price');
+            return;
+        }
+
+        //10 digit phone no
+        if (!(/^\d{10}$/.test(phone))) {
+            alert('Please enter a valid 10-digit Phone Number');
+            return;
+        }
+
+        if (!/^[A-Za-z]{5}\d{4}[A-Za-z]{1}$/.test(pan)) {
+            alert('Please enter a valid PAN Number');
+            return;
+        }
+        if (!/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[1-9A-Z]{1}[Z]{1}[A-Z\d]{1}$/.test(gstin)) {
+            alert('Please enter a valid GST Identification Number');
+            return;
+        }
+        if (!/^[LU][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/.test(cin)) {
+            alert('Please enter a valid Corporate Identification Number');
+            return;
+        }
+        if (!/^[a-zA-Z0-9]{6,12}$/.test(poNo)) {
+            alert('Please enter a valid Purchase Order Number (alphanumeric, 6-12 characters)');
+            return;
+        }      
         await window.electron.send('createCustomer', { company_name: company_name, address: address, phone: phone, gstin: gstin, pan: pan, cin: cin, poNo: poNo, total_price: total_price });
     });
 
@@ -46,11 +104,11 @@ $(document).ready(async () => { //it waits for html to load
         $('#milestone_table').hide();
         $('#customer_form').show();
 
-        $('#save_customer').click(async (e) => {
-            e.preventDefault();
-            $('#milestone_table').show();
-            $('#customer_form').hide();
-        });
+        // $('#save_customer').click(async (e) => {
+        //     e.preventDefault();
+        //     $('#milestone_table').show();
+        //     $('#customer_form').hide();
+        // });
         $('#back_btn').click(async (e) => {
             e.preventDefault();
             $('#milestone_table').hide();
