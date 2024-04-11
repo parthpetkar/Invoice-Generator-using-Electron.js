@@ -29,3 +29,31 @@ $(document).ready(function () {
         $(this).next('.milestone-details').slideToggle(300);
     });
 });
+
+$(document).ready(function () {
+    $('.next-tab').click(function () {
+        var currentTab = $(this).closest('.tabs-panel');
+        var nextTab = currentTab.next('.tabs-panel');
+
+        currentTab.removeClass('is-active');
+        nextTab.addClass('is-active');
+
+        var currentTabLink = currentTab.attr('id');
+        $('a[href="#' + currentTabLink + '"]').parent().removeClass('is-active');
+        $('a[href="#' + nextTab.attr('id') + '"]').parent().addClass('is-active');
+    });
+
+    $('.prev-tab').click(function () {
+        var currentTab = $(this).closest('.tabs-panel');
+        var prevTab = currentTab.prev('.tabs-panel');
+
+        currentTab.removeClass('is-active');
+        prevTab.addClass('is-active');
+
+        var currentTabLink = currentTab.attr('id');
+        $('a[href="#' + currentTabLink + '"]').parent().removeClass('is-active');
+        $('a[href="#' + prevTab.attr('id') + '"]').parent().addClass('is-active');
+    });
+});
+
+

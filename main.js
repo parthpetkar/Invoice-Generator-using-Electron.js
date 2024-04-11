@@ -65,8 +65,9 @@ ipcMain.on('createCustomer', (event, data) => {
 
 ipcMain.handle('fetchData', async (event) => {
     try {
-        const [rows] = await connection.execute('SELECT * FROM customers');
-        return rows;
+        const [customer_rows] = await connection.execute('SELECT * FROM customers');
+        const [milestone_rows] = await connection.execute('SELECT * FROM milestones');
+        return { customers: customer_rows, milestones: milestone_rows };
     } catch (error) {
         console.error('Error fetching data from database:', error);
     }
@@ -74,9 +75,6 @@ ipcMain.handle('fetchData', async (event) => {
 
 ipcMain.on('insertmilestone', (event, data) => {
     const { rowDataArray, poNo } = data;
-    console.log(rowDataArray, poNo);
-
-
 
     // Use a counter to track the number of successful inserts
     let successfulInserts = 0;
