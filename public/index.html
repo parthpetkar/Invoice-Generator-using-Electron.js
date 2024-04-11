@@ -77,43 +77,38 @@
         </div>
     </section>
     <section id="create_customers" class="content-section">
-        <div class="form-container" id="customer_form">
-            <form id="myForm">
-                <div class="form-group">
-                    <label for="companyName">Company Name</label>
-                    <input type="text" id="customer_company_name" name="companyName" placeholder="Company Name" required>
-                </div>
-                <div class="form-group">
-                    <label for="address">Address</label>
-                    <input type="text" id="customer_address" name="address" placeholder="Address" required>
-                </div>
-                <div class="form-group">
-                    <label for="phone">Phone</label>
-                    <input type="text" id="customer_phone" name="phone" placeholder="Phone" required>
-                </div>
-                <div class="form-group">
-                    <label for="gstin">Gst Identification Number</label>
-                    <input type="text" id="customer_gstin" name="gstin" placeholder="Gst Identification Number" required>
-                </div>
-                <div class="form-group">
-                    <label for="pan">Pan Number</label>
-                    <input type="text" id="customer_pan" name="pan" placeholder="Pan Number" required>
-                </div>
-                <div class="form-group">
-                    <label for="cin">Corporate Identification Number</label>
-                    <input type="text" id="customer_cin" name="cin" placeholder="Corporate Identification Number" required>
-                </div>
-                <div class="form-group">
-                    <label for="poNo">Purchase Order Number</label>
-                    <input type="text" id="customer_poNo" name="poNo" placeholder="Purchase Order Number" required>
-                </div>
-                <div class="form-group">
-                    <label for="total_price">Total Price</label>
-                    <input type="text" id="total_price" name="total_price" placeholder="Total Price" required>
-                </div>
-                <button type="submit" id="save_customer">Create Customer</button>
-            </form>
+        <div class="form-container">
+            <div class="multiPageForm">
+                <ul class="tabs" data-tabs id="example-tabs">
+                    <li class="tabs-title is-active"><a href="#panel1">Step 1</a></li>
+                    <li class="tabs-title"><a href="#panel2">Step 2</a></li>
+                    <li class="tabs-title"><a href="#panel3">Step 3</a></li>
+                    <li class="tabs-title"><a href="#panel4">Step 4</a></li>
+                </ul>
+        
+                <div class="tabs-content" data-tabs-content="example-tabs">
+                    <div class="tabs-panel is-active" id="panel1">
+                        <p>Step 1 content goes here.</p>
+                        <button class="button next-tab">Next</button>
+                    </div>
+        <div class="tabs-panel" id="panel2">
+            <p>Step 2 content goes here.</p>
+            <button class="button prev-tab">Previous</button>
+            <button class="button next-tab">Next</button>
         </div>
+        <div class="tabs-panel" id="panel3">
+            <p>Step 3 content goes here.</p>
+            <button class="button prev-tab">Previous</button>
+            <button class="button next-tab">Next</button>
+        </div>
+                    <div class="tabs-panel" id="panel4">
+                        <p>Step 4 content goes here.</p>
+                        <button class="button prev-tab">Previous</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div id="milestone_table">
             <!-- Next page with the table -->
             <button id="back_btn">Back</button>
@@ -152,14 +147,6 @@
         <div id="clientDataContainer">
             <!-- Client data will be dynamically generated here -->
         </div>
-        <!-- <div class="milestone">
-                            <h3 class="show-details">Milestone Details</h3>
-                            <div class="milestone-details">
-                                <p><strong>Description:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                                <p><strong>Total Amount:</strong> $1000</p>
-                                <p><strong>GST Amount:</strong> $100</p>
-                            </div>
-        </div> -->
     </section>
     <section id="settings" class="content-section">
     </section>

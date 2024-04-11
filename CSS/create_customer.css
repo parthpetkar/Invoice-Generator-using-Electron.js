@@ -37,3 +37,43 @@
 .form-group button:hover {
     background-color: #0056b3;
 }
+
+.multiPageForm ul.tabs {
+    overflow: hidden;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.multiPageForm ul.tabs li {
+    float: left;
+    width: 25%;
+    text-align: center;
+}
+
+.multiPageForm ul.tabs li a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    background-color: #f4f4f4;
+}
+
+.multiPageForm ul.tabs li a:hover {
+    background-color: #ddd;
+}
+
+.multiPageForm ul.tabs li.is-active a {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.tabs-panel {
+    display: none;
+    padding: 20px;
+    border: 1px solid #ccc;
+}
+
+.tabs-panel.is-active {
+    display: block;
+}
