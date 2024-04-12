@@ -3,12 +3,12 @@
 }
 
 .main-menu.clicked {
-    background-color: #000;
+    background-color: #007bff;
 }
 .menu-items {
     list-style: none;
     padding: 0;
-    background-color: #000;
+    background-color: #007bff;
 }
 
 .menu-items li {
@@ -18,7 +18,7 @@
 .menu-items li a {
     display: block;
     padding: 10px;
-    color: #999;
+    color: white;
     text-decoration: none;
     transition: all 0.1s linear;
 }
@@ -35,17 +35,18 @@
 
 .menu-items li:hover a,
 .menu-items li.active a {
-    color: black;
-    background-color: gray;
+    color: white;
+        background-color: black;
 }
 
 .menu-toggle {
     display: none;
-    background-color: #000;
+    background-color: #007bff;
+        font-size: medium;
 }
 
 .menu-toggle.clicked {
-    background-color: black;
+    background-color: #007bff;
     color: white;
     font-weight: bold;
 }
@@ -64,6 +65,6 @@
     }
 
     .main-menu {
-        text-align: left;
+        text-align: center;
     }
 }
