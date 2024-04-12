@@ -128,8 +128,8 @@ $(document).ready(async () => { //it waits for html to load
 
 
     try {
-        $('#milestone_table').hide();
-        $('#customer_form').show();
+        // $('#milestone_table').hide();
+        // $('#customer_form').show();
 
         // $('#save_customer').click(async (e) => {
         //     e.preventDefault();
