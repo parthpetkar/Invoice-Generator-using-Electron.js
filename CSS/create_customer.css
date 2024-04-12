@@ -1,4 +1,4 @@
-.form-container {
+ .form-container {
     padding-left: 20px;
     padding-right: 20px;
     animation: slideIn 0.5s forwards;
@@ -76,4 +76,94 @@
 
 .tabs-panel.is-active {
     display: block;
+} 
+
+#myForm {
+    max-width: 400px; /* Increase max-width for larger form */
+    margin: 10px auto;
+    padding: 20px; /* Increase padding for spacing */
+    background: #f4f4f4; /* Change background color to black */
+    border-radius: 8px;
+}
+
+#myForm h1 {
+    margin: 0 0 30px 0;
+    text-align: center;
+    color: #fff; /* Change text color to white */
+}
+
+#myForm .form-group {
+    margin-bottom: 20px;
+}
+
+#myForm .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: black; /* Change label text color to white */
+}
+
+#myForm .form-group input[type="text"],
+#myForm .form-group input[type="text"],
+#myForm .form-group input[type="password"],
+#myForm .form-group input[type="email"],
+#myForm .form-group input[type="tel"] {
+    width: calc(100% - 30px); /* Adjust width to accommodate padding */
+    padding: 10px; /* Adjust padding for spacing */
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    font-size: 16px;
+    height: auto;
+    margin: 0;
+    outline: 0;
+    width: 100%;
+    background-color: #e8eeef;
+    color: #8a97a0;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03) inset;
+}
+
+#myForm #save_customer {
+    padding: 15px 20px; /* Adjust padding for spacing */
+    color: #fff; /* White text color */
+    background-color: #000; /* Black background color */
+    font-size: 18px;
+    text-align: center;
+    font-style: normal;
+    border-radius: 5px;
+    width: 100%;
+    border: none;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+}
+
+#myForm #save_customer:hover {
+    background-color: gray; /* White background color on hover */
+    color: #000; /* Black text color on hover */
+}
+#tax,
+#tax_type {
+    margin-bottom: 20px; /* Add some space between tax sections and other form elements */
+}
+
+#tax label,
+#tax_type label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #fff; /* Change label text color to white */
+}
+
+#tax select,
+#tax_type select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #e8eeef;
+    color: #8a97a0;
+}
+
+#tax_type select {
+    height: 100px; /* Set a specific height for the multi-select box */
+    margin-top: 5px; /* Add some space between label and select */
 }
