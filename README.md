@@ -54,7 +54,7 @@ To install and run this project locally, follow these steps:
    ```sql
    create schema invoic;
    use invoice;
-      CREATE TABLE `customers` (
+   CREATE TABLE `customers` (
       `company_name` varchar(255) DEFAULT NULL,
       `address` varchar(255) DEFAULT NULL,
       `phone` varchar(20) DEFAULT NULL,
@@ -62,9 +62,9 @@ To install and run this project locally, follow these steps:
       `pan` varchar(20) DEFAULT NULL,
       `cin` varchar(20) NOT NULL,
       PRIMARY KEY (`cin`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-      CREATE TABLE `projects` (
+   CREATE TABLE `projects` (
       `cin` varchar(20) NOT NULL,
       `pono` varchar(20) NOT NULL,
       `total_prices` decimal(10,2) DEFAULT NULL,
@@ -72,9 +72,9 @@ To install and run this project locally, follow these steps:
       `project_name` varchar(255) DEFAULT NULL,
       PRIMARY KEY (`cin`,`pono`),
       CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`cin`) REFERENCES `customers` (`cin`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-      CREATE TABLE `milestones` (
+   CREATE TABLE `milestones` (
       `cin` varchar(20) NOT NULL,
       `pono` varchar(20) NOT NULL,
       `milestone_name` varchar(255) NOT NULL,
@@ -82,7 +82,8 @@ To install and run this project locally, follow these steps:
       `amount` decimal(10,2) DEFAULT NULL,
       PRIMARY KEY (`cin`,`pono`,`milestone_name`),
       CONSTRAINT `milestones_ibfk_1` FOREIGN KEY (`cin`, `pono`) REFERENCES `projects` (`cin`, `pono`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+   
 - Update the MySQL connection details in `.env`.
    ```
    DB_HOST
