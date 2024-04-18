@@ -80,7 +80,7 @@ ipcMain.on('createCustomer', (event, data) => {
 
                         // Insert each project and its milestones
                         projectsData.forEach((project) => {
-                            const { projectName, poNo, totalPrice, taxes, milestones } = project;
+                            const { projectName, poNo, totalPrice, taxes, milestones } = projectsData;
 
                             connection.query(projectInsertQuery, [cin, poNo, totalPrice, taxes, projectName], (error, result) => {
                                 if (error) {
