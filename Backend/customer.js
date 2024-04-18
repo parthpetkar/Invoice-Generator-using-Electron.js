@@ -1,141 +1,56 @@
 $(document).ready(async () => { //it waits for html to load
-    var total_price = 0;
-    var poNo;
-    $('#save_customer').click(async () => {
-        var company_name = $('#customer_company_name').val().trim();
-        var address = $('#customer_address').val().trim();
-        var phone = $('#customer_phone').val().trim();
-        var gstin = $('#customer_gstin').val().trim();
-        var pan = $('#customer_pan').val().trim();
-        var cin = $('#customer_cin').val().trim();
-        poNo = $('#customer_poNo').val().trim();
-        total_price = parseInt($('#total_price').val().trim());
-        
-       
-    //Empty field     
-        if (company_name === '') {
-            alert('Please enter Company Name');
-            return;
-        }
-        if (address === '') {
-            alert('Please enter Address');
-            return;
-        }
-        if (phone === '') {
-            alert('Please enter Phone');
-            return;
-        }
-        if (gstin === '') {
-            alert('Please enter GST Identification Number');
-            return;
-        }
-        if (pan === '') {
-            alert('Please enter PAN Number');
-            return;
-        }
-        if (cin === '') {
-            alert('Please enter Corporate Identification Number');
-            return;
-        }
-        if (poNo === '') {
-            alert('Please enter Purchase Order Number');
-            return;
-        }
-        if (isNaN(total_price) || total_price <= 0) {
-            alert('Please enter a valid Total Price');
-            return;
-        }
+    function saveCustomerData() {
+        var companyName = $('#customer_company_name').val();
+        var address = $('#customer_address').val();
+        var phone = $('#customer_phone').val();
+        var gstin = $('#customer_gstin').val();
+        var pan = $('#customer_pan').val();
+        var cin = $('#customer_cin').val();
 
-        //10 digit phone no
-        if (!(/^\d{10}$/.test(phone))) {
-            alert('Please enter a valid 10-digit Phone Number');
-            return;
-        }
-
-        if (!/^[A-Za-z]{5}\d{4}[A-Za-z]{1}$/.test(pan)) {
-            alert('Please enter a valid PAN Number');
-            return;
-        }
-        if (!/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[1-9A-Z]{1}[Z]{1}[A-Z\d]{1}$/.test(gstin)) {
-            alert('Please enter a valid GST Identification Number');
-            return;
-        }
-        if (!/^[LU][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/.test(cin)) {
-            alert('Please enter a valid Corporate Identification Number');
-            return;
-        }
-        if (!/^[a-zA-Z0-9]{6,12}$/.test(poNo)) {
-            alert('Please enter a valid Purchase Order Number (alphanumeric, 6-12 characters)');
-            return;
-        }      
-        await window.electron.send('createCustomer', { company_name: company_name, address: address, phone: phone, gstin: gstin, pan: pan, cin: cin, poNo: poNo, total_price: total_price });
-    });
-
-    let $milestoneDetails = null; // Declare and initialize $milestoneDetails outside of the loop
-
-    try {
-        const { customers, milestones } = await window.electron.invoke('fetchData');
-
-        customers.forEach(customerData => {
-            const matchingMilestones = milestones.filter(milestone => milestone.pono === customerData.pono);
-
-            const $clientBox = $('<div>').addClass('box');
-            const $companyname = $('<h2>').addClass("company_name").text(customerData.company_name);
-            $companyname.appendTo($clientBox);
-            const $clientDetailsHeader = $('<h3>').addClass('show-details').text('Client Details');
-            $clientBox.append($clientDetailsHeader);
-
-            const $clientDetails = $('<div>').addClass('milestone-details');
-
-            $('<p>').html(`<strong>Address:</strong> <span id="client_address">${customerData.address}</span>`).appendTo($clientDetails);
-            $('<p>').html(`<strong>GSTIN:</strong> <span id="client_gstin">${customerData.gstin}</span>`).appendTo($clientDetails);
-            $('<p>').html(`<strong>PAN:</strong> <span id="client_pan">${customerData.pan}</span>`).appendTo($clientDetails);
-            $('<p>').html(`<strong>Corporate Identification Number (CIN):</strong> <span id="client_cin">${customerData.cin}</span>`).appendTo($clientDetails);
-            $('<p>').html(`<strong>Purchase Order Number (PAN):</strong> <span id="client_poNo">${customerData.pono}</span>`).appendTo($clientDetails);
-            $('<p>').html(`<strong>Total Price (Without GST):</strong> <span id="total_price">${customerData.total_price}</span>`).appendTo($clientDetails);
-
-            $clientBox.append($clientDetails);
-
-            if (matchingMilestones.length > 0) {
-                const $milestone = $('<div>').addClass('milestone');// Fetch and display milestone data
-                $clientBox.append($milestone);
-                const $milestoneHeader = $('<h3>').addClass('show-details').text('Milestone Details');
-                $milestone.append($milestoneHeader);
-                $milestoneDetails = $('<div>').addClass('milestone-details'); // Assign $milestoneDetails inside the block
-                try {
-                    matchingMilestones.forEach(milestone => {
-                        $('<p>').html(`<strong>Milestone Name:</strong> <span>${milestone.milestone_name}</span>`).appendTo($milestoneDetails);
-                        $('<p>').html(`<strong>Claim Percentage:</strong> <span>${milestone.claim_percentage}</span>`).appendTo($milestoneDetails);
-                        $('<p>').html(`<strong>Amount:</strong> <span>${milestone.amount}</span>`).appendTo($milestoneDetails);
-                    });
-                } catch (error) {
-                    console.error("Error fetching or displaying milestone data:", error);
-                }
-            }
-
-            $('#clientDataContainer').append($clientBox);
-
-            $clientDetailsHeader.on('click', function () {
-                $clientDetails.toggle();
-                if ($milestoneDetails) { // Check if $milestoneDetails is defined before toggling
-                    $milestoneDetails.toggle();
-                }
-            });
-        });
-    } catch (error) {
-        console.log(error);
+        // Create a customer object
+        var customer = {
+            companyName: companyName,
+            address: address,
+            phone: phone,
+            gstin: gstin,
+            pan: pan,
+            cin: cin
+        };
+        return customer;
     }
 
+    // Function to save project data
+    function saveProjectData() {
+        var projectName = $('#project_name').val();
+        var poNo = $('#customer_poNo').val();
+        var totalPrice = $('#total_price').val();
+        var taxes = $('#taxes_select').val();
+        var taxTypes = $('#tax_type_select').val();
+
+        // Create a project object
+        var project = {
+            projectName: projectName,
+            poNo: poNo,
+            totalPrice: totalPrice,
+            taxes: taxes,
+            taxTypes: taxTypes
+        };
+        return project;
+    }
+    var customerData = {};
+    var projectData = {};
+    // Save customer data when save button on panel 1 is clicked
+    $('#saveCustomer').on('click', function () {
+        customerData = saveCustomerData();
+    });
+
+    // Save project data when save button on panel 2 is clicked
+    $('#saveProject').on('click', function () {
+        projectData = saveProjectData();
+        console.log(customerData, projectData);
+    });
 
     try {
-        // $('#milestone_table').hide();
-        // $('#customer_form').show();
-
-        // $('#save_customer').click(async (e) => {
-        //     e.preventDefault();
-        //     $('#milestone_table').show();
-        //     $('#customer_form').hide();
-        // });
         $('#back_btn').click(async (e) => {
             e.preventDefault();
             $('#milestone_table').hide();
@@ -226,7 +141,7 @@ $(document).ready(async () => { //it waits for html to load
             claimPercentageCell.on("input", function () {
                 const claimPercentage = parseFloat($(this).text());
                 if (!isNaN(claimPercentage)) { // If claim percentage is a valid number
-                    const amount = claimPercentage * total_price / 100;
+                    const amount = claimPercentage * projectData.totalPrice / 100;
                     amountCell.text(amount.toFixed(2)).prop("disabled", false); // Enable and display amount// Check claim percentage and toggle addRowBtn
                 } else {
                     amountCell.text("Amount").prop("disabled", true); // Disable amount if claim percentage is not valid
@@ -240,9 +155,10 @@ $(document).ready(async () => { //it waits for html to load
 
         });
 
-        $("#SaveMilestones").click(async () => {
+        $("#create_customer").click(async () => {
             try {
-                await window.electron.send('insertmilestone', { rowDataArray, poNo });
+                await window.electron.send('createCustomer', { customerData, projectData });
+                await window.electron.send('insertmilestone', { rowDataArray });
             } catch (error) {
                 console.log(error)
             }

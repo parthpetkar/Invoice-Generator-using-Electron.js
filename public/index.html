@@ -13,6 +13,7 @@
     <script src="./index.js"></script>
     <script src="../Backend/invoices.js"></script>
     <script src="../Backend/customer.js"></script>
+    <script src="../Backend/milestonepage.js"></script>
   </head>
 
   <body>
@@ -117,9 +118,9 @@
       <div class="form-container">
         <div class="multiPageForm">
           <ul class="tabs" data-tabs id="example-tabs">
-            <li class="tabs-title is-active"><a href="#panel1">Step 1</a></li>
-            <li class="tabs-title"><a href="#panel2">Step 2</a></li>
-            <li class="tabs-title"><a href="#panel3">Step 3</a></li>
+            <li class="tabs-title is-active"><a href="#panel1">Create Customer</a></li>
+            <li class="tabs-title"><a href="#panel2">Create Project</a></li>
+            <li class="tabs-title"><a href="#panel3">Add Milestones</a></li>
             <!-- <li class="tabs-title"><a href="#panel4">Step 4</a></li> -->
           </ul>
 
@@ -172,6 +173,16 @@
                       required
                     />
                   </div>
+                  <div class="form-group">
+                    <label for="cin">Corporate Identification Number</label>
+                    <input
+                      type="text"
+                      id="customer_cin"
+                      placeholder="Corporate Identification Number"
+                      required
+                    />
+                  </div>
+                  <button type="button" id="saveCustomer">Save Customer</button>
                   <!-- <button type="submit" id="save_customer">
                     Create Customer
                   </button> -->
@@ -187,17 +198,8 @@
                     <label for="projectName">Project Name</label>
                     <input
                       type="text"
-                      id="Project_name"
+                      id="project_name"
                       placeholder="Project Name"
-                      required
-                    />
-                  </div>
-                  <div class="form-group">
-                    <label for="cin">Corporate Identification Number</label>
-                    <input
-                      type="text"
-                      id="customer_cin"
-                      placeholder="Corporate Identification Number"
                       required
                     />
                   </div>
@@ -234,6 +236,7 @@
                       <option value="SGST">CGST</option>
                     </select>
                   </div>
+                  <button type="button" id="saveProject">Save Project</button>
                   <!-- <button type="submit" id="save_customer">
                     Create Project
                   </button> -->
@@ -261,6 +264,7 @@
                 </table>
                 <button id="addRowBtn">Add Row</button><br />
                 <!-- <button id="SaveMilestones">Save</button> -->
+                <button type="button" id="create_customer">Create Customer</button>
               </div>
               <button class="button prev-tab">Previous</button>
               <button class="button next-tab">Next</button>

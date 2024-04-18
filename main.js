@@ -3,7 +3,7 @@ const path = require('path');
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-let connection; // Declare connection variable outside the function scope
+let connection;
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -51,16 +51,86 @@ async function connectToDB() { // Corrected function name and async keyword
 app.whenReady().then(connectToDB);
 
 ipcMain.on('createCustomer', (event, data) => {
-    const { company_name, address, phone, gstin, pan, cin, poNo, total_price } = data;
-    connection.query('INSERT INTO customers (company_name, address, phone, gstin, pan, cin, pono, total_price) VALUES (?, ?, ?, ?, ?, ?, ?,?)', [company_name, address, phone, gstin, pan, cin, poNo, total_price], function (error) {
-        if (error) {
-            console.error(error);
-            event.reply('saveToDatabaseResult', { success: false, error: error.message });
-        } else {
-            console.log('Data saved successfully');
-            event.reply('saveToDatabaseResult', { success: true });
-        }
-    })
+    const { customerData, projectsData } = data;
+
+    // Extract customer data
+    const { companyName, address, phone, gstin, pan, cin } = customerData;
+
+    // Insert customer data into 'customers' table
+    connection.query('INSERT INTO customers (company_name, address, phone, gstin, pan, cin) VALUES (?, ?, ?, ?, ?, ?)',
+        [companyName, address, phone, gstin, pan, cin], (error) => {
+            if (error) {
+                console.error('Error saving customer data:', error);
+                event.reply('saveToDatabaseResult', { success: false, error: error.message });
+            } else {
+                console.log('Customer data saved successfully');
+
+                // If projects data is provided, insert projects and milestones
+                if (projectsData && projectsData.length > 0) {
+                    const projectInsertQuery = 'INSERT INTO projects (cin, pono, total_prices, taxes, project_name) VALUES (?, ?, ?, ?, ?)';
+                    const milestoneInsertQuery = 'INSERT INTO milestones (cin, pono, milestone_name, claim_percent, amount) VALUES (?, ?, ?, ?, ?)';
+
+                    // Use a transaction to ensure all queries are executed or none
+                    connection.beginTransaction((err) => {
+                        if (err) {
+                            console.error('Error starting transaction:', err);
+                            event.reply('saveToDatabaseResult', { success: false, error: err.message });
+                            return;
+                        }
+
+                        // Insert each project and its milestones
+                        projectsData.forEach((project) => {
+                            const { projectName, poNo, totalPrice, taxes, milestones } = project;
+
+                            connection.query(projectInsertQuery, [cin, poNo, totalPrice, taxes, projectName], (error, result) => {
+                                if (error) {
+                                    connection.rollback(() => {
+                                        console.error('Error saving project data:', error);
+                                        event.reply('saveToDatabaseResult', { success: false, error: error.message });
+                                    });
+                                    return;
+                                }
+
+                                console.log('Project data saved successfully');
+
+                                // If milestones data is provided, insert milestones
+                                if (milestones && milestones.length > 0) {
+                                    milestones.forEach((milestone) => {
+                                        const { milestoneName, claimPercent, amount } = milestone;
+                                        connection.query(milestoneInsertQuery, [cin, poNo, milestoneName, claimPercent, amount], (error) => {
+                                            if (error) {
+                                                connection.rollback(() => {
+                                                    console.error('Error saving milestone data:', error);
+                                                    event.reply('saveToDatabaseResult', { success: false, error: error.message });
+                                                });
+                                                return;
+                                            }
+                                            console.log('Milestone data saved successfully');
+                                        });
+                                    });
+                                }
+                            });
+                        });
+
+                        // Commit the transaction if all queries succeed
+                        connection.commit((err) => {
+                            if (err) {
+                                connection.rollback(() => {
+                                    console.error('Error committing transaction:', err);
+                                    event.reply('saveToDatabaseResult', { success: false, error: err.message });
+                                });
+                            } else {
+                                console.log('Transaction committed');
+                                event.reply('saveToDatabaseResult', { success: true });
+                            }
+                        });
+                    });
+            } else {
+                    // Send success message back to renderer process if no projects data is provided
+                    event.reply('saveToDatabaseResult', { success: true });
+                }
+            }
+    });
 });
 
 ipcMain.handle('fetchData', async (event) => {
@@ -72,31 +142,6 @@ ipcMain.handle('fetchData', async (event) => {
         console.error('Error fetching data from database:', error);
     }
 });
-
-ipcMain.on('insertmilestone', (event, data) => {
-    const { rowDataArray, poNo } = data;
-
-    // Use a counter to track the number of successful inserts
-    let successfulInserts = 0;
-
-    rowDataArray.forEach(function (rowData) {
-        console.log(rowData.milestone, rowData.claimPercentage, rowData.amount);
-        connection.query('INSERT INTO milestones (pono, milestonename, claim_percent, amount) VALUES (?, ?, ?, ?)', [poNo, rowData.milestone, rowData.claimPercentage, rowData.amount], function (error) {
-            if (error) {
-                console.error(error);
-                event.reply('saveToDatabaseResult', { success: false, error: error.message });
-            } else {
-                console.log('Data saved successfully');
-                successfulInserts++;
-                if (successfulInserts === rowDataArray.length) {
-                    // Reply with success message once all inserts are done
-                    event.reply('saveToDatabaseResult', { success: true });
-                }
-            }
-        });
-    });
-});
-
 // Close database connection when app is quit
 app.on('quit', () => {
     if (connection) { // Check if connection exists before trying to end it
