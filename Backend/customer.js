@@ -165,14 +165,16 @@ $(document).ready(async () => { //it waits for html to load
         });
 
         const { company_name } = await window.electron.invoke('fetchCustomer');
+        console.log(company_name);
+
         $('#customerSelect').empty();
 
         // Add a default option
         $('#customerSelect').append('<option value="" disabled selected>Select Customer</option>');
 
         // Populate the dropdown with company names
-        company_name.forEach(function (name) {
-            $('#customerSelect').append('<option value="' + name + '">' + name + '</option>');
+        company_name.forEach(function (obj) {
+            $('#customerSelect').append('<option value="' + obj.company_name + '">' + obj.company_name + '</option>');
         });
 
     } catch (error) {

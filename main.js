@@ -142,10 +142,11 @@ ipcMain.handle('fetchData', async (event) => {
         console.error('Error fetching data from database:', error);
     }
 });
+
 ipcMain.handle('fetchCustomer', async (event) => {
     try {
         const [company_name] = await connection.execute('SELECT company_name FROM customers');
-        return { customers: company_name };
+        return { company_name };
     } catch (error) {
         console.error('Error fetching data from database:', error);
     }
