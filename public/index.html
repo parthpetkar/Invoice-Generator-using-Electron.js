@@ -85,6 +85,16 @@
               <div class="form-container" id="project_form">
                 <form id="myForm">
                   <div class="form-group">
+                    <label for="customerSelect">Select Customer</label>
+                      <select id="customerSelect" required>
+                          <option value="" disabled selected>Select Customer</option>
+                          <!-- Add options dynamically from your customer database -->
+                          <option value="customer1">Customer 1</option>
+                          <option value="customer2">Customer 2</option>
+                          <!-- Add more options as needed -->
+                      </select>
+                  </div>
+                  <div class="form-group">
                     <label for="projectName">Project Name</label>
                     <input
                       type="text"
