@@ -21,14 +21,15 @@ $(document).ready(async () => { //it waits for html to load
 
     // Function to save project data
     function saveProjectData() {
+        var customerName = $('#customerSelect').val();
         var projectName = $('#project_name').val();
         var poNo = $('#customer_poNo').val();
         var totalPrice = $('#total_price').val();
         var taxes = $('#taxes_select').val();
         var taxTypes = $('#tax_type_select').val();
-
         // Create a project object
         var project = {
+            customerName: customerName,
             projectName: projectName,
             poNo: poNo,
             totalPrice: totalPrice,
@@ -47,7 +48,7 @@ $(document).ready(async () => { //it waits for html to load
     // Save project data when save button on panel 2 is clicked
     $('#saveProject').on('click', function () {
         projectData = saveProjectData();
-        console.log(customerData, projectData);
+        console.log(projectData);
     });
 
     try {
@@ -155,16 +156,38 @@ $(document).ready(async () => { //it waits for html to load
 
         });
 
-        $("#create_customer").click(async () => {
+        $("#create_milestone").click(async () => {
             try {
-                await window.electron.send('createCustomer', { customerData, projectData });
-                await window.electron.send('insertmilestone', { rowDataArray });
+                //await window.electron.send('createCustomer', { customerData });
+                await window.electron.send('insertMilestone', { rowDataArray, projectData });
             } catch (error) {
                 console.log(error)
             }
         });
 
-        const { company_name, cin } = await window.electron.invoke('fetchCustomer');
+        $("#saveCustomer").click(async () => {
+            try {
+                await window.electron.send('createCustomer', { customerData });
+                // await window.electron.send('insertmilestone', { rowDataArray });
+            } catch (error) {
+                console.log(error)
+            }
+        });
+
+        $("#saveProject").click(async () => {
+            try {
+                await window.electron.send('createProject', { projectData });
+            }
+            catch(error) {
+                console.log(error);
+            }
+        })
+
+
+
+
+
+        const { company_name } = await window.electron.invoke('fetchCustomer');
         console.log(company_name);
 
         $('#customerSelect').empty();
@@ -174,7 +197,7 @@ $(document).ready(async () => { //it waits for html to load
 
         // Populate the dropdown with company names
         company_name.forEach(function (obj) {
-            $('#customerSelect').append('<option value="' + obj.cin + " " + obj.company_name + '">' + obj.cin + " " + obj.company_name + '</option>');
+            $('#customerSelect').append('<option value="' + obj.company_name + '">' + obj.company_name + '</option>');
         });
 
     } catch (error) {

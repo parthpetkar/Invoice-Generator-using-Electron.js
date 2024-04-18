@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const mysql = require('mysql2/promise');
+const { prependListener } = require('process');
 require('dotenv').config();
 
 let connection;
@@ -50,87 +51,106 @@ async function connectToDB() { // Corrected function name and async keyword
 // Call connectToDB function when app is ready
 app.whenReady().then(connectToDB);
 
-ipcMain.on('createCustomer', (event, data) => {
-    const { customerData, projectsData } = data;
+ipcMain.on('insertMilestone', async (event, data) => {    
+    const { rowDataArray, projectData } = data;
+    console.log(rowDataArray, projectData);
+    var c_name = projectData.customerName;
 
-    // Extract customer data
-    const { companyName, address, phone, gstin, pan, cin } = customerData;
+    try {
+        const [result] = await connection.execute(`SELECT cin FROM customers where company_name = '${c_name}'`);
+        const cin = result[0].cin;
+        console.log(cin);
 
-    // Insert customer data into 'customers' table
-    connection.query('INSERT INTO customers (company_name, address, phone, gstin, pan, cin) VALUES (?, ?, ?, ?, ?, ?)',
-        [companyName, address, phone, gstin, pan, cin], (error) => {
-            if (error) {
-                console.error('Error saving customer data:', error);
-                event.reply('saveToDatabaseResult', { success: false, error: error.message });
-            } else {
-                console.log('Customer data saved successfully');
+        rowDataArray.forEach(rowData => {
+            const { milestone, claimPercentage, amount } = rowData;
+            const query = `INSERT INTO milestones (cin, pono, milestone_name, claim_percent, amount) VALUES (?, ?, ?, ?, ?)`;
+            connection.query(query, [cin, projectData.poNo, milestone, claimPercentage, amount], (error, results, fields) => {
+                if (error) throw error;
+                console.log('Inserted row:', results.insertId);
+            });
+        });
 
-                // If projects data is provided, insert projects and milestones
-                if (projectsData && projectsData.length > 0) {
-                    const projectInsertQuery = 'INSERT INTO projects (cin, pono, total_prices, taxes, project_name) VALUES (?, ?, ?, ?, ?)';
-                    const milestoneInsertQuery = 'INSERT INTO milestones (cin, pono, milestone_name, claim_percent, amount) VALUES (?, ?, ?, ?, ?)';
+    } catch (error) {
+        console.error('Error inserting project data:', error);
+    }
 
-                    // Use a transaction to ensure all queries are executed or none
-                    connection.beginTransaction((err) => {
-                        if (err) {
-                            console.error('Error starting transaction:', err);
-                            event.reply('saveToDatabaseResult', { success: false, error: err.message });
-                            return;
-                        }
+    // const [cin, pono] = await connection.execute('SELECT cin, pono FROM projects');
+    // rowDataArray.forEach(rowData => {
+    //     const { milestone, claimPercentage, amount } = rowData;
+    //     const query = `INSERT INTO milestones (milestone_name, claim_percentage, amount) VALUES (?, ?, ?)`;
+    //     connection.query(query, [milestone, claimPercentage, amount], (error, results, fields) => {
+    //         if (error) throw error;
+    //         console.log('Inserted row:', results.insertId);
+    //     });
+    // });
+})
 
-                        // Insert each project and its milestones
-                        projectsData.forEach((project) => {
-                            const { projectName, poNo, totalPrice, taxes, milestones } = projectsData;
+ipcMain.on('createProject', async (event, data) => {
+    const { projectData } = data;
+    console.log(projectData);
+    var c_name = projectData.customerName;
+    
+    try {
 
-                            connection.query(projectInsertQuery, [cin, poNo, totalPrice, taxes, projectName], (error, result) => {
-                                if (error) {
-                                    connection.rollback(() => {
-                                        console.error('Error saving project data:', error);
-                                        event.reply('saveToDatabaseResult', { success: false, error: error.message });
-                                    });
-                                    return;
-                                }
+        const [result] = await connection.execute(`SELECT cin FROM customers where company_name = '${c_name}'`);
+        const cin = result[0].cin;
+        console.log(cin);
 
-                                console.log('Project data saved successfully');
+        const insertProjectQuery = `
+          INSERT INTO projects (cin, pono, total_prices, taxes, project_name)
+          VALUES (?, ?, ?, ?, ?)
+        `;
+        await connection.query(insertProjectQuery, [
+            cin,
+            projectData.poNo,
+            projectData.totalPrice,
+            projectData.taxTypes[0], // Assuming taxTypes is an array and you want to insert the first element
+            projectData.projectName,
+        ]);
 
-                                // If milestones data is provided, insert milestones
-                                if (milestones && milestones.length > 0) {
-                                    milestones.forEach((milestone) => {
-                                        const { milestoneName, claimPercent, amount } = milestone;
-                                        connection.query(milestoneInsertQuery, [cin, poNo, milestoneName, claimPercent, amount], (error) => {
-                                            if (error) {
-                                                connection.rollback(() => {
-                                                    console.error('Error saving milestone data:', error);
-                                                    event.reply('saveToDatabaseResult', { success: false, error: error.message });
-                                                });
-                                                return;
-                                            }
-                                            console.log('Milestone data saved successfully');
-                                        });
-                                    });
-                                }
-                            });
-                        });
+        console.log('Data inserted successfully');
+        
+    } catch (error) {
+        console.error('Error inserting project data:', error);
+    }
+})
 
-                        // Commit the transaction if all queries succeed
-                        connection.commit((err) => {
-                            if (err) {
-                                connection.rollback(() => {
-                                    console.error('Error committing transaction:', err);
-                                    event.reply('saveToDatabaseResult', { success: false, error: err.message });
-                                });
-                            } else {
-                                console.log('Transaction committed');
-                                event.reply('saveToDatabaseResult', { success: true });
-                            }
-                        });
-                    });
-            } else {
-                    // Send success message back to renderer process if no projects data is provided
-                    event.reply('saveToDatabaseResult', { success: true });
-                }
-            }
-    });
+ipcMain.on('createCustomer', async (event, data) => {
+    const { customerData } = data;
+    console.log(customerData);
+    try {
+        // const connection = await mysql.createConnection({
+        //     host: process.env.DB_HOST,
+        //     user: process.env.DB_USER,
+        //     password: process.env.DB_PASSWORD,
+        //     database: process.env.DB_DATABASE
+        // });
+
+        // Insert into customers table
+        const insertCustomerQuery = `
+          INSERT INTO customers (company_name, address, phone, gstin, pan, cin)
+          VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        await connection.query(insertCustomerQuery, [
+          customerData.companyName,
+          customerData.address,
+          customerData.phone,
+          customerData.gstin,
+          customerData.pan,
+          customerData.cin,
+        ]);
+    
+        console.log('Data inserted successfully');
+      } catch (error) {
+        console.error('Error inserting data:', error);
+      }
+
+    //   // Close the connection after inserting data
+    //   if (connection) {
+    //     connection.end();
+    //   }
+
+
 });
 
 ipcMain.handle('fetchData', async (event) => {
@@ -145,8 +165,8 @@ ipcMain.handle('fetchData', async (event) => {
 
 ipcMain.handle('fetchCustomer', async (event) => {
     try {
-        const [company_name, cin] = await connection.execute('SELECT company_name, cin FROM customers');
-        return { company_name, cin };
+        const [company_name ] = await connection.execute('SELECT company_name FROM customers');
+        return { company_name };
     } catch (error) {
         console.error('Error fetching data from database:', error);
     }

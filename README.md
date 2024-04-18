@@ -52,7 +52,7 @@ To install and run this project locally, follow these steps:
 4. Set up MySQL database:
 - Create a MySQL database and import the schema from `database_schema.sql`.
    ```sql
-   create schema invoic;
+   create schema invoice;
    use invoice;
    CREATE TABLE `customers` (
       `company_name` varchar(255) DEFAULT NULL,
