@@ -48,7 +48,6 @@ $(document).ready(async () => { //it waits for html to load
     // Save project data when save button on panel 2 is clicked
     $('#saveProject').on('click', function () {
         projectData = saveProjectData();
-        console.log(projectData);
     });
 
     try {
@@ -76,7 +75,6 @@ $(document).ready(async () => { //it waits for html to load
         $('#tax_type_select').change(function () {
             const tax_options = $(this).val();
         })
-        console.log(tax_type)
         const table = $("#dataTable");
 
 
@@ -87,7 +85,6 @@ $(document).ready(async () => { //it waits for html to load
             let totalClaimPercentage = 0;
             rowDataArray.forEach(function (rowData) {
                 totalClaimPercentage += rowData.claimPercentage;
-                console.log(totalClaimPercentage)
             });
             return totalClaimPercentage;
         }
@@ -121,7 +118,6 @@ $(document).ready(async () => { //it waits for html to load
             // Push the row data object into the array
             rowDataArray.push(rowData);
             toggleAddRowButton();
-            console.log(rowDataArray)
         });
 
         $("#addRowBtn").click(function () {
@@ -133,6 +129,7 @@ $(document).ready(async () => { //it waits for html to load
             const claimPercentageCell = $("<td>").addClass("claimPercentageCell").text("Claim Percentage");
             const amountCell = $("<td>").addClass("amountCell").text("Amount").prop("disabled", true); // Initially disabled
             const saveBtn = $("<button>").addClass("saveBtn").text("Save");
+            const deleteBtn = $("<button>").addClass("deleteBtn").text("Delete"); // Add delete button
 
             // Make cells mutable
             milestoneCell.attr("contenteditable", true);
@@ -143,18 +140,26 @@ $(document).ready(async () => { //it waits for html to load
                 const claimPercentage = parseFloat($(this).text());
                 if (!isNaN(claimPercentage)) { // If claim percentage is a valid number
                     const amount = claimPercentage * projectData.totalPrice / 100;
-                    amountCell.text(amount.toFixed(2)).prop("disabled", false); // Enable and display amount// Check claim percentage and toggle addRowBtn
+                    amountCell.text(amount.toFixed(2)).prop("disabled", false); // Enable and display amount
                 } else {
                     amountCell.text("Amount").prop("disabled", true); // Disable amount if claim percentage is not valid
                 }
             });
 
-            newRow.append(milestoneCell, claimPercentageCell, amountCell, $("<td>").append(saveBtn));
-
-            // Append the new row to the table
+            newRow.append(milestoneCell, claimPercentageCell, amountCell, $("<td>").append(saveBtn).append(deleteBtn)); // Append the new row to the table
             $("#dataTable tbody").append(newRow);
-
         });
+
+        // Event listener for Delete button click
+        $("#dataTable").on("click", ".deleteBtn", function () {
+            const row = $(this).closest("tr"); // Get the closest row to the clicked button
+            const index = row.index(); // Get the index of the row
+            rowDataArray.splice(index, 1); // Remove the row data from the array
+            row.remove(); // Remove the row from the table
+            toggleAddRowButton(); // Toggle addRowBtn based on total claim percentage
+        });
+
+
 
         $("#create_milestone").click(async () => {
             try {
@@ -183,13 +188,7 @@ $(document).ready(async () => { //it waits for html to load
             }
         })
 
-
-
-
-
         const { company_name } = await window.electron.invoke('fetchCustomer');
-        console.log(company_name);
-
         $('#customerSelect').empty();
 
         // Add a default option
@@ -201,6 +200,6 @@ $(document).ready(async () => { //it waits for html to load
         });
 
     } catch (error) {
-
+        console.log(error);
     }
 });

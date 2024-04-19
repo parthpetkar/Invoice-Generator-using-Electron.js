@@ -123,3 +123,10 @@
         margin-top: 5px;
 }
 
+#create_milestone {
+    margin-top: 10px;
+}
+
+.deleteBtn {
+    margin-left: 10px;
+}
