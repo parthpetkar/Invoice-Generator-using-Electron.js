@@ -17,6 +17,7 @@ function createWindow() {
     });
 
     win.loadFile('public/index.html');
+    win.maximize();
 }
 
 app.whenReady().then(() => {
