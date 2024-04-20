@@ -15,7 +15,6 @@ $(document).ready(async () => {
             const selectedCompanyName = $('#customerChoose').val();
 
             const { projects } = await window.electron.invoke('fetchProject', selectedCompanyName);
-            console.log(projects);
             $('#projectChoose').empty();
 
             // Add a default option
@@ -93,7 +92,6 @@ $(document).ready(async () => {
                 formData: formData,
                 milestones: selectedMilestones
             };
-            console.log(invoiceData);
             try {
                 await window.electron.send('createInvoice', { invoiceData });//send to  db
                 await window.electron.send('createForm', { invoiceData }); //send to excel

@@ -1,54 +1,40 @@
-let $milestoneDetails = null; // Declare and initialize $milestoneDetails outside of the loop
+$(document).ready(async () => {
+    const { customers, milestones, projects, invoices } = await window.electron.invoke('fetchData');
+    console.log(customers, milestones, projects, invoices)
+    const tableBody = $('#displayTable tbody');
 
-try {
-    const { customers, milestones } = await window.electron.invoke('fetchData');
+    // Iterate over each milestone data and create table rows
+    milestones.forEach(milestone => {
+        const row = $('<tr>');
 
-    customers.forEach(customerData => {
-        const matchingMilestones = milestones.filter(milestone => milestone.pono === customerData.pono);
+        // Find the corresponding customer and project data using milestone's cin and pono
+        const customer = customers.find(customer => customer.cin === milestone.cin);
+        const project = projects.find(project => project.cin === milestone.cin && project.pono === milestone.pono);
+        const invoice = invoices.find(invoice => invoice.cin === milestone.cin && invoice.pono === milestone.pono && invoice.milestone_name === milestone.milestone_name);
 
-        const $clientBox = $('<div>').addClass('box');
-        const $companyname = $('<h2>').addClass("company_name").text(customerData.company_name);
-        $companyname.appendTo($clientBox);
-        const $clientDetailsHeader = $('<h3>').addClass('show-details').text('Client Details');
-        $clientBox.append($clientDetailsHeader);
+        // Fill the table cells with data
+        row.append(`<td>${invoice.invoice_number}</td>`);
+        row.append(`<td>${customer.company_name}</td>`);
+        row.append(`<td>${project.project_name}</td>`);
+        row.append(`<td>${invoice.milestone_name}</td>`);
+        row.append(`<td>${invoice.invoice_date}</td>`); // Update this with the actual date field
+        row.append(`<td>${invoice.due_date}</td>`); // Update this with the actual due date field
+        row.append(`<td>${invoice.taxes_excluded}</td>`);
+        row.append(`<td>${invoice.total_prices}</td>`);
 
-        const $clientDetails = $('<div>').addClass('milestone-details');
+        // Calculate remaining amount
+        const remainingAmount = invoice.total_prices - milestone.amount;
 
-        $('<p>').html(`<strong>Address:</strong> <span id="client_address">${customerData.address}</span>`).appendTo($clientDetails);
-        $('<p>').html(`<strong>GSTIN:</strong> <span id="client_gstin">${customerData.gstin}</span>`).appendTo($clientDetails);
-        $('<p>').html(`<strong>PAN:</strong> <span id="client_pan">${customerData.pan}</span>`).appendTo($clientDetails);
-        $('<p>').html(`<strong>Corporate Identification Number (CIN):</strong> <span id="client_cin">${customerData.cin}</span>`).appendTo($clientDetails);
-        $('<p>').html(`<strong>Purchase Order Number (PAN):</strong> <span id="client_poNo">${customerData.pono}</span>`).appendTo($clientDetails);
-        $('<p>').html(`<strong>Total Price (Without GST):</strong> <span id="total_price">${customerData.total_price}</span>`).appendTo($clientDetails);
+        // Remaining Table data
+        row.append(`<td>${remainingAmount}</td>`);
 
-        $clientBox.append($clientDetails);
+        // Status - Use the status from the milestone object
+        row.append(`<td>${milestone.status}</td>`);
 
-        if (matchingMilestones.length > 0) {
-            const $milestone = $('<div>').addClass('milestone');// Fetch and display milestone data
-            $clientBox.append($milestone);
-            const $milestoneHeader = $('<h3>').addClass('show-details').text('Milestone Details');
-            $milestone.append($milestoneHeader);
-            $milestoneDetails = $('<div>').addClass('milestone-details'); // Assign $milestoneDetails inside the block
-            try {
-                matchingMilestones.forEach(milestone => {
-                    $('<p>').html(`<strong>Milestone Name:</strong> <span>${milestone.milestone_name}</span>`).appendTo($milestoneDetails);
-                    $('<p>').html(`<strong>Claim Percentage:</strong> <span>${milestone.claim_percentage}</span>`).appendTo($milestoneDetails);
-                    $('<p>').html(`<strong>Amount:</strong> <span>${milestone.amount}</span>`).appendTo($milestoneDetails);
-                });
-            } catch (error) {
-                console.error("Error fetching or displaying milestone data:", error);
-            }
-        }
+        // Actions - Add any action buttons or links here
+        row.append(`<td><button>Edit</button><button>Delete</button></td>`);
 
-        $('#clientDataContainer').append($clientBox);
-
-        $clientDetailsHeader.on('click', function () {
-            $clientDetails.toggle();
-            if ($milestoneDetails) { // Check if $milestoneDetails is defined before toggling
-                $milestoneDetails.toggle();
-            }
-        });
+        // Append the row to the table body
+        tableBody.append(row);
     });
-} catch (error) {
-    console.log(error);
-}
+});

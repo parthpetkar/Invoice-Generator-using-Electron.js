@@ -121,19 +121,6 @@ $(document).ready(async () => { //it waits for html to load
         });
 
         $("#addRowBtn").click(function () {
-            // Get milestone name, claim percentage, and amount from the new row
-            // const milestone = $(".milestoneCell").last().text();
-            // const claimPercentage = parseFloat($(".claimPercentageCell").last().text());
-            // const amount = parseFloat($(".amountCell").last().text());
-
-            // // Check if the milestone name already exists in rowDataArray
-            // const isDuplicate = rowDataArray.some(row => row.milestone === milestone);
-
-            // if (isDuplicate) {
-            //     // Warn the user about the duplicate entry
-            //     alert("Duplicate entry: This milestone already exists.");
-            //     return; // Exit the function without adding the row
-            // }
             // Create a new row
             const newRow = $("<tr>");
 

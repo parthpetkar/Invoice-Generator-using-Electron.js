@@ -137,36 +137,42 @@ ipcMain.on("createInvoice", async (event, data) => {
     const invoiceData = data.invoiceData; // Accessing the 'invoiceData' property
 
     // Extract formData and milestones from invoiceData
-    const { formData, milestones } = invoiceData;
-
+    const { formData, milestones } = invoiceData; 
     // Inserting data into Invoices table
-    const formdatainsert = `
-        INSERT INTO Invoices (cin, pono, company_name, project_name, invoice_number, invoice_date, due_date, taxes_excluded, total_prices, milestone_name, remaining_amount)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+    milestones.forEach(async (milestone) => {
+        try {
+            await connection.query(`
+                INSERT INTO Invoices (cin, pono, company_name, project_name, invoice_number, invoice_date, due_date, taxes_excluded, total_prices, milestone_name, remaining_amount)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [
+                milestone.cin,
+                milestone.pono,
+                formData.customer,
+                formData.project,
+                formData.invoiceNumber,
+                formData.invoiceDate,
+                formData.dueDate,
+                milestone.amount,  // Taxes excluded (set to null for now)
+                milestone.amount,  // Total prices (set to null for now)
+                milestone.milestone_name,
+                calculateRemainingAmount(milestone)
+            ]); 
+            console.log("Data inserted successfully");
+        } catch (error) {
+            console.error("Error inserting data:", error);
+        }
 
-    // Assuming taxes_excluded is same as total_prices
-    // Calculating remaining_amount based on already paid amounts for each milestone
-    await connection.query(formdatainsert, [
-        milestones[0].cin, // Assuming all milestones belong to the same project, thus the same 'cin' and 'pono'
-        milestones[0].pono,
-        formData.customer,
-        milestones[0].project_name, // Assuming all milestones belong to the same project, thus the same project name
-        formData.invoiceNumber,
-        formData.invoiceDate,
-        formData.dueDate,
-        milestones[0].total_prices, // Assuming taxes_excluded is same as total_prices
-        milestones[0].total_prices, // Initial value for remaining_amount
-        milestones.map((milestone) => milestone.milestone_name).join(", "), // Concatenating all milestone names
-        calculateRemainingAmount(milestones), // Calculating remaining_amount
-    ]);
-    function calculateRemainingAmount(milestones) {
-        const totalProjectPrice = parseFloat(milestones[0].total_prices);
-        const totalPaidAmount = milestones.reduce(
-            (total, milestone) => total + parseFloat(milestone.amount),
-            0
-        );
-        return totalProjectPrice - totalPaidAmount;
+    })
+
+    function calculateRemainingAmount(milestone) {
+        // Extract the total amount and total paid amount directly from the milestone object
+        const totalAmount = parseFloat(milestone.total_prices);
+        const totalPaidAmount = parseFloat(milestone.amount);
+
+        // Calculate the remaining amount
+        const remainingAmount = totalAmount - totalPaidAmount;
+
+        return remainingAmount;
     }
 
     async function updateMilestoneStatus(milestones) {
@@ -189,13 +195,9 @@ ipcMain.on("createInvoice", async (event, data) => {
 });
 
 ipcMain.on("createForm", async (event, data) => {
-    //console.log(data);
     //sending data to excel
     const invoiceData = data.invoiceData;
     const { formData, milestones } = invoiceData;
-    console.log(formData);
-    console.log(milestones);
-
     const workbook = new ExcelJS.Workbook();
     workbook.xlsx
         .readFile("IEC_Invoice_template.xlsx")
@@ -228,7 +230,13 @@ ipcMain.handle("fetchData", async (event) => {
         const [milestone_rows] = await connection.execute(
             "SELECT * FROM milestones"
         );
-        return { customers: customer_rows, milestones: milestone_rows };
+        const [project_rows] = await connection.execute(
+            "SELECT * FROM projects"
+        );
+        const [invoice_rows] = await connection.execute(
+            "SELECT * FROM invoices"
+        );
+        return { customers: customer_rows, milestones: milestone_rows, projects: project_rows, invoices: invoice_rows };
     } catch (error) {
         console.error("Error fetching data from database:", error);
     }
@@ -244,6 +252,27 @@ ipcMain.handle("fetchCustomer", async (event) => {
         console.error("Error fetching data from database:", error);
     }
 });
+// ipcMain.handle("fetchInvoices", async (event) => {
+//     try {
+//         const [invoicedata] = await connection.execute(
+//             "SELECT * FROM invoices"
+//         );
+//         return { invoicedata };
+//     } catch (error) {
+//         console.error("Error fetching data from database:", error);
+//     }
+// });
+// ipcMain.handle("fetchStatus", async (event, invoicedata) => {
+//     try {
+//         const [status] = await connection.execute(
+//             "SELECT status FROM milestones"
+//         );
+//         return { status };
+//     } catch (error) {
+//         console.error("Error fetching data from database:", error);
+//     }
+// });
+
 ipcMain.handle("fetchProject", async (event, companyName) => {
     try {
         const [projects] = await connection.execute(

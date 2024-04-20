@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../CSS/milestones.css" />
     <link rel="stylesheet" href="../CSS/milestone_addition.css" />
     <link rel="stylesheet" href="../CSS/invoice.css" />
+    <link rel="stylesheet" href="../CSS/display.css" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="./index.js"></script>
     <script src="../Backend/invoices.js"></script>
@@ -289,8 +290,27 @@
       </div>
     </section>
     <section id="milestones" class="content-section">
-      <div id="clientDataContainer">
-        <!-- Client data will be dynamically generated here -->
+      <div id="milestone_table">
+        <table id="displayTable">
+          <thead>
+            <tr>
+              <th>Invoice Number</th>
+              <th>Company Name</th>
+              <th>Project Name</th>
+              <th>Milestone Name</th>
+              <th>Invoice Data</th>
+              <th>Due Date</th>
+              <th>Tax Excluded</th>
+              <th>Total</th>
+              <th>Remaining Price</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data rows will be added dynamically -->
+          </tbody>
+        </table>
       </div>
     </section>
     <section id="settings" class="content-section"></section>
