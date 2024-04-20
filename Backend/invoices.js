@@ -88,15 +88,18 @@ $(document).ready(async () => {
         }
 
         $("#createInvoice").click(async () => {
-            var invoicedata = formdatafetch();
-            console.log(formdata);
-            console.log(selectedMilestones);
-            // try {
-            //     await window.electron.send('createInvoice', { invoicedata });
-            // }
-            // catch (error) {
-            //     console.log(error);
-            // }
+            var formData = formdatafetch();
+            var invoiceData = {
+                formData: formData,
+                milestones: selectedMilestones
+            };
+            console.log(invoiceData);
+            try {
+                await window.electron.send('createInvoice', { invoiceData });
+            }
+            catch (error) {
+                console.log(error);
+            }
         });
     } catch (error) {
         console.log(error);

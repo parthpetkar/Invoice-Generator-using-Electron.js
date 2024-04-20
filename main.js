@@ -122,6 +122,11 @@ ipcMain.on('createCustomer', async (event, data) => {
         console.error('Error inserting data:', error);
     }
 });
+ipcMain.on('createInvoice', async (event, invoicedata) => {
+    console.log(invoicedata);
+    const getcinandponoquery = ``;
+
+});
 
 ipcMain.handle('fetchData', async (event) => {
     try {
