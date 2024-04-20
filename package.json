@@ -16,7 +16,11 @@
   },
   "dependencies": {
     "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
     "jquery": "^3.7.1",
-    "mysql2": "^3.9.2"
+    "json2xls": "^0.1.2",
+    "mysql2": "^3.9.2",
+    "pdfkit": "^0.15.0",
+    "pizzip": "^3.1.7"
   }
 }

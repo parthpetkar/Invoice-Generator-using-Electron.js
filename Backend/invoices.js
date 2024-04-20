@@ -95,7 +95,8 @@ $(document).ready(async () => {
             };
             console.log(invoiceData);
             try {
-                await window.electron.send('createInvoice', { invoiceData });
+                await window.electron.send('createInvoice', { invoiceData });//send to  db
+                await window.electron.send('createForm', { invoiceData }); //send to excel
             }
             catch (error) {
                 console.log(error);

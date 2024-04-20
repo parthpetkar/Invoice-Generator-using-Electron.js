@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const mysql = require('mysql2/promise');
 const { prependListener } = require('process');
+const fs = require('fs');
+const ExcelJS = require('exceljs');
 require('dotenv').config();
 
 let connection;
@@ -122,11 +124,48 @@ ipcMain.on('createCustomer', async (event, data) => {
         console.error('Error inserting data:', error);
     }
 });
-ipcMain.on('createInvoice', async (event, invoicedata) => {
-    console.log(invoicedata);
-    const getcinandponoquery = ``;
+
+ipcMain.on('createInvoice', async (event, data) => {
+    //console.log(invoicedata);
+    const invoiceData = data.invoiceData;
+    const { formData, milestones } = invoiceData;
+    //console.log(formData, milestones);
+    //const getcinandponoquery = ``;
 
 });
+
+ipcMain.on('createForm', async (event, data) =>{
+    //console.log(data);
+    //sending data to excel
+    const invoiceData = data.invoiceData;
+    const { formData, milestones } = invoiceData;
+    console.log(formData);
+    console.log(milestones);
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.xlsx.readFile('IEC_Invoice_template.xlsx')
+     .then(() => {
+        const worksheet = workbook.getWorksheet('Invoice 2');
+        if (worksheet) {
+            // Update cell values with invoice data
+            worksheet.getCell('A13').value = formData.customer;
+            worksheet.getCell('A14').value = formData.project;
+            worksheet.getCell('F4').value = formData.invoiceNumber;
+            worksheet.getCell('F3').value = formData.invoiceDate;
+            worksheet.getCell('F5').value = formData.dueDate;
+            worksheet.getCell('A21').value = formData.description;
+            return workbook.xlsx.writeFile('generatedInvoice.xlsx');
+        } else {
+        throw new Error('Worksheet not found in the Excel file.');
+        }
+    })
+    .then(() => {
+        console.log('Invoice generated successfully!');
+    })
+    .catch((error) => {
+        console.error(error);
+    });
+})
 
 ipcMain.handle('fetchData', async (event) => {
     try {
