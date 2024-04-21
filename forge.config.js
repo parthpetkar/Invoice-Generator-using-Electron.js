@@ -23,10 +23,6 @@ module.exports = {
       name: '@electron-forge/maker-rpm',
       config: {},
     },
-    {
-      name: '@electron-forge/maker-dmg', // Add maker for macOS
-      config: {},
-    }
   ],
   plugins: [
     {
