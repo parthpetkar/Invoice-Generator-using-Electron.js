@@ -23,6 +23,8 @@ function createWindow() {
     win.maximize();
 }
 if (require('electron-squirrel-startup')) app.quit();
+
+// app.setAccessibilitySupportEnabled(enabled);
 app.whenReady().then(() => {
     createWindow();
 
@@ -176,23 +178,23 @@ ipcMain.on("createInvoice", async (event, data) => {
         return remainingAmount;
     }
 
-    async function updateMilestoneStatus(milestones) {
-        const updateStatusQuery = `
-            UPDATE milestones
-            SET status = 'paid'
-            WHERE cin = ? AND pono = ? AND milestone_name IN (?)
-        `;
+    // async function updateMilestoneStatus(milestones) {
+    //     const updateStatusQuery = `
+    //         UPDATE milestones
+    //         SET status = 'paid'
+    //         WHERE cin = ? AND pono = ? AND milestone_name IN (?)
+    //     `;
 
-        const milestoneNames = milestones.map(
-            (milestone) => milestone.milestone_name
-        );
-        await connection.query(updateStatusQuery, [
-            milestones[0].cin,
-            milestones[0].pono,
-            milestoneNames,
-        ]);
-    }
-    await updateMilestoneStatus(milestones);
+    //     const milestoneNames = milestones.map(
+    //         (milestone) => milestone.milestone_name
+    //     );
+    //     await connection.query(updateStatusQuery, [
+    //         milestones[0].cin,
+    //         milestones[0].pono,
+    //         milestoneNames,
+    //     ]);
+    // }
+    // await updateMilestoneStatus(milestones);
 });
 
 ipcMain.on("createForm", async (event, data) => {
