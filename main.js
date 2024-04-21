@@ -4,6 +4,7 @@ const mysql = require("mysql2/promise");
 const { prependListener } = require("process");
 const fs = require("fs");
 const ExcelJS = require("exceljs");
+const { shell } = require('electron');	
 require("dotenv").config();
 
 let connection;
@@ -198,31 +199,69 @@ ipcMain.on("createForm", async (event, data) => {
     //sending data to excel
     const invoiceData = data.invoiceData;
     const { formData, milestones } = invoiceData;
+    // console.log(formData);
+    console.log(milestones);
+    const [rowforcin] = await connection.execute('select cin from invoices where invoice_number = ?', [formData.invoiceNumber]);
+    const cin = rowforcin[0].cin;
+    console.log(rowforcin);
+    console.log(cin);
+    console.log(formData.customer);
+    const [customerDetails] = await connection.execute('select company_name, address, phone, gstin, pan from customers where cin = ?', [cin]);
+    const address = customerDetails[0].address;
+    const phone = customerDetails[0].phone;
+    const gstin = customerDetails[0].gstin;
+    const pan = customerDetails[0].pan;
+    const company_name = customerDetails[0].company_name;
+
+    const pono = milestones[0].pono;
+    const total_price = milestones[0].total_prices;
+    
+    // console.log(customerDetails);
+
     const workbook = new ExcelJS.Workbook();
+    var fileName;
     workbook.xlsx
         .readFile("IEC_Invoice_template.xlsx")
         .then(() => {
             const worksheet = workbook.getWorksheet("Invoice 2");
             if (worksheet) {
             // Update cell values with invoice data
-                worksheet.getCell("A13").value = formData.customer;
-                worksheet.getCell("A14").value = formData.project;
+                worksheet.getCell("A13").value = '  ' + company_name;
+                worksheet.getCell("A14").value = '  ' + address;
+                worksheet.getCell("A15").value = '  ' + phone;
+                worksheet.getCell("A16").value = '  GST No.-' + gstin;
+                worksheet.getCell("A17").value = '  PAN No.-' + pan;
+                worksheet.getCell("C17").value = 'CIN No.- ' + cin;
+                worksheet.getCell("A20").value = formData.description;
+                worksheet.getCell("A22").value = ' PONo, : ' + pono;
+                worksheet.getCell("C22").value = total_price;
                 worksheet.getCell("F4").value = formData.invoiceNumber;
                 worksheet.getCell("F3").value = formData.invoiceDate;
                 worksheet.getCell("F5").value = formData.dueDate;
-                worksheet.getCell("A21").value = formData.description;
-                return workbook.xlsx.writeFile("generatedInvoice.xlsx");
+
+                let row = 24;
+                milestones.forEach((milestone) => {
+                    worksheet.getCell(`A${row}`).value = '  ' + milestone.milestone_name;
+                    worksheet.getCell(`D${row}`).value = '  ' + milestone.claim_percent;
+                    worksheet.getCell(`F${row}`).value = '  ' + milestone.amount;
+                    row++; // Move to the next row for the next milestone
+                });
+
+                fileName = 'INV' + formData.invoiceNumber + '.xlsx';
+                return workbook.xlsx.writeFile(`D:\\VIT\\Sem4\\generatedInvoices\\${fileName}`);
             } else {
                 throw new Error("Worksheet not found in the Excel file.");
             }
         })
         .then(() => {
             console.log("Invoice generated successfully!");
+            shell.openPath(`D:\\VIT\\Sem4\\generatedInvoices\\${fileName}`);
         })
         .catch((error) => {
             console.error(error);
         });
 });
+
 
 ipcMain.handle("fetchData", async (event) => {
     try {
