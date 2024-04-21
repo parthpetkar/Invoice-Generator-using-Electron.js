@@ -13,10 +13,10 @@ $(document).ready(async () => {
         const invoice = invoices.find(invoice => invoice.cin === milestone.cin && invoice.pono === milestone.pono && invoice.milestone_name === milestone.milestone_name);
         console.log(project)
         // Fill the table cells with data
+        row.append(`<td>${invoice ? invoice.invoice_number : 'N/A'}</td>`);
         row.append(`<td>${customer.company_name}</td>`);
         row.append(`<td>${project.project_name}</td>`);
         row.append(`<td>${milestone.milestone_name}</td>`);
-        row.append(`<td>${invoice ? invoice.invoice_number : 'N/A'}</td>`);
         row.append(`<td>${invoice ? invoice.invoice_date : 'N/A'}</td>`); // Update this with the actual date field
         row.append(`<td>${invoice ? invoice.due_date : 'N/A'}</td>`); // Update this with the actual due date field
         row.append(`<td>${invoice ? invoice.taxes_excluded : 'N/A'}</td>`);
@@ -36,7 +36,6 @@ $(document).ready(async () => {
         }
 
         // Actions - Add any action buttons or links here
-        row.append(`<td><button>Edit</button><button>Delete</button></td>`);
 
         // Append the row to the table body
         tableBody.append(row);
