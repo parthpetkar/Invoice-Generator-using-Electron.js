@@ -28,7 +28,6 @@
     "nodemon": "^3.1.0"
   },
   "dependencies": {
-    "@electron-forge/maker-dmg": "^7.4.0",
     "dotenv": "^16.4.5",
     "electron-squirrel-startup": "^1.0.0",
     "exceljs": "^4.4.0",
