@@ -21,7 +21,7 @@ function createWindow() {
     win.loadFile("public/index.html");
     win.maximize();
 }
-
+if (require('electron-squirrel-startup')) app.quit();
 app.whenReady().then(() => {
     createWindow();
 
