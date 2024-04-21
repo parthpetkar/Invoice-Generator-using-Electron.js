@@ -13,6 +13,11 @@ jobs:
       run: npm install
     - name: build
       run: npm run make
+    - name: Archive Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: electron-build
+        path: out\make\squirrel.windows\x64\invoice_gen-1.0.0 Setup.exe
 
   build_on_mac:
     runs-on: macos-latest
@@ -25,6 +30,11 @@ jobs:
       run: npm install
     - name: build
       run: npm run make
+    - name: Archive Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: electron-build
+        path: out\make\squirrel.windows\x64\invoice_gen-1.0.0 Setup.exe
 
   build_on_win:
     runs-on: windows-latest
@@ -37,3 +47,8 @@ jobs:
       run: npm install
     - name: build
       run: npm run make
+    - name: Archive Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: electron-build
+        path: out\make\squirrel.windows\x64\invoice_gen-1.0.0 Setup.exe
