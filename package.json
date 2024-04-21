@@ -1,5 +1,5 @@
 {
-  "name": "invoice_gen",
+  "name": "invoice-generation",
   "version": "1.0.0",
   "description": "test",
   "main": "main.js",
@@ -7,7 +7,8 @@
     "start": "electron-forge start",
     "watch": "nodemon --exec electron .",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "publish": "electron-forge publish"
   },
   "keywords": [
     "invoice_gen"
@@ -52,8 +53,8 @@
           "name": "@electron-forge/publisher-github",
           "config": {
             "repository": {
-              "owner": "erikhofer",
-              "name": "electron-publish-example"
+              "owner": "parth Petkar",
+              "name": "Project Submission v1.0.0"
             }
           }
         }

@@ -250,14 +250,14 @@ ipcMain.on("createForm", async (event, data) => {
                 });
 
                 fileName = 'INV' + formData.invoiceNumber + '.xlsx';
-                return workbook.xlsx.writeFile(`D:\\VIT\\Sem4\\generatedInvoices\\${fileName}`);
+                return workbook.xlsx.writeFile(`C:\\Users\\callo\\OneDrive\\Desktop\\${fileName}`);
             } else {
                 throw new Error("Worksheet not found in the Excel file.");
             }
         })
         .then(() => {
             console.log("Invoice generated successfully!");
-            shell.openPath(`D:\\VIT\\Sem4\\generatedInvoices\\${fileName}`);
+            shell.openPath(`C:\\Users\\callo\\OneDrive\\Desktop\\${fileName}`);
         })
         .catch((error) => {
             console.error(error);
@@ -293,27 +293,6 @@ ipcMain.handle("fetchCustomer", async (event) => {
         console.error("Error fetching data from database:", error);
     }
 });
-// ipcMain.handle("fetchInvoices", async (event) => {
-//     try {
-//         const [invoicedata] = await connection.execute(
-//             "SELECT * FROM invoices"
-//         );
-//         return { invoicedata };
-//     } catch (error) {
-//         console.error("Error fetching data from database:", error);
-//     }
-// });
-// ipcMain.handle("fetchStatus", async (event, invoicedata) => {
-//     try {
-//         const [status] = await connection.execute(
-//             "SELECT status FROM milestones"
-//         );
-//         return { status };
-//     } catch (error) {
-//         console.error("Error fetching data from database:", error);
-//     }
-// });
-
 ipcMain.handle("fetchProject", async (event, companyName) => {
     try {
         const [projects] = await connection.execute(
