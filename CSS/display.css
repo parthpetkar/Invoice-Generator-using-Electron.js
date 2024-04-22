@@ -40,3 +40,21 @@
         transform: translateY(0);
     }
 }
+/* CSS for row animation */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.row-animation {
+    animation: pulse 0.5s ease-in-out;
+}

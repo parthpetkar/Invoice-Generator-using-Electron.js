@@ -1,6 +1,5 @@
 $(document).ready(async () => {
     const { customers, milestones, projects, invoices } = await window.electron.invoke('fetchData');
-    console.log(projects)
     const tableBody = $('#displayTable tbody');
 
     // Iterate over each milestone data and create table rows
@@ -11,50 +10,52 @@ $(document).ready(async () => {
         const customer = customers.find(customer => customer.cin === milestone.cin);
         const project = projects.find(project => project.cin === milestone.cin && project.pono === milestone.pono);
         const invoice = invoices.find(invoice => invoice.cin === milestone.cin && invoice.pono === milestone.pono && invoice.milestone_name === milestone.milestone_name);
-        console.log(project)
+
         // Fill the table cells with data
         row.append(`<td>${invoice ? invoice.invoice_number : 'N/A'}</td>`);
-        row.append(`<td>${customer.company_name}</td>`);
-        row.append(`<td>${project.project_name}</td>`);
+        row.append(`<td>${customer ? customer.company_name : 'N/A'}</td>`); // Check if customer exists
+        row.append(`<td>${project ? project.project_name : 'N/A'}</td>`); // Check if project exists
         row.append(`<td>${milestone.milestone_name}</td>`);
-        row.append(`<td>${invoice ? invoice.invoice_date : 'N/A'}</td>`); // Update this with the actual date field
-        row.append(`<td>${invoice ? invoice.due_date : 'N/A'}</td>`); // Update this with the actual due date field
-        row.append(`<td>${invoice ? invoice.taxes_excluded : 'N/A'}</td>`);
-        row.append(`<td>${project.total_prices}</td>`);
-        row.append(`<td>${invoice ? invoice.remaining_amount : 'N/A'}</td>`);
+        row.append(`<td>${invoice ? formatDate(invoice.due_date) : 'N/A'}</td>`); // Update this with the actual due date field
+        row.append(`<td>${invoice ? formatCurrency(invoice.remaining_amount) : 'N/A'}</td>`); // Remaining Amount);
 
         // Status - Use the status from the milestone object
+        const statusCell = $('<td>'); // Create a cell for the status
         if (invoice) {
-            if (invoice.status === 'unpaid') {
+            const payButton = $('<button>').addClass('pay-btn').text('Pay'); // Create the "Pay" button
+            payButton.click(function () {
+                // Hide the button
+                $(this).hide();
 
-                row.append(`<td>Unpaid  </td>`); // Add an empty cell if invoice not created
-            } else {
-                row.append(`<td><button class="pay-btn">Pay</button></td>`);
-            }
+                // Get the row index
+                const rowIndex = $(this).closest('tr').index();
+
+                // Update the status to "paid"
+                invoices[rowIndex].status = 'paid';
+
+                // Update the corresponding cell text
+                statusCell.text('Paid');
+
+                // You might need to send an update request to your backend here to update the status in the database
+            });
+            statusCell.append(payButton);
         } else {
-            row.append(`<td>N/A</td>`); // Add an empty cell if invoice not created
+            statusCell.text('N/A');
         }
-
-        // Actions - Add any action buttons or links here
+        row.append(statusCell);
 
         // Append the row to the table body
         tableBody.append(row);
-    });
 
-    // Attach click event to the "Pay" button
-    $('.pay-btn').click(function () {
-        // Hide the button
-        $(this).hide();
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-IN', options);
+        };
 
-        // Get the row index
-        const rowIndex = $(this).closest('tr').index();
-
-        // Update the status to "paid"
-        invoices[rowIndex].status = 'paid';
-
-        // Update the corresponding cell text
-        $(this).closest('tr').find('td:eq(9)').text('Paid'); // Update the index if the status column changes
-
-        // You might need to send an update request to your backend here to update the status in the database
+        function formatCurrency(amount) {
+            // Assuming amount is in USD, change currency and locale as needed
+            return parseFloat(amount).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+        };
     });
 });
