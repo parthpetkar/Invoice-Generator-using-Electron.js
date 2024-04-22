@@ -1,5 +1,6 @@
 const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
+const { config } = require('dotenv');
 
 module.exports = {
   packagerConfig: {
@@ -13,7 +14,7 @@ module.exports = {
     },
     {
       name: '@electron-forge/maker-zip',
-      platforms: ['darwin', 'linux'],
+      config: {},
     },
     {
       name: '@electron-forge/maker-deb',
@@ -41,16 +42,4 @@ module.exports = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
-  publishers: [
-    {
-      name: '@electron-forge/publisher-github',
-      config: {
-        repository: {
-          owner: 'parthpetkar',
-          name: 'Invoice-Generator-using-Electron.js'
-        },
-        prerelease: true
-      }
-    }
-  ]
 };

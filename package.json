@@ -1,14 +1,13 @@
 {
-  "name": "invoice-generation",
-  "version": "1.0.1",
+  "name": "invoice_gen",
+  "version": "1.0.0",
   "description": "test",
   "main": "main.js",
   "scripts": {
     "start": "electron-forge start",
     "watch": "nodemon --exec electron .",
     "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish"
+    "make": "electron-forge make"
   },
   "keywords": [
     "invoice_gen"
@@ -25,40 +24,24 @@
     "@electron-forge/plugin-fuses": "^7.4.0",
     "@electron-forge/publisher-github": "^7.4.0",
     "@electron/fuses": "^1.8.0",
-    "electron": "^29.0.1",
-    "nodemon": "^3.1.0",
     "dotenv": "^16.4.5",
+    "electron": "^29.0.1",
     "electron-squirrel-startup": "^1.0.0",
     "exceljs": "^4.4.0",
     "jquery": "^3.7.1",
     "json2xls": "^0.1.2",
     "mysql2": "^3.9.2",
+    "nodemon": "^3.1.0",
     "pdfkit": "^0.15.0",
     "pizzip": "^3.1.7"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
-    "electron-squirrel-startup": "^1.0.0",
     "exceljs": "^4.4.0",
     "jquery": "^3.7.1",
     "json2xls": "^0.1.2",
     "mysql2": "^3.9.2",
     "pdfkit": "^0.15.0",
     "pizzip": "^3.1.7"
-  },
-  "config": {
-    "forge": {
-      "publishers": [
-        {
-          "name": "@electron-forge/publisher-github",
-          "config": {
-            "repository": {
-              "owner": "parth Petkar",
-              "name": "Project Submission v1.0.0"
-            }
-          }
-        }
-      ]
-    }
   }
 }
