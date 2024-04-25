@@ -22,7 +22,7 @@ function createWindow() {
     win.loadFile("public/index.html");
     win.maximize();
 }
-if (require('electron-squirrel-startup')) app.quit();
+// if (require('electron-squirrel-startup')) app.quit();
 
 // app.setAccessibilitySupportEnabled(enabled);
 app.whenReady().then(() => {
