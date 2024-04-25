@@ -3,7 +3,7 @@ $(document).ready(async () => {
     const tableBody = $('#displayTable tbody');
 
     // Iterate over each milestone data and create table rows
-    milestones.forEach(milestone => {
+    milestones.forEach(async (milestone) => {
         const row = $('<tr>');
 
         // Find the corresponding customer and project data using milestone's cin and pono
@@ -57,5 +57,7 @@ $(document).ready(async () => {
             // Assuming amount is in USD, change currency and locale as needed
             return parseFloat(amount).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
         };
+
+        await window.electron.send('updatestatus', milestone)
     });
 });
