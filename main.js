@@ -8,9 +8,9 @@ const { shell } = require('electron');
 require("dotenv").config();
 
 let connection;
-
+let win;
 function createWindow() {
-    const win = new BrowserWindow({
+    win = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
@@ -46,13 +46,12 @@ async function connectToDB() {
     try {
         connection = await mysql.createConnection({
         // Assign connection to the global variable
-            host: process.env.DB_HOST,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_DATABASE,
+            host: "localhost",
+            user: "test",
+            password: "parthYM8",
+            database: "invoice",
         });
     } catch (error) {
-        // Added error parameter
         console.error("Error connecting to database:", error); // Corrected log message and added error parameter
     }
 }
@@ -81,6 +80,7 @@ ipcMain.on("insertMilestone", async (event, data) => {
                 }
             );
         });
+        win.reload()
     } catch (error) {
         console.error("Error inserting project data:", error);
     }
@@ -107,7 +107,6 @@ ipcMain.on("createProject", async (event, data) => {
             projectData.taxTypes[0], // Assuming taxTypes is an array and you want to insert the first element
             projectData.projectName,
         ]);
-
         console.log("Data inserted successfully");
     } catch (error) {
         console.error("Error inserting project data:", error);
@@ -129,7 +128,7 @@ ipcMain.on("createCustomer", async (event, data) => {
             customerData.pan,
             customerData.cin,
         ]);
-
+        win.reload()
         console.log("Data inserted successfully");
     } catch (error) {
         console.error("Error inserting data:", error);
@@ -160,6 +159,7 @@ ipcMain.on("createInvoice", async (event, data) => {
                 milestone.milestone_name,
                 calculateRemainingAmount(milestone)
             ]); 
+            win.reload()
             console.log("Data inserted successfully");
         } catch (error) {
             console.error("Error inserting data:", error);
@@ -177,37 +177,14 @@ ipcMain.on("createInvoice", async (event, data) => {
 
         return remainingAmount;
     }
-
-    // async function updateMilestoneStatus(milestones) {
-    //     const updateStatusQuery = `
-    //         UPDATE milestones
-    //         SET status = 'paid'
-    //         WHERE cin = ? AND pono = ? AND milestone_name IN (?)
-    //     `;
-
-    //     const milestoneNames = milestones.map(
-    //         (milestone) => milestone.milestone_name
-    //     );
-    //     await connection.query(updateStatusQuery, [
-    //         milestones[0].cin,
-    //         milestones[0].pono,
-    //         milestoneNames,
-    //     ]);
-    // }
-    // await updateMilestoneStatus(milestones);
 });
 
 ipcMain.on("createForm", async (event, data) => {
     //sending data to excel
     const invoiceData = data.invoiceData;
     const { formData, milestones } = invoiceData;
-    // console.log(formData);
-    console.log(milestones);
     const [rowforcin] = await connection.execute('select cin from invoices where invoice_number = ?', [formData.invoiceNumber]);
     const cin = rowforcin[0].cin;
-    console.log(rowforcin);
-    console.log(cin);
-    console.log(formData.customer);
     const [customerDetails] = await connection.execute('select company_name, address, phone, gstin, pan from customers where cin = ?', [cin]);
     const address = customerDetails[0].address;
     const phone = customerDetails[0].phone;
@@ -218,7 +195,7 @@ ipcMain.on("createForm", async (event, data) => {
     const pono = milestones[0].pono;
     const total_price = milestones[0].total_prices;
     
-    // console.log(customerDetails);
+    // console.log(typeof (Number(milestones[0].amount)));
 
     const workbook = new ExcelJS.Workbook();
     var fileName;
@@ -236,16 +213,16 @@ ipcMain.on("createForm", async (event, data) => {
                 worksheet.getCell("C17").value = 'CIN No.- ' + cin;
                 worksheet.getCell("A20").value = formData.description;
                 worksheet.getCell("A22").value = ' PONo, : ' + pono;
-                worksheet.getCell("C22").value = total_price;
+                worksheet.getCell("C22").value = Number(total_price);
                 worksheet.getCell("F4").value = formData.invoiceNumber;
-                worksheet.getCell("F3").value = formData.invoiceDate;
-                worksheet.getCell("F5").value = formData.dueDate;
+                worksheet.getCell("F3").value = Date(formData.invoiceDate);
+                worksheet.getCell("F5").value = Date(formData.dueDate);
 
                 let row = 24;
                 milestones.forEach((milestone) => {
-                    worksheet.getCell(`A${row}`).value = '  ' + milestone.milestone_name;
-                    worksheet.getCell(`D${row}`).value = '  ' + milestone.claim_percent;
-                    worksheet.getCell(`F${row}`).value = '  ' + milestone.amount;
+                    worksheet.getCell(`A${row}`).value = '  ' + Number(milestone.milestone_name);
+                    worksheet.getCell(`D${row}`).value = '  ' + Number(milestone.claim_percent);
+                    worksheet.getCell(`F${row}`).value = '  ' + Number(milestone.amount);
                     row++; // Move to the next row for the next milestone
                 });
 
@@ -315,6 +292,29 @@ ipcMain.handle("fetchMilestones", async (event, projectName) => {
         console.error("Error fetching data from database:", error);
     }
 });
+
+ipcMain.on("paidstatus", async (event, data) => {
+    try {
+        const milestone = data.milestone;
+
+        // Select query to find the milestone
+        const selectQuery = 'SELECT * FROM milestones WHERE cin = ? AND pono = ? AND milestone_name = ?';
+        const [milestones] = await connection.execute(selectQuery, [milestone.cin, milestone.pono, milestone.milestone_name]);
+
+        // If milestone is found, update its status to 'paid'
+        if (milestones.length > 0) {
+            // Update query to set status to 'paid'
+            const updateQuery = 'UPDATE milestones SET status = ? WHERE cin = ? AND pono = ? AND milestone_name = ?';
+            await connection.execute(updateQuery, ['paid', milestone.cin, milestone.pono, milestone.milestone_name]);
+            console.log('Milestone status updated to paid');
+        } else {
+            console.log('Milestone not found');
+        }
+    } catch (err) {
+        console.error('Error:', err);
+    }
+});
+
 // Close database connection when app is quit
 app.on("quit", () => {
     if (connection) {

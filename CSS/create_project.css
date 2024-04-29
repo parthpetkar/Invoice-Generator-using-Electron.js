@@ -1,0 +1,144 @@
+.form-container {
+    padding-left: 20px;
+    padding-right: 20px;
+    animation: slideIn 1s forwards;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-group button:hover {
+    background-color: #0056b3;
+}
+
+.multiPageForm ul.tabs {
+    overflow: hidden;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.multiPageForm ul.tabs li {
+    float: left;
+    width: 25%;
+    text-align: center;
+}
+
+.multiPageForm ul.tabs li a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    background-color: #f4f4f4;
+}
+
+.multiPageForm ul.tabs li a:hover {
+    background-color: #ddd;
+}
+
+.multiPageForm ul.tabs li.is-active a {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.tabs-panel {
+    display: none;
+    padding: 20px;
+    border: 1px solid #ccc;
+}
+
+.tabs-panel.is-active {
+    display: block;
+}
+
+#project_form {
+    padding: 20px;
+    animation: slideIn 1s forwards;
+}
+
+#project_form h1 {
+    margin: 0 0 30px 0;
+    text-align: center;
+    color: #333;
+    /* Dark text color */
+}
+
+#project_form .form-group {
+    margin-bottom: 20px;
+}
+
+#project_form .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    /* Dark text color */
+    font-weight: bold;
+}
+
+#project_form .form-group input,
+#customerSelect {
+    width: calc(100% - 16px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    /* Light background color */
+    color: #333;
+    /* Dark text color */
+    font-size: 16px;
+}
+
+#tax,
+#tax_type {
+    margin-bottom: 20px;
+}
+
+#tax label,
+#tax_type label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: black;
+}
+
+#tax select,
+#tax_type select {
+    width: calc(100% - 16px);
+    /* Adjusted width to consider the border */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #e8eeef;
+    color: #8a97a0;
+    font-size: medium;
+    margin-right: 8px;
+    /* Add some margin to the right side */
+    margin-bottom: 10px;
+    /* Add some margin to the bottom */
+}
+
+#tax_type select {
+    height: 100px;
+    margin-top: 5px;
+}
+
+#tax_type option {
+    color: black;
+}
+
+.deleteBtn {
+    margin-left: 10px;
+}
+
+.error {
+    color: red;
+}

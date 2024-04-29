@@ -40,3 +40,34 @@
         transform: translateY(0);
     }
 }
+.error {
+    color: red;
+}
+
+#customerChoose {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #e8eeef;
+    color: #8a97a0;
+    font-size: medium;
+}
+
+#customerChoose option {
+    color: black;
+}
+
+#projectChoose {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #e8eeef;
+    color: #8a97a0;
+    font-size: medium;
+}
+
+#projectChoose option {
+    color: black;
+}

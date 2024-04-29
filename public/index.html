@@ -6,6 +6,7 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="../CSS/main_menu.css" />
     <link rel="stylesheet" href="../CSS/create_customer.css" />
+    <link rel="stylesheet" href="../CSS/create_project.css" />
     <link rel="stylesheet" href="../CSS/overall.css" />
     <link rel="stylesheet" href="../CSS/milestones.css" />
     <link rel="stylesheet" href="../CSS/milestone_addition.css" />
@@ -22,16 +23,6 @@
     <nav class="main-menu" id="mainMenu">
       <button class="menu-toggle">Menu</button>
       <ul class="menu-items">
-        <!-- <li>
-          <a href="#dashboard" class="nav-menu-item">
-            <img
-              src="../Assets/file-invoice-solid.svg"
-              alt="Dashboard Icon"
-              class="nav-icon"
-            />
-            <span class="nav-text">Dashboard</span>
-          </a>
-        </li> -->
         <li>
           <a href="#create_invoices" class="nav-menu-item">
             <img
@@ -73,7 +64,7 @@
             <span class="nav-text">Milestones</span>
           </a>
         </li>
-        <li>
+        <!-- <li>
           <a href="#settings" class="nav-menu-item">
             <img
               src="../Assets/sliders-solid.svg"
@@ -82,34 +73,19 @@
             />
             <span class="nav-text">Settings</span>
           </a>
-        </li>
+        </li> -->
       </ul>
     </nav>
-    <!-- <section id="dashboard" class="content-section">
-      <div class="container">
-        <div class="header">
-            <h1>Divine Dashboard</h1>
-            <p>Explore the celestial realms</p>
-        </div>
-        <ul class="dashboard-menu">
-            <li><a href="#settings"><span>Settings</span></a></li>
-            <li><a href="#milestones"><span>Milestones</span></a></li>
-            <li><a href="#create_project"></i><span>Create Project</span></a></li>
-            <li><a href="#create_customers"><span>Create Customers</span></a></li>
-            <li><a href="#create_invoices"><span>Create Invoices</span></a></li>
-        </ul>
-      </div>
-    </section> -->
     <section id="create_invoices" class="content-section">
       <div class="form-container" id="customer_form">
         <form id="myForm">
           <div class="form-group">
             <label for="invoice_number">Invoice Number</label>
             <input
-            type="number"
-            id="invoice_number"
-            placeholder="Invoice Number"
-            required
+              type="text"
+              id="invoice_number"
+              placeholder="Invoice Number"
+              required
             />
           </div>
           <div class="form-group">
@@ -159,6 +135,73 @@
         </form>
       </div>
     </section>
+    <section id="create_customers" class="content-section">
+      <div class="form-container" id="customer_form">
+        <form id="customerForm">
+          <div class="form-group">
+            <label for="companyName">Company Name</label>
+            <input
+              type="text"
+              id="customer_company_name"
+              placeholder="Company Name"
+              required
+            />
+            <div class="error" id="companyNameError"></div> 
+          </div>
+          <div class="form-group">
+            <label for="address">Address</label>
+            <input
+              type="text"
+              id="customer_address"
+              placeholder="Address"
+              required
+            />
+            <div class="error" id="addressError"></div>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input
+              type="text"
+              id="customer_phone"
+              placeholder="Phone"
+              required
+            />
+            <div class="error" id="phoneError"></div>
+          </div>
+          <div class="form-group">
+            <label for="gstin">Gst Identification Number</label>
+            <input
+              type="text"
+              id="customer_gstin"
+              placeholder="Gst Identification Number"
+              required
+            />
+            <div class="error" id="gstinError"></div>
+          </div>
+          <div class="form-group">
+            <label for="pan">Pan Number</label>
+            <input
+              type="text"
+              id="customer_pan"
+              placeholder="Pan Number"
+              required
+            />
+            <div class="error" id="panError"></div>
+          </div>
+          <div class="form-group">
+            <label for="cin">Corporate Identification Number</label>
+            <input
+              type="text"
+              id="customer_cin"
+              placeholder="Corporate Identification Number"
+              required
+            />
+            <div class="error" id="cinError"></div>
+          </div>
+          <button type="button" id="saveCustomer">Save Customer</button>
+        </form>
+      </div>
+    </section>
     <section id="create_project" class="content-section">
       <div class="form-container">
         <div class="multiPageForm">
@@ -171,7 +214,7 @@
           <div class="tabs-content" data-tabs-content="example-tabs">
             <div class="tabs-panel is-active" id="panel1">
               <div class="form-container" id="project_form">
-                <form id="myForm">
+                <form id="projectForm">
                   <div class="form-group">
                     <label for="customerSelect">Select Customer</label>
                     <select id="customerSelect" required>
@@ -179,6 +222,7 @@
                         Select Customer
                       </option>
                     </select>
+                    <div class="error" id="customerSelectError"></div>
                   </div>
                   <div class="form-group">
                     <label for="projectName">Project Name</label>
@@ -188,6 +232,7 @@
                       placeholder="Project Name"
                       required
                     />
+                    <div class="error" id="projectNameError"></div>
                   </div>
                   <div class="form-group">
                     <label for="poNo">Purchase Order Number</label>
@@ -197,6 +242,7 @@
                       placeholder="Purchase Order Number"
                       required
                     />
+                    <div class="error" id="poNoError"></div>
                   </div>
                   <div class="form-group">
                     <label for="total_price">Total Price</label>
@@ -206,6 +252,7 @@
                       placeholder="Total Price"
                       required
                     />
+                    <div class="error" id="totalPriceError"></div>
                   </div>
                   <div id="tax">
                     <label for="taxes_label">Taxes:</label><br />
@@ -225,8 +272,6 @@
                   <button type="button" id="saveProject">Save Project</button>
                 </form>
               </div>
-              <button class="button prev-tab">Previous</button>
-              <button class="button next-tab">Next</button>
             </div>
             <div class="tabs-panel" id="panel2">
               <div id="milestone_table">
@@ -243,7 +288,6 @@
                     <!-- Data rows will be added dynamically -->
                   </tbody>
                 </table>
-                <button id="addRowBtn">Add Row</button><br />
               </div>
               <button type="button" id="create_milestone">
                 Create Milestone
@@ -251,67 +295,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </section>
-    <section id="create_customers" class="content-section">
-      <div class="form-container" id="customer_form">
-        <form id="myForm">
-          <div class="form-group">
-            <label for="companyName">Company Name</label>
-            <input
-              type="text"
-              id="customer_company_name"
-              placeholder="Company Name"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="address">Address</label>
-            <input
-              type="text"
-              id="customer_address"
-              placeholder="Address"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="phone">Phone</label>
-            <input
-              type="text"
-              id="customer_phone"
-              placeholder="Phone"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="gstin">Gst Identification Number</label>
-            <input
-              type="text"
-              id="customer_gstin"
-              placeholder="Gst Identification Number"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="pan">Pan Number</label>
-            <input
-              type="text"
-              id="customer_pan"
-              placeholder="Pan Number"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="cin">Corporate Identification Number</label>
-            <input
-              type="text"
-              id="customer_cin"
-              placeholder="Corporate Identification Number"
-              required
-            />
-          </div>
-          <button type="button" id="saveCustomer">Save Customer</button>
-        </form>
       </div>
     </section>
     <section id="milestones" class="content-section">
@@ -324,7 +307,7 @@
               <th>Project Name</th>
               <th>Milestone Name</th>
               <th>Due Date</th>
-              <th>Remaining Price</th>
+              <th>Amount</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -334,6 +317,6 @@
         </table>
       </div>
     </section>
-    <section id="settings" class="content-section"></section>
+    <!-- <section id="settings" class="content-section"></section> -->
   </body>
 </html>

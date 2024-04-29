@@ -31,7 +31,7 @@ $(document).ready(function () {
 });
 
 $(document).ready(function () {
-    $('.next-tab').click(function () {
+    $('#saveProject').click(function () {
         var currentTab = $(this).closest('.tabs-panel');
         var nextTab = currentTab.next('.tabs-panel');
 
@@ -42,33 +42,6 @@ $(document).ready(function () {
         $('a[href="#' + currentTabLink + '"]').parent().removeClass('is-active');
         $('a[href="#' + nextTab.attr('id') + '"]').parent().addClass('is-active');
     });
-
-    $('.prev-tab').click(function () {
-        var currentTab = $(this).closest('.tabs-panel');
-        var prevTab = currentTab.prev('.tabs-panel');
-
-        currentTab.removeClass('is-active');
-        prevTab.addClass('is-active');
-
-        var currentTabLink = currentTab.attr('id');
-        $('a[href="#' + currentTabLink + '"]').parent().removeClass('is-active');
-        $('a[href="#' + prevTab.attr('id') + '"]').parent().addClass('is-active');
-    });
 });
-
-// $(document).ready(function () {
-//     $('a[href^="#"]').on('click', function (e) {
-//         e.preventDefault();
-
-//         var target = this.hash;
-//         var $target = $(target);
-
-//         $('html, body').stop().animate({
-//             'scrollTop': $target.offset().top
-//         }, 900, 'swing', function () {
-//             window.location.hash = target;
-//         });
-//     });
-// });
 
 

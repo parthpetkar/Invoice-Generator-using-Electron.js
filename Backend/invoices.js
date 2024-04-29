@@ -86,18 +86,78 @@ $(document).ready(async () => {
             return data;
         }
 
-        $("#createInvoice").click(async () => {
-            var formData = formdatafetch();
-            var invoiceData = {
-                formData: formData,
-                milestones: selectedMilestones
-            };
-            try {
-                await window.electron.send('createInvoice', { invoiceData });//send to  db
-                await window.electron.send('createForm', { invoiceData }); //send to excel
+        // $("#createInvoice").click(async () => {
+        //     var formData = formdatafetch();
+        //     var invoiceData = {
+        //         formData: formData,
+        //         milestones: selectedMilestones
+        //     };
+        //     try {
+        //         await window.electron.send('createInvoice', { invoiceData });//send to  db
+        //         await window.electron.send('createForm', { invoiceData }); //send to excel
+        //     }
+        //     catch (error) {
+        //         console.log(error);
+        //     }
+        // });
+        $("#createInvoice").click(function () {
+            $(".error").empty();
+            var isValid = true;
+
+            // Validate Invoice Number
+            var invoiceNumber = $("#invoice_number").val().trim();
+            if (invoiceNumber === "") {
+                $("#invoiceNumberError").text("Please enter Invoice Number");
+                isValid = false;
+            } else if (!/^[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}$/.test(invoiceNumber)) {
+                $("#invoiceNumberError").text("Invalid Invoice Number format. Example: ABCD-1234-EFGH");
+                isValid = false;
             }
-            catch (error) {
-                console.log(error);
+
+            // Validate Invoice Date
+            var invoiceDate = $("#invoice_date").val();
+            if (invoiceDate === "") {
+                $("#invoiceDateError").text("Please select Invoice Date");
+                isValid = false;
+            }
+
+            // Validate Due Date
+            var dueDate = $("#due_date").val();
+            if (dueDate === "") {
+                $("#dueDateError").text("Please select Due Date");
+                isValid = false;
+            }
+
+            // Validate Customer
+            var customerChoose = $("#customerChoose").val();
+            if (customerChoose === null) {
+                $("#customerChooseError").text("Please select a customer");
+                isValid = false;
+            }
+
+            // Validate Project
+            var projectChoose = $("#projectChoose").val();
+            if (projectChoose === null) {
+                $("#projectChooseError").text("Please select a project");
+                isValid = false;
+            }
+
+            // If all fields are valid, submit the form
+            if (isValid) {
+                $("#myForm").submit(async () => {
+                    var formData = formdatafetch();
+                    var invoiceData = {
+                        formData: formData,
+                        milestones: selectedMilestones
+                    };
+                    try {
+                        await window.electron.send('createInvoice', { invoiceData });//send to  db
+                        await window.electron.send('createForm', { invoiceData }); //send to excel
+                    }
+                    catch (error) {
+                        console.log(error);
+                    }
+                });
             }
         });
     } catch (error) {

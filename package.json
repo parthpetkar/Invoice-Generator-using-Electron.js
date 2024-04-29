@@ -7,7 +7,7 @@
     "start": "electron-forge start",
     "watch": "nodemon --exec electron .",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "cross-env DB_HOST=localhost DB_USER=test DB_PASSWORD=parthYM8 DB_NAME=invoice electron-forge make"
   },
   "keywords": [
     "invoice_gen"
@@ -24,6 +24,7 @@
     "@electron-forge/plugin-fuses": "^7.4.0",
     "@electron-forge/publisher-github": "^7.4.0",
     "@electron/fuses": "^1.8.0",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
     "electron": "^29.0.1",
     "exceljs": "^4.4.0",

@@ -40,26 +40,9 @@ $(document).ready(async () => { //it waits for html to load
     }
     var customerData = {};
     var projectData = {};
-    // Save customer data when save button on panel 1 is clicked
-    $('#saveCustomer').on('click', function () {
-        customerData = saveCustomerData();
-    });
-
-    // Save project data when save button on panel 2 is clicked
-    $('#saveProject').on('click', function () {
-        projectData = saveProjectData();
-    });
-
     try {
-        $('#back_btn').click(async (e) => {
-            e.preventDefault();
-            $('#milestone_table').hide();
-            $('#customer_form').show();
-        });
-
 
         const tax = $('#taxes_select').val();
-        const tax_options = $('#tax_type_select').val();
         if (tax === true) {
             $('#tax_type').show();
         }
@@ -72,11 +55,6 @@ $(document).ready(async () => { //it waits for html to load
                 $('#tax_type').hide();
             }
         });
-        $('#tax_type_select').change(function () {
-            const tax_options = $(this).val();
-        })
-        const table = $("#dataTable");
-
 
         let rowDataArray = [];
 
@@ -93,12 +71,12 @@ $(document).ready(async () => { //it waits for html to load
         function toggleAddRowButton() {
             const totalClaimPercentage = calculateTotalClaimPercentage();
             if (totalClaimPercentage === 100) {
-                $("#addRowBtn").prop("disabled", true);
+                $(".saveBtn").prop("disabled", true);
             } else {
-                $("#addRowBtn").prop("disabled", false);
+                $(".saveBtn").prop("disabled", false);
             }
         }
-
+        addRow();
         // Event listener for Save button click
         $("#dataTable").on("click", ".saveBtn", function () {
             const row = $(this).closest("tr"); // Get the closest row to the clicked button
@@ -117,10 +95,11 @@ $(document).ready(async () => { //it waits for html to load
 
             // Push the row data object into the array
             rowDataArray.push(rowData);
+            addRow();
             toggleAddRowButton();
         });
 
-        $("#addRowBtn").click(function () {
+        function addRow() {
             // Create a new row
             const newRow = $("<tr>");
 
@@ -148,7 +127,7 @@ $(document).ready(async () => { //it waits for html to load
 
             newRow.append(milestoneCell, claimPercentageCell, amountCell, $("<td>").append(saveBtn).append(deleteBtn)); // Append the new row to the table
             $("#dataTable tbody").append(newRow);
-        });
+        };
 
         // Event listener for Delete button click
         $("#dataTable").on("click", ".deleteBtn", function () {
@@ -163,7 +142,6 @@ $(document).ready(async () => { //it waits for html to load
 
         $("#create_milestone").click(async () => {
             try {
-                //await window.electron.send('createCustomer', { customerData });
                 await window.electron.send('insertMilestone', { rowDataArray, projectData });
             } catch (error) {
                 console.log(error)
@@ -173,7 +151,6 @@ $(document).ready(async () => { //it waits for html to load
         $("#saveCustomer").click(async () => {
             try {
                 await window.electron.send('createCustomer', { customerData });
-                // await window.electron.send('insertmilestone', { rowDataArray });
             } catch (error) {
                 console.log(error)
             }
@@ -199,6 +176,123 @@ $(document).ready(async () => { //it waits for html to load
             $('#customerSelect').append('<option value="' + obj.company_name + '">' + obj.company_name + '</option>');
         });
 
+
+        $("#saveCustomer").click(function () {
+            $(".error").empty();
+            var isValid = true;
+
+            // Validate Company Name
+            var companyName = $("#customer_company_name").val().trim();
+            if (companyName === "") {
+                $("#companyNameError").text("Please enter Company Name");
+                isValid = false;
+            }
+
+            // Validate Address
+            var address = $("#customer_address").val().trim();
+            if (address === "") {
+                $("#addressError").text("Please enter Address");
+                isValid = false;
+            }
+
+            // Validate Phone Number
+            var phone = $("#customer_phone").val().trim();
+            if (phone === "") {
+                $("#phoneError").text("Please enter Phone Number");
+                isValid = false;
+            } else if (!/^\d{10}$/.test(phone)) {
+                $("#phoneError").text("Invalid Phone Number");
+                isValid = false;
+            }
+
+            // Validate GST Identification Number
+            var gstin = $("#customer_gstin").val().trim();
+            if (gstin === "") {
+                $("#gstinError").text("Please enter GST Identification Number");
+                isValid = false;
+            } else if (!/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[1-9A-Z]{1}[Z]{1}[A-Z\d]{1}$/.test(gstin)) {
+                $("#gstinError").text("Invalid GST Identification Number");
+                isValid = false;
+            }
+
+            // Validate PAN Number
+            var pan = $("#customer_pan").val().trim();
+            if (pan === "") {
+                $("#panError").text("Please enter PAN Number");
+                isValid = false;
+            } else if (!/[A-Z]{5}[0-9]{4}[A-Z]{1}/.test(pan)) {
+                $("#panError").text("Invalid PAN Number");
+                isValid = false;
+            }
+
+            // Validate Corporate Identification Number
+            var cin = $("#customer_cin").val().trim();
+            if (cin === "") {
+                $("#cinError").text("Please enter Corporate Identification Number");
+                isValid = false;
+            } else if (!/^([LUu]{1})([0-9]{5})([A-Za-z]{2})([0-9]{4})([A-Za-z]{3})([0-9]{6})$/.test(cin)) {
+                $("#cinError").text("Invalid Corporate Identification Number");
+                isValid = false;
+            }
+
+            // If all fields are valid, submit the form
+            if (isValid) {
+                $("#myForm").submit(function () {
+                    customerData = saveCustomerData();
+                });
+                // Save customer data
+
+            }
+        });
+        $("#saveProject").click(function () {
+            $(".error").empty();
+            var isValid = true;
+
+            // Validate Select Customer
+            var customerSelect = $("#customerSelect").val();
+            if (customerSelect === null) {
+                $("#customerSelectError").text("Please select a customer");
+                isValid = false;
+            }
+
+            // Validate Project Name
+            var projectName = $("#project_name").val().trim();
+            if (projectName === "") {
+                $("#projectNameError").text("Please enter Project Name");
+                isValid = false;
+            }
+
+            // Validate Purchase Order Number
+            var poNo = $("#customer_poNo").val().trim();
+            if (poNo === "") {
+                $("#poNoError").text("Please enter Purchase Order Number");
+                isValid = false;
+            } else if (!/^\d{4}-\d{4}$/.test(poNo)) {
+                $("#poNoError").text("Invalid Purchase Order Number. Format: XXXX-XXXX");
+                isValid = false;
+            }
+
+            // Validate Total Price
+            var totalPrice = $("#total_price").val().trim();
+            if (totalPrice === "") {
+                $("#totalPriceError").text("Please enter Total Price");
+                isValid = false;
+            } else if (!/^\d+(\.\d{1,2})?$/.test(totalPrice)) {
+                $("#totalPriceError").text("Invalid Total Price. Please enter a valid amount.");
+                isValid = false;
+            }
+
+            // If all fields are valid, submit the form
+            if (isValid) {
+                $("#myForm").submit(function () {
+                    projectData = saveProjectData();
+                    e.preventDefault();
+                    $('#customer_form').hide();
+                    $('#milestone_table').show();
+                    addRow();
+                });
+            }
+        });
     } catch (error) {
         console.log(error);
     }

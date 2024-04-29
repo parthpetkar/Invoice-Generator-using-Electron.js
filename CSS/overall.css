@@ -21,61 +21,6 @@ button:hover {
     margin-bottom: 30px;
 }
 
-.dashboard-menu {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    grid-gap: 20px;
-    list-style-type: none;
-    padding: 0;
-}
-
-.dashboard-menu li {
-    text-align: center;
-}
-
-.dashboard-menu a {
-    text-decoration: none;
-    color: #333;
-    padding: 20px;
-    border-radius: 10px;
-    background-color: #3498db;
-    display: block;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.dashboard-menu a:before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 300%;
-    height: 300%;
-    background-color: #fff;
-    transition: all 0.3s ease;
-    border-radius: 50%;
-    z-index: 0;
-    transform: translate(-50%, -50%);
-}
-
-.dashboard-menu a:hover:before {
-    width: 0;
-    height: 0;
-}
-
-.dashboard-menu a:hover {
-    color: #fff;
-}
-
-.dashboard-menu a span {
-    display: block;
-    margin-top: 10px;
-    font-size: 20px;
-    position: relative;
-    z-index: 1;
-}
-
 @keyframes slideIn {
     from {
         opacity: 0;

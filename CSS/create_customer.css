@@ -1,7 +1,41 @@
- .form-container {
+#customer_form {
     padding-left: 20px;
     padding-right: 20px;
-    animation: slideIn 0.5s forwards;
+animation: slideIn 1s forwards;
+}
+
+#customer_form h1 {
+    margin: 0 0 30px 0;
+    text-align: center;
+color: #333;
+}
+
+#customer_form .form-group {
+    margin-bottom: 20px;
+}
+
+#customer_form .form-group label {
+    display: block;
+    margin-bottom: 8px;
+color: #333;
+    /* Dark text color */
+    font-weight: bold;
+}
+
+#customer_form .form-group input {
+    width: calc(100% - 16px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+background-color: #f9f9f9;
+    /* Light background color */
+    color: #333;
+    /* Dark text color */
+    font-size: 16px;
+}
+
+.error {
+    color: red;
 }
 
 @keyframes slideIn {
@@ -10,123 +44,8 @@
         transform: translateY(-50px);
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.form-group button:hover {
-    background-color: #0056b3;
-}
-
-.multiPageForm ul.tabs {
-    overflow: hidden;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-
-.multiPageForm ul.tabs li {
-    float: left;
-    width: 25%;
-    text-align: center;
-}
-
-.multiPageForm ul.tabs li a {
-    display: block;
-    padding: 10px;
-    text-decoration: none;
-    color: #333;
-    background-color: #f4f4f4;
-}
-
-.multiPageForm ul.tabs li a:hover {
-    background-color: #ddd;
-}
-
-.multiPageForm ul.tabs li.is-active a {
-    background-color: #007bff;
-    color: #fff;
-}
-
-.tabs-panel {
-    display: none;
-    padding: 20px;
-    border: 1px solid #ccc;
-}
-
-.tabs-panel.is-active {
-    display: block;
-} 
-
-#myForm {
-    max-width: 600px;
-        margin: auto;
-        padding: 30px;
-        background: #f4f4f4;
-    border-radius: 8px;
-}
-
-#myForm h1 {
-    margin: 0 0 30px 0;
-    text-align: center;
-    color: #fff;
-}
-
-#myForm .form-group {
-    margin-bottom: 20px;
-}
-
-#myForm .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: black;
-        font-weight: bold;
-}
-
-#myForm .form-group input {
-    width: 95%;
-    padding: 8px;
-    border: none;
-    font-size: 16px;
-    background-color: #e8eeef;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03) inset;
-}
-
-#tax,
-#tax_type {
-    margin-bottom: 20px;
-}
-
-#tax label,
-#tax_type label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: black;
-}
-
-#tax select,
-#tax_type select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #e8eeef;
-    color: #8a97a0;
-    font-size: medium;
-}
-
-#tax_type select {
-    height: 100px;
-        margin-top: 5px;
-}
-
-#create_milestone {
-    margin-top: 10px;
-}
-
-.deleteBtn {
-    margin-left: 10px;
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
