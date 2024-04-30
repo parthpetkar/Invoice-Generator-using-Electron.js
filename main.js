@@ -8,9 +8,10 @@ const { shell } = require('electron');
 require("dotenv").config();
 
 let connection;
+let win;
 
 function createWindow() {
-    const win = new BrowserWindow({
+    win = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
@@ -46,10 +47,10 @@ async function connectToDB() {
     try {
         connection = await mysql.createConnection({
         // Assign connection to the global variable
-            host: process.env.DB_HOST,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_DATABASE,
+            host: "localhost",
+            user: "root",
+            password: "parthYM8",
+            database: "invoice",
         });
     } catch (error) {
         // Added error parameter
@@ -129,7 +130,6 @@ ipcMain.on("createCustomer", async (event, data) => {
             customerData.pan,
             customerData.cin,
         ]);
-
         console.log("Data inserted successfully");
     } catch (error) {
         console.error("Error inserting data:", error);
