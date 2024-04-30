@@ -82,6 +82,7 @@ ipcMain.on("insertMilestone", async (event, data) => {
                 }
             );
         });
+        win.reload();
     } catch (error) {
         console.error("Error inserting project data:", error);
     }
@@ -130,6 +131,7 @@ ipcMain.on("createCustomer", async (event, data) => {
             customerData.pan,
             customerData.cin,
         ]);
+        win.reload();
         console.log("Data inserted successfully");
     } catch (error) {
         console.error("Error inserting data:", error);
@@ -160,6 +162,7 @@ ipcMain.on("createInvoice", async (event, data) => {
                 milestone.milestone_name,
                 calculateRemainingAmount(milestone)
             ]); 
+            win.reload();
             console.log("Data inserted successfully");
         } catch (error) {
             console.error("Error inserting data:", error);
