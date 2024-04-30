@@ -48,7 +48,7 @@ async function connectToDB() {
         // Assign connection to the global variable
             host: "localhost",
             user: "test",
-            password: "sanjayP@37",
+            password: "parthYM8",
             database: "invoice",
         });
     } catch (error) {
