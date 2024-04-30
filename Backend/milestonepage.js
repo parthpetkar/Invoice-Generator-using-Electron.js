@@ -17,36 +17,28 @@ $(document).ready(async () => {
         row.append(`<td>${project ? project.project_name : 'N/A'}</td>`); // Check if project exists
         row.append(`<td>${milestone.milestone_name}</td>`);
         row.append(`<td>${invoice ? formatDate(invoice.due_date) : 'N/A'}</td>`); // Update this with the actual due date field
-        row.append(`<td>${invoice ? formatCurrency(milestone.amount) : 'N/A'}</td>`); // Remaining Amount);
+        row.append(`<td>${invoice ? formatCurrency(invoice.remaining_amount) : 'N/A'}</td>`); // Remaining Amount);
 
         // Status - Use the status from the milestone object
         const statusCell = $('<td>'); // Create a cell for the status
-        if (invoice && milestone.status !== 'paid') {
+        if (invoice) {
             const payButton = $('<button>').addClass('pay-btn').text('Pay'); // Create the "Pay" button
-            payButton.click(async function () {
-                try {
-                    // Hide the button
-                    $(this).hide();
+            payButton.click(function () {
+                // Hide the button
+                $(this).hide();
 
-                    // Get the row index
-                    const rowIndex = $(this).closest('tr').index();
+                // Get the row index
+                const rowIndex = $(this).closest('tr').index();
 
-            // Update the status to "paid"
-                    milestone.status = 'paid';
+                // Update the status to "paid"
+                invoices[rowIndex].status = 'paid';
 
-                    // Update the corresponding cell text
-                    statusCell.text('Paid');
+                // Update the corresponding cell text
+                statusCell.text('Paid');
 
-                    // Send a request to update the milestone status
-                    await window.electron.send('paidstatus', { milestone });
-                } catch (error) {
-                    console.error('Error paying milestone:', error);
-                    // Handle error if necessary
-                }
+                // You might need to send an update request to your backend here to update the status in the database
             });
             statusCell.append(payButton);
-        } else if (invoice && milestone.status === 'paid') {
-            statusCell.text('Paid');
         } else {
             statusCell.text('N/A');
         }
@@ -66,6 +58,6 @@ $(document).ready(async () => {
             return parseFloat(amount).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
         };
 
-        // await window.electron.send('updatestatus', milestone)
+        await window.electron.send('updatestatus', milestone)
     });
 });
