@@ -6,12 +6,13 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="../CSS/main_menu.css" />
     <link rel="stylesheet" href="../CSS/create_customer.css" />
+    <link rel="stylesheet" href="../CSS/create_project.css" />
     <link rel="stylesheet" href="../CSS/overall.css" />
     <link rel="stylesheet" href="../CSS/milestones.css" />
     <link rel="stylesheet" href="../CSS/milestone_addition.css" />
     <link rel="stylesheet" href="../CSS/invoice.css" />
     <link rel="stylesheet" href="../CSS/display.css" />
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
     <script src="./index.js"></script>
     <script src="../Backend/invoices.js"></script>
     <script src="../Backend/customer.js"></script>
@@ -22,16 +23,6 @@
     <nav class="main-menu" id="mainMenu">
       <button class="menu-toggle">Menu</button>
       <ul class="menu-items">
-        <!-- <li>
-          <a href="#dashboard" class="nav-menu-item">
-            <img
-              src="../Assets/file-invoice-solid.svg"
-              alt="Dashboard Icon"
-              class="nav-icon"
-            />
-            <span class="nav-text">Dashboard</span>
-          </a>
-        </li> -->
         <li>
           <a href="#create_invoices" class="nav-menu-item">
             <img
@@ -73,33 +64,8 @@
             <span class="nav-text">Milestones</span>
           </a>
         </li>
-        <li>
-          <a href="#settings" class="nav-menu-item">
-            <img
-              src="../Assets/sliders-solid.svg"
-              alt="Settings Icon"
-              class="nav-icon"
-            />
-            <span class="nav-text">Settings</span>
-          </a>
-        </li>
       </ul>
     </nav>
-    <!-- <section id="dashboard" class="content-section">
-      <div class="container">
-        <div class="header">
-            <h1>Divine Dashboard</h1>
-            <p>Explore the celestial realms</p>
-        </div>
-        <ul class="dashboard-menu">
-            <li><a href="#settings"><span>Settings</span></a></li>
-            <li><a href="#milestones"><span>Milestones</span></a></li>
-            <li><a href="#create_project"></i><span>Create Project</span></a></li>
-            <li><a href="#create_customers"><span>Create Customers</span></a></li>
-            <li><a href="#create_invoices"><span>Create Invoices</span></a></li>
-        </ul>
-      </div>
-    </section> -->
     <section id="create_invoices" class="content-section">
       <div class="form-container" id="customer_form">
         <form id="myForm">
@@ -159,103 +125,9 @@
         </form>
       </div>
     </section>
-    <section id="create_project" class="content-section">
-      <div class="form-container">
-        <div class="multiPageForm">
-          <ul class="tabs" data-tabs id="example-tabs">
-            <li class="tabs-title is-active">
-              <a href="#panel1">Create Project</a>
-            </li>
-            <li class="tabs-title"><a href="#panel2">Add Milestones</a></li>
-          </ul>
-          <div class="tabs-content" data-tabs-content="example-tabs">
-            <div class="tabs-panel is-active" id="panel1">
-              <div class="form-container" id="project_form">
-                <form id="myForm">
-                  <div class="form-group">
-                    <label for="customerSelect">Select Customer</label>
-                    <select id="customerSelect" required>
-                      <option value="" disabled selected>
-                        Select Customer
-                      </option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label for="projectName">Project Name</label>
-                    <input
-                      type="text"
-                      id="project_name"
-                      placeholder="Project Name"
-                      required
-                    />
-                  </div>
-                  <div class="form-group">
-                    <label for="poNo">Purchase Order Number</label>
-                    <input
-                      type="text"
-                      id="customer_poNo"
-                      placeholder="Purchase Order Number"
-                      required
-                    />
-                  </div>
-                  <div class="form-group">
-                    <label for="total_price">Total Price</label>
-                    <input
-                      type="text"
-                      id="total_price"
-                      placeholder="Total Price"
-                      required
-                    />
-                  </div>
-                  <div id="tax">
-                    <label for="taxes_label">Taxes:</label><br />
-                    <select id="taxes_select" name="taxes">
-                      <option value="False">No</option>
-                      <option value="True">Yes</option>
-                    </select>
-                  </div>
-                  <div id="tax_type">
-                    <label id="tax_type_label">Tax Options</label><br />
-                    <select id="tax_type_select" multiple>
-                      <option value="IGST">IGST</option>
-                      <option value="SGST">SGST</option>
-                      <option value="CGST">CGST</option>
-                    </select>
-                  </div>
-                  <button type="button" id="saveProject">Save Project</button>
-                </form>
-              </div>
-              <button class="button prev-tab">Previous</button>
-              <button class="button next-tab">Next</button>
-            </div>
-            <div class="tabs-panel" id="panel2">
-              <div id="milestone_table">
-                <table id="dataTable">
-                  <thead>
-                    <tr>
-                      <th>Milestone Name</th>
-                      <th>Claim Percentage</th>
-                      <th>Amount</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <!-- Data rows will be added dynamically -->
-                  </tbody>
-                </table>
-                <button id="addRowBtn">Add Row</button><br />
-              </div>
-              <button type="button" id="create_milestone">
-                Create Milestone
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
     <section id="create_customers" class="content-section">
       <div class="form-container" id="customer_form">
-        <form id="myForm">
+        <form id="customerForm">
           <div class="form-group">
             <label for="companyName">Company Name</label>
             <input
@@ -312,6 +184,98 @@
           </div>
           <button type="button" id="saveCustomer">Save Customer</button>
         </form>
+      </div>
+    </section>
+    <section id="create_project" class="content-section">
+      <div class="form-container">
+        <div class="multiPageForm">
+          <ul class="tabs" data-tabs id="example-tabs">
+            <li class="tabs-title is-active">
+              <a href="#panel1">Create Project</a>
+            </li>
+            <li class="tabs-title"><a href="#panel2">Add Milestones</a></li>
+          </ul>
+          <div class="tabs-content" data-tabs-content="example-tabs">
+            <div class="tabs-panel is-active" id="panel1">
+              <div class="form-container" id="project_form">
+                <form id="projectForm">
+                  <div class="form-group">
+                    <label for="customerSelect">Select Customer</label>
+                    <select id="customerSelect" required>
+                      <option value="" disabled selected>
+                        Select Customer
+                      </option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="projectName">Project Name</label>
+                    <input
+                      type="text"
+                      id="project_name"
+                      placeholder="Project Name"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="poNo">Purchase Order Number</label>
+                    <input
+                      type="text"
+                      id="customer_poNo"
+                      placeholder="Purchase Order Number"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="total_price">Total Price</label>
+                    <input
+                      type="text"
+                      id="total_price"
+                      placeholder="Total Price"
+                      required
+                    />
+                  </div>
+                  <div id="tax">
+                    <label for="taxes_label">Taxes:</label><br />
+                    <select id="taxes_select" name="taxes">
+                      <option value="False">No</option>
+                      <option value="True">Yes</option>
+                    </select>
+                  </div>
+                  <div id="tax_type">
+                    <label id="tax_type_label">Tax Options</label><br />
+                    <select id="tax_type_select" multiple>
+                      <option value="IGST">IGST</option>
+                      <option value="SGST">SGST</option>
+                      <option value="CGST">CGST</option>
+                    </select>
+                  </div>
+                  <button type="button" id="saveProject">Save Project</button>
+                </form>
+              </div>
+            </div>
+            <div class="tabs-panel" id="panel2">
+              <div id="milestone_table">
+                <table id="dataTable">
+                  <thead>
+                    <tr>
+                      <th>Milestone Name</th>
+                      <th>Claim Percentage</th>
+                      <th>Amount</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Data rows will be added dynamically -->
+                  </tbody>
+                </table>
+                <button id="addRowBtn">Add Row</button><br />
+              </div>
+              <button type="button" id="create_milestone">
+                Create Milestone
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
     <section id="milestones" class="content-section">

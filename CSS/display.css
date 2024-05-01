@@ -1,33 +1,33 @@
 #displayTable {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     border-collapse: collapse;
     width: 100%;
-    animation: slideIn 0.5s forwards;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 #displayTable th,
 #displayTable td {
-    border: 1px solid;
-    padding: 8px;
+    border: none;
+        padding: 12px;
     text-align: center;
 }
 
 #displayTable th {
-    background-color: #f2f2f2;
+    background-color: #4285f4;
+        color: white;
 }
 
 #displayTable tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-#displayTable tbody tr {
-    font-size: small;
+    background-color: #f2f2f2;
 }
 
 #displayTable tbody tr:hover {
-    background-color: #f5f5f5;
+    background-color: #e0e0e0;
 }
+
 
 @keyframes slideIn {
     from {
@@ -40,7 +40,7 @@
         transform: translateY(0);
     }
 }
-/* CSS for row animation */
+/* Row Animation */
 @keyframes pulse {
     0% {
         transform: scale(1);

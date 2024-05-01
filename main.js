@@ -180,24 +180,6 @@ ipcMain.on("createInvoice", async (event, data) => {
 
         return remainingAmount;
     }
-
-    // async function updateMilestoneStatus(milestones) {
-    //     const updateStatusQuery = `
-    //         UPDATE milestones
-    //         SET status = 'paid'
-    //         WHERE cin = ? AND pono = ? AND milestone_name IN (?)
-    //     `;
-
-    //     const milestoneNames = milestones.map(
-    //         (milestone) => milestone.milestone_name
-    //     );
-    //     await connection.query(updateStatusQuery, [
-    //         milestones[0].cin,
-    //         milestones[0].pono,
-    //         milestoneNames,
-    //     ]);
-    // }
-    // await updateMilestoneStatus(milestones);
 });
 
 ipcMain.on("createForm", async (event, data) => {
@@ -316,6 +298,27 @@ ipcMain.handle("fetchMilestones", async (event, projectName) => {
         return { milestones };
     } catch (error) {
         console.error("Error fetching data from database:", error);
+    }
+});
+ipcMain.on("paidstatus", async (event, data) => {
+    try {
+        const milestone = data.milestone;
+
+        // Select query to find the milestone
+        const selectQuery = 'SELECT * FROM milestones WHERE cin = ? AND pono = ? AND milestone_name = ?';
+        const [milestones] = await connection.execute(selectQuery, [milestone.cin, milestone.pono, milestone.milestone_name]);
+
+        // If milestone is found, update its status to 'paid'
+        if (milestones.length > 0) {
+            // Update query to set status to 'paid'
+            const updateQuery = 'UPDATE milestones SET status = ? WHERE cin = ? AND pono = ? AND milestone_name = ?';
+            await connection.execute(updateQuery, ['paid', milestone.cin, milestone.pono, milestone.milestone_name]);
+            console.log('Milestone status updated to paid');
+        } else {
+            console.log('Milestone not found');
+        }
+    } catch (err) {
+        console.error('Error:', err);
     }
 });
 // Close database connection when app is quit

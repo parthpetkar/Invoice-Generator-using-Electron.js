@@ -46,20 +46,21 @@ $(document).ready(async () => { //it waits for html to load
     });
 
     // Save project data when save button on panel 2 is clicked
-    $('#saveProject').on('click', function () {
+    $("#saveProject").click(async () => {
         projectData = saveProjectData();
-    });
+        try {
+            await window.electron.send('createProject', { projectData });
+            e.preventDefault();
+            $('#milestone_table').show();
+            $('#customer_form').hide();
+        }
+        catch (error) {
+            console.log(error);
+        }
+    })
 
     try {
-        $('#back_btn').click(async (e) => {
-            e.preventDefault();
-            $('#milestone_table').hide();
-            $('#customer_form').show();
-        });
-
-
         const tax = $('#taxes_select').val();
-        const tax_options = $('#tax_type_select').val();
         if (tax === true) {
             $('#tax_type').show();
         }
@@ -72,11 +73,6 @@ $(document).ready(async () => { //it waits for html to load
                 $('#tax_type').hide();
             }
         });
-        $('#tax_type_select').change(function () {
-            const tax_options = $(this).val();
-        })
-        const table = $("#dataTable");
-
 
         let rowDataArray = [];
 
@@ -163,7 +159,6 @@ $(document).ready(async () => { //it waits for html to load
 
         $("#create_milestone").click(async () => {
             try {
-                //await window.electron.send('createCustomer', { customerData });
                 await window.electron.send('insertMilestone', { rowDataArray, projectData });
             } catch (error) {
                 console.log(error)
@@ -173,20 +168,11 @@ $(document).ready(async () => { //it waits for html to load
         $("#saveCustomer").click(async () => {
             try {
                 await window.electron.send('createCustomer', { customerData });
-                // await window.electron.send('insertmilestone', { rowDataArray });
             } catch (error) {
                 console.log(error)
             }
         });
 
-        $("#saveProject").click(async () => {
-            try {
-                await window.electron.send('createProject', { projectData });
-            }
-            catch(error) {
-                console.log(error);
-            }
-        })
 
         const { company_name } = await window.electron.invoke('fetchCustomer');
         $('#customerSelect').empty();
