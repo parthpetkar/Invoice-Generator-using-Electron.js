@@ -49,7 +49,7 @@ async function connectToDB() {
         // Assign connection to the global variable
             host: "localhost",
             user: "root",
-            password: "parthYM8",
+            password: "sanjayP@37",
             database: "invoice",
         });
     } catch (error) {
@@ -235,14 +235,14 @@ ipcMain.on("createForm", async (event, data) => {
                 });
 
                 fileName = 'INV' + formData.invoiceNumber + '.xlsx';
-                return workbook.xlsx.writeFile(`C:\\Users\\callo\\OneDrive\\Desktop\\${fileName}`);
+                return workbook.xlsx.writeFile(`D:\\VIT\\Sem4\\generatedInvoices\\${fileName}`);
             } else {
                 throw new Error("Worksheet not found in the Excel file.");
             }
         })
         .then(() => {
             console.log("Invoice generated successfully!");
-            shell.openPath(`C:\\Users\\callo\\OneDrive\\Desktop\\${fileName}`);
+            shell.openPath(`D:\\VIT\\Sem4\\generatedInvoices\\${fileName}`);
         })
         .catch((error) => {
             console.error(error);
