@@ -4,6 +4,7 @@ const mysql = require("mysql2/promise");
 const ExcelJS = require("exceljs");
 const { dialog, shell } = require('electron');
 require("dotenv").config();
+const { Menu, MenuItem } = require('electron');
 
 let connection;
 let win;
@@ -13,7 +14,32 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: true,
             preload: path.join(__dirname, "Backend/preload.js"),
+            spellcheck: true,
         },
+    });
+
+    win.webContents.on('context-menu', (event, params) => {
+        const menu = new Menu();
+
+        // Add each spelling suggestion
+        for (const suggestion of params.dictionarySuggestions) {
+            menu.append(new MenuItem({
+                label: suggestion,
+                click: () => win.webContents.replaceMisspelling(suggestion)
+            }));
+        }
+
+        // Allow users to add the misspelled word to the dictionary
+        if (params.misspelledWord) {
+            menu.append(
+                new MenuItem({
+                    label: 'Add to dictionary',
+                    click: () => win.webContents.session.addWordToSpellCheckerDictionary(params.misspelledWord)
+                })
+            );
+        }
+
+        menu.popup();
     });
 
     win.loadFile("public/index.html");
