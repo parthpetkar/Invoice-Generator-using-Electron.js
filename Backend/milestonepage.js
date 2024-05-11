@@ -1,59 +1,50 @@
 $(document).ready(async () => {
-    const { customers, milestones, projects, invoices } = await window.electron.invoke('fetchData');
-    const tableBody = $('#displayTable tbody');
+    try {
+        const { customers, milestones, projects, invoices } = await window.electron.invoke('fetchData');
+        const tableBody = $('#displayTable tbody');
 
-    // Iterate over each milestone data and create table rows
-    milestones.forEach(async (milestone) => {
-        const row = $('<tr>');
+        milestones.forEach(async (milestone) => {
+            try {
+                const row = $('<tr>');
 
-        // Find the corresponding customer and project data using milestone's cin and pono
-        const customer = customers.find(customer => customer.cin === milestone.cin);
-        const project = projects.find(project => project.cin === milestone.cin && project.pono === milestone.pono);
-        const invoice = invoices.find(invoice => invoice.cin === milestone.cin && invoice.pono === milestone.pono && invoice.milestone_name === milestone.milestone_name);
+                const customer = customers.find(customer => customer.cin === milestone.cin);
+                const project = projects.find(project => project.cin === milestone.cin && project.pono === milestone.pono);
+                const invoice = invoices.find(invoice => invoice.cin === milestone.cin && invoice.pono === milestone.pono && invoice.milestone_name === milestone.milestone_name);
 
-        // Fill the table cells with data
-        row.append(`<td>${invoice ? invoice.invoice_number : 'N/A'}</td>`);
-        row.append(`<td>${customer ? customer.company_name : 'N/A'}</td>`); // Check if customer exists
-        row.append(`<td>${project ? project.project_name : 'N/A'}</td>`); // Check if project exists
-        row.append(`<td>${milestone.milestone_name}</td>`);
-        row.append(`<td>${invoice ? formatDate(invoice.due_date) : 'N/A'}</td>`); // Update this with the actual due date field
-        row.append(`<td>${invoice ? formatCurrency(milestone.amount) : 'N/A'}</td>`); // Remaining Amount);
+                row.append(`<td>${invoice ? formatInvoiceNumber(invoice.invoice_number) : 'N/A'}</td>`);
+                row.append(`<td>${customer ? customer.company_name : 'N/A'}</td>`);
+                row.append(`<td>${project ? project.project_name : 'N/A'}</td>`);
+                row.append(`<td>${milestone.milestone_name}</td>`);
+                row.append(`<td>${invoice ? formatDate(invoice.due_date) : 'N/A'}</td>`);
+                row.append(`<td>${invoice ? formatCurrency(milestone.amount) : 'N/A'}</td>`);
 
-        // Status - Use the status from the milestone object
-        const statusCell = $('<td>'); // Create a cell for the status
-        if (invoice && milestone.status !== 'paid') {
-            const payButton = $('<button>').addClass('pay-btn').text('Pay'); // Create the "Pay" button
-            payButton.click(async function () {
-                try {
-                    // Hide the button
-                    $(this).hide();
+                const statusCell = $('<td>');
 
-                    // Get the row index
-                    const rowIndex = $(this).closest('tr').index();
-
-                    // Update the status to "paid"
-                    milestone.status = 'paid';
-
-                    // Update the corresponding cell text
+                if (invoice && milestone.status !== 'paid') {
+                    const payButton = $('<button>').addClass('pay-btn').text('Pay');
+                    payButton.click(async function () {
+                        try {
+                            $(this).hide();
+                            // const rowIndex = $(this).closest('tr').index();
+                            milestone.status = 'paid';
+                            statusCell.text('Paid');
+                            await window.electron.send('paidstatus', { milestone });
+                        } catch (error) {
+                            console.error('Error paying milestone:', error);
+                        }
+                    });
+                    statusCell.append(payButton);
+                } else if (invoice && milestone.status === 'paid') {
                     statusCell.text('Paid');
-
-                    // Send a request to update the milestone status
-                    await window.electron.send('paidstatus', { milestone });
-                } catch (error) {
-                    console.error('Error paying milestone:', error);
-                    // Handle error if necessary
+                } else {
+                    statusCell.text('N/A');
                 }
-            });
-            statusCell.append(payButton);
-        } else if (invoice && milestone.status === 'paid') {
-            statusCell.text('Paid');
-        } else {
-            statusCell.text('N/A');
-        }
-        row.append(statusCell);
-
-        // Append the row to the table body
-        tableBody.append(row);
+                row.append(statusCell);
+                tableBody.append(row);
+            } catch (error) {
+                console.error('Error processing milestone:', error);
+            }
+        });
 
         function formatDate(dateString) {
             const date = new Date(dateString);
@@ -62,10 +53,15 @@ $(document).ready(async () => {
         };
 
         function formatCurrency(amount) {
-            // Assuming amount is in USD, change currency and locale as needed
             return parseFloat(amount).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
         };
 
-        // await window.electron.send('updatestatus', milestone)
-    });
+        function formatInvoiceNumber(invoiceNumber) {
+            const yearPart = invoiceNumber.slice(0, 4);
+            const sequentialPart = invoiceNumber.slice(4);
+            return `${yearPart}-${sequentialPart}`;
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
 });

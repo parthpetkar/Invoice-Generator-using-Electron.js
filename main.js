@@ -1,10 +1,8 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const mysql = require("mysql2/promise");
-const { prependListener } = require("process");
-const fs = require("fs");
 const ExcelJS = require("exceljs");
-const { shell } = require('electron');	
+const { dialog, shell } = require('electron');
 require("dotenv").config();
 
 let connection;
@@ -12,8 +10,6 @@ let win;
 
 function createWindow() {
     win = new BrowserWindow({
-        width: 800,
-        height: 600,
         webPreferences: {
             nodeIntegration: true,
             preload: path.join(__dirname, "Backend/preload.js"),
@@ -24,8 +20,6 @@ function createWindow() {
     win.maximize();
 }
 if (require('electron-squirrel-startup')) app.quit();
-
-// app.setAccessibilitySupportEnabled(enabled);
 app.whenReady().then(() => {
     createWindow();
 
@@ -43,22 +37,18 @@ app.on("window-all-closed", () => {
 });
 
 async function connectToDB() {
-    // Corrected function name and async keyword
     try {
         connection = await mysql.createConnection({
-        // Assign connection to the global variable
             host: "localhost",
             user: "root",
             password: "parthYM8",
             database: "invoice",
         });
     } catch (error) {
-        // Added error parameter
-        console.error("Error connecting to database:", error); // Corrected log message and added error parameter
+        console.error("Error connecting to database:", error);
     }
 }
 
-// Call connectToDB function when app is ready
 app.whenReady().then(connectToDB);
 
 ipcMain.on("insertMilestone", async (event, data) => {
@@ -71,15 +61,12 @@ ipcMain.on("insertMilestone", async (event, data) => {
         );
         const cin = result[0].cin;
 
-        rowDataArray.forEach((rowData) => {
+        rowDataArray.forEach(async (rowData) => {
             const { milestone, claimPercentage, amount } = rowData;
             const query = `INSERT INTO milestones (cin, pono, milestone_name, claim_percent, amount) VALUES (?, ?, ?, ?, ?)`;
-            connection.query(
-                query,
-                [cin, projectData.poNo, milestone, claimPercentage, amount],
-                (error, results, fields) => {
-                    if (error) throw error;
-                }
+            await connection.query(query, [
+                cin, projectData.poNo, milestone, claimPercentage, amount
+            ]
             );
         });
         win.reload();
@@ -106,7 +93,7 @@ ipcMain.on("createProject", async (event, data) => {
             cin,
             projectData.poNo,
             projectData.totalPrice,
-            projectData.taxTypes[0], // Assuming taxTypes is an array and you want to insert the first element
+            projectData.taxTypes[0],
             projectData.projectName,
         ]);
 
@@ -131,7 +118,7 @@ ipcMain.on("createCustomer", async (event, data) => {
             customerData.pan,
             customerData.cin,
         ]);
-        win.reload();
+        // win.reload();
         console.log("Data inserted successfully");
     } catch (error) {
         console.error("Error inserting data:", error);
@@ -139,11 +126,8 @@ ipcMain.on("createCustomer", async (event, data) => {
 });
 
 ipcMain.on("createInvoice", async (event, data) => {
-    const invoiceData = data.invoiceData; // Accessing the 'invoiceData' property
-
-    // Extract formData and milestones from invoiceData
+    const invoiceData = data.invoiceData; 
     const { formData, milestones } = invoiceData; 
-    // Inserting data into Invoices table
     milestones.forEach(async (milestone) => {
         try {
             await connection.query(`
@@ -171,11 +155,8 @@ ipcMain.on("createInvoice", async (event, data) => {
     })
 
     function calculateRemainingAmount(milestone) {
-        // Extract the total amount and total paid amount directly from the milestone object
         const totalAmount = parseFloat(milestone.total_prices);
         const totalPaidAmount = parseFloat(milestone.amount);
-
-        // Calculate the remaining amount
         const remainingAmount = totalAmount - totalPaidAmount;
 
         return remainingAmount;
@@ -183,16 +164,12 @@ ipcMain.on("createInvoice", async (event, data) => {
 });
 
 ipcMain.on("createForm", async (event, data) => {
-    //sending data to excel
     const invoiceData = data.invoiceData;
     const { formData, milestones } = invoiceData;
-    // console.log(formData);
-    console.log(milestones);
+
     const [rowforcin] = await connection.execute('select cin from invoices where invoice_number = ?', [formData.invoiceNumber]);
     const cin = rowforcin[0].cin;
-    console.log(rowforcin);
-    console.log(cin);
-    console.log(formData.customer);
+
     const [customerDetails] = await connection.execute('select company_name, address, phone, gstin, pan from customers where cin = ?', [cin]);
     const address = customerDetails[0].address;
     const phone = customerDetails[0].phone;
@@ -202,17 +179,19 @@ ipcMain.on("createForm", async (event, data) => {
 
     const pono = milestones[0].pono;
     const total_price = milestones[0].total_prices;
-    
-    // console.log(customerDetails);
+
+    function formatInvoiceNumber(invoiceNumber) {
+        const yearPart = invoiceNumber.slice(0, 4);
+        const sequentialPart = invoiceNumber.slice(4);
+        return `${yearPart}-${sequentialPart}`;
+    }
 
     const workbook = new ExcelJS.Workbook();
-    var fileName;
     workbook.xlsx
         .readFile("IEC_Invoice_template.xlsx")
         .then(() => {
             const worksheet = workbook.getWorksheet("Invoice 2");
             if (worksheet) {
-            // Update cell values with invoice data
                 worksheet.getCell("A13").value = '  ' + company_name;
                 worksheet.getCell("A14").value = '  ' + address;
                 worksheet.getCell("A15").value = '  ' + phone;
@@ -221,33 +200,48 @@ ipcMain.on("createForm", async (event, data) => {
                 worksheet.getCell("C17").value = 'CIN No.- ' + cin;
                 worksheet.getCell("A20").value = formData.description;
                 worksheet.getCell("A22").value = ' PONo, : ' + pono;
-                worksheet.getCell("C22").value = total_price;
-                worksheet.getCell("F4").value = formData.invoiceNumber;
+                worksheet.getCell("C22").value = Number(total_price);
+                worksheet.getCell("F4").value = formatInvoiceNumber(formData.invoiceNumber);
                 worksheet.getCell("F3").value = formData.invoiceDate;
                 worksheet.getCell("F5").value = formData.dueDate;
 
                 let row = 24;
                 milestones.forEach((milestone) => {
                     worksheet.getCell(`A${row}`).value = '  ' + milestone.milestone_name;
-                    worksheet.getCell(`D${row}`).value = '  ' + milestone.claim_percent;
-                    worksheet.getCell(`F${row}`).value = '  ' + milestone.amount;
-                    row++; // Move to the next row for the next milestone
+                    worksheet.getCell(`D${row}`).value = '  ' + Number(milestone.claim_percent) + '%';
+                    worksheet.getCell(`F${row}`).value = '  ' + Number(milestone.amount);
+                    row++;
                 });
 
-                fileName = 'INV' + formData.invoiceNumber + '.xlsx';
-                return workbook.xlsx.writeFile(`C:\\Users\\callo\\OneDrive\\Desktop\\${fileName}`);
+                const options = {
+                    title: "Save Invoice",
+                    defaultPath: `INV${formData.invoiceNumber}.xlsx`,
+                    buttonLabel: "Save",
+                    filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
+                };
+
+                dialog.showSaveDialog(null, options).then(result => {
+                    if (!result.canceled) {
+                        const filePath = result.filePath;
+                        workbook.xlsx.writeFile(filePath)
+                            .then(() => {
+                                console.log("Invoice generated successfully!");
+                                shell.openPath(filePath);
+                            })
+                            .catch((error) => {
+                                console.error(error);
+                            });
+                    }
+                });
             } else {
                 throw new Error("Worksheet not found in the Excel file.");
             }
-        })
-        .then(() => {
-            console.log("Invoice generated successfully!");
-            shell.openPath(`C:\\Users\\callo\\OneDrive\\Desktop\\${fileName}`);
         })
         .catch((error) => {
             console.error(error);
         });
 });
+
 
 
 ipcMain.handle("fetchData", async (event) => {
@@ -304,13 +298,10 @@ ipcMain.on("paidstatus", async (event, data) => {
     try {
         const milestone = data.milestone;
 
-        // Select query to find the milestone
         const selectQuery = 'SELECT * FROM milestones WHERE cin = ? AND pono = ? AND milestone_name = ?';
         const [milestones] = await connection.execute(selectQuery, [milestone.cin, milestone.pono, milestone.milestone_name]);
 
-        // If milestone is found, update its status to 'paid'
         if (milestones.length > 0) {
-            // Update query to set status to 'paid'
             const updateQuery = 'UPDATE milestones SET status = ? WHERE cin = ? AND pono = ? AND milestone_name = ?';
             await connection.execute(updateQuery, ['paid', milestone.cin, milestone.pono, milestone.milestone_name]);
             console.log('Milestone status updated to paid');
@@ -321,10 +312,9 @@ ipcMain.on("paidstatus", async (event, data) => {
         console.error('Error:', err);
     }
 });
-// Close database connection when app is quit
+
 app.on("quit", () => {
     if (connection) {
-    // Check if connection exists before trying to end it
         connection.end();
     }
 });
