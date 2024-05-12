@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, Notification } = require("electron");
 const path = require("path");
 const mysql = require("mysql2/promise");
 const ExcelJS = require("exceljs");
@@ -43,14 +43,24 @@ function createWindow() {
     win.loadFile("public/index.html");
     win.maximize();
 }
+
+const NOTIFICATION_TITLE = 'Basic Notification'
+const NOTIFICATION_BODY = 'Notification from the Main process'
+
+function showNotification() {
+    try {
+        new Notification({ title: NOTIFICATION_TITLE, body: NOTIFICATION_BODY }).show();
+    } catch (error) {
+        console.error("Error showing notification:", error);
+    }
+}
+
 if (require('electron-squirrel-startup')) app.quit();
 app.whenReady().then(() => {
     createWindow();
-
-    app.on("activate", () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow();
-        }
+    // showNotification();
+    connectToDB().catch(error => {
+        console.error("Error connecting to database:", error);
     });
 });
 
@@ -73,7 +83,6 @@ async function connectToDB() {
     }
 }
 
-app.whenReady().then(connectToDB);
 
 ipcMain.on("insertMilestone", async (event, data) => {
     const { rowDataArray, projectData } = data;
@@ -165,8 +174,8 @@ ipcMain.on("createInvoice", async (event, data) => {
                 formData.invoiceNumber,
                 formData.invoiceDate,
                 formData.dueDate,
-                milestone.amount,  // Taxes excluded (set to null for now)
-                milestone.amount,  // Total prices (set to null for now)
+                milestone.amount,
+                milestone.amount, 
                 milestone.milestone_name,
                 calculateRemainingAmount(milestone)
             ]); 
@@ -333,6 +342,25 @@ ipcMain.on("paidstatus", async (event, data) => {
             console.log('Milestone not found');
         }
     } catch (err) {
+        console.error('Error:', err);
+    }
+});
+
+ipcMain.on("notification", async (event, data) => {
+    try {
+        const options = {
+            title: 'Invoice Due Today',
+            body: 'Invoice Pending From Customer ' + data.customer + '(' + data.project + ') ' + 'For Milestone ' + data.milestone, // Milestone name
+            silent: false,
+            icon: path.join(__dirname, '../assets/notification-icon.png'),
+            timeoutType: 'never',
+            urgency: 'critical',
+            closeButtonText: 'Close Button',
+        }
+
+        const customNotification = new Notification(options);
+        customNotification.show();
+    } catch (error) {
         console.error('Error:', err);
     }
 });

@@ -11,12 +11,12 @@ $(document).ready(async () => {
                 const project = projects.find(project => project.cin === milestone.cin && project.pono === milestone.pono);
                 const invoice = invoices.find(invoice => invoice.cin === milestone.cin && invoice.pono === milestone.pono && invoice.milestone_name === milestone.milestone_name);
 
-                row.append(`<td>${invoice ? formatInvoiceNumber(invoice.invoice_number) : 'N/A'}</td>`);
-                row.append(`<td>${customer ? customer.company_name : 'N/A'}</td>`);
-                row.append(`<td>${project ? project.project_name : 'N/A'}</td>`);
-                row.append(`<td>${milestone.milestone_name}</td>`);
-                row.append(`<td>${invoice ? formatDate(invoice.due_date) : 'N/A'}</td>`);
-                row.append(`<td>${invoice ? formatCurrency(milestone.amount) : 'N/A'}</td>`);
+                row.append(`<td class="invoice-number">${invoice ? formatInvoiceNumber(invoice.invoice_number) : '-'}</td>`);
+                row.append(`<td class="customer-name">${customer ? customer.company_name : '-'}</td>`);
+                row.append(`<td class="project-name">${project ? project.project_name : '-'}</td>`);
+                row.append(`<td class="milestone-name">${milestone.milestone_name}</td>`);
+                row.append(`<td>${invoice ? formatDate(invoice.due_date) : '-'}</td>`);
+                // row.append(`<td class="remainingamount">${invoice ? formatCurrency(milestone.amount) : 'N/A'}</td>`);
 
                 const statusCell = $('<td>');
 
@@ -25,7 +25,6 @@ $(document).ready(async () => {
                     payButton.click(async function () {
                         try {
                             $(this).hide();
-                            // const rowIndex = $(this).closest('tr').index();
                             milestone.status = 'paid';
                             statusCell.text('Paid');
                             await window.electron.send('paidstatus', { milestone });
@@ -37,10 +36,31 @@ $(document).ready(async () => {
                 } else if (invoice && milestone.status === 'paid') {
                     statusCell.text('Paid');
                 } else {
-                    statusCell.text('N/A');
+                    statusCell.text('-');
                 }
                 row.append(statusCell);
                 tableBody.append(row);
+
+                const dueDate = new Date(invoice.due_date);
+                const currentDate = new Date();
+                const differenceInDays = (Math.floor((dueDate - currentDate) / (1000 * 60 * 60 * 24))) + 1;
+
+                const statusBox = $('<span>')
+                    .addClass('status-box')
+                    .attr('data-difference', `${differenceInDays > 0 ? (differenceInDays === 0 ? 'Today' : `${Math.abs(differenceInDays)} day(s) left`) : `${Math.abs(differenceInDays)} day(s) overdue`}`);
+
+                if (differenceInDays > 7) {
+                    statusBox.addClass('status-box-far');
+                } else if (differenceInDays > 0) {
+                    statusBox.addClass('status-box-close');
+                } else if (differenceInDays === 0) {
+                    statusBox.addClass('status-box-exact');
+                    await window.electron.send('notification', { invoiceNumber: invoice.invoiceNumber, customer: customer.company_name, project: project.project_name, milestone: milestone.milestone_name })
+                } else {
+                    statusBox.addClass('status-box-passed');
+                }
+
+                row.find('td:nth-child(5)').addClass('due-date').append(statusBox);
             } catch (error) {
                 console.error('Error processing milestone:', error);
             }

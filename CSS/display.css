@@ -58,3 +58,90 @@
 .row-animation {
     animation: pulse 0.5s ease-in-out;
 }
+.invoice-number {
+    font-weight: bold;
+    position: relative;
+}
+
+.customer-name {
+    font-weight: bold;
+    position: relative;
+}
+
+.project-name {
+    font-style: italic;
+    font-weight: bold;
+    position: relative;
+}
+
+.milestone-name {
+    font-weight: bold;
+    position: relative;
+}
+
+.remainingamount {
+    font-weight: bold;
+    position: relative;
+}
+
+
+.due-date {
+    position: relative;
+    font-weight: bold;
+}
+
+/* Status box styles */
+.status-box {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    left: -10px;
+    /* Adjust as needed */
+    border-radius: 50%;
+    cursor: pointer;
+    /* Change cursor to pointer on hover */
+}
+
+/* Colors for different states */
+.status-box-far {
+    background-color: #2ecc71;
+    /* Green for far due dates */
+}
+
+.status-box-close {
+    background-color: #f39c12;
+    /* Orange for close due dates */
+}
+
+.status-box-exact {
+    background-color: #e74c3c;
+    /* Red for exact due dates */
+}
+
+.status-box-passed {
+    background-color: #bdc3c7;
+    /* Gray for passed due dates */
+}
+
+/* Tooltip styles */
+.status-box::after {
+    content: attr(data-difference);
+    position: absolute;
+    background-color: #4285f4;
+    color: #fff;
+    padding: 10px;
+    right: -2px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.3s linear;
+}
+
+.status-box:hover::after {
+    visibility: visible;
+    opacity: 1;
+}
