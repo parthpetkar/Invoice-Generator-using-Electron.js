@@ -352,7 +352,7 @@ ipcMain.on("notification", async (event, data) => {
             title: 'Invoice Due Today',
             body: 'Invoice Pending From Customer ' + data.customer + '(' + data.project + ') ' + 'For Milestone ' + data.milestone, // Milestone name
             silent: false,
-            icon: path.join(__dirname, '../assets/notification-icon.png'),
+            icon: path.join(__dirname, '../assets/bell-solid.svg'),
             timeoutType: 'never',
             urgency: 'critical',
             closeButtonText: 'Close Button',

@@ -279,24 +279,50 @@
     </section>
     <section id="milestones" class="content-section">
       <div id="milestone_table">
-        <table id="displayTable">
-          <thead>
-            <tr>
-              <th>Invoice Number</th>
-              <th>Company Name</th>
-              <th>Project Name</th>
-              <th>Milestone Name</th>
-              <th>Due Date</th>
-              <!-- <th>Remaining Price</th> -->
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Data rows will be added dynamically -->
-          </tbody>
-        </table>
+          <table id="displayTable">
+              <thead>
+                  <tr>
+                      <th>Invoice Number
+                          <div class="filter">
+                              <input type="text" id="invoiceNumberFilter" placeholder="Search">
+                          </div>
+                      </th>
+                      <th>Company Name
+                          <div class="filter">
+                              <input type="text" id="customerNameFilter" placeholder="Search">
+                          </div>
+                      </th>
+                      <th>Project Name
+                          <div class="filter">
+                              <input type="text" id="projectNameFilter" placeholder="Search">
+                          </div>
+                      </th>
+                      <th>Milestone Name
+                          <div class="filter">
+                              <input type="text" id="milestoneNameFilter" placeholder="Search">
+                          </div>
+                      </th>
+                      <th>
+                          Due Date
+                          <div class="dropdown">
+                              <select id="dueDateFilter">
+                                  <option value="all">All</option>
+                                  <option value="newest">Newest</option>
+                                  <option value="oldest">Oldest</option>
+                                  <option value="dueToday">Due Today</option>
+                              </select>
+                          </div>
+                      </th>
+                      <!-- <th>Remaining Price</th> -->
+                      <th>Amount</th>
+                      <th>Status</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <!-- Data rows will be added dynamically -->
+              </tbody>
+          </table>
       </div>
-    </section>
-    <section id="settings" class="content-section"></section>
+  </section>  
   </body>
 </html>

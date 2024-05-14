@@ -3,7 +3,7 @@
     border-collapse: collapse;
     width: 100%;
     margin-bottom: 20px;
-        border-radius: 8px;
+    border-radius: 8px;
         overflow: hidden;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -11,13 +11,13 @@
 #displayTable th,
 #displayTable td {
     border: none;
-        padding: 12px;
+    padding: 12px;
     text-align: center;
 }
 
 #displayTable th {
     background-color: #4285f4;
-        color: white;
+    color: white;
 }
 
 #displayTable tbody tr:nth-child(even) {
@@ -28,6 +28,30 @@
     background-color: #e0e0e0;
 }
 
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown select {
+    background-color: #4285f4;
+    border: 1px solid #4285f4;
+    color: #e9ecef;
+    font-weight: bold;
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.dropdown select:hover {
+    background-color: #4285f4;
+}
+
+.dropdown select:focus {
+    outline: none;
+    border-color: #4285f4;
+}
 
 @keyframes slideIn {
     from {
@@ -40,6 +64,7 @@
         transform: translateY(0);
     }
 }
+
 /* Row Animation */
 @keyframes pulse {
     0% {
@@ -58,6 +83,7 @@
 .row-animation {
     animation: pulse 0.5s ease-in-out;
 }
+
 .invoice-number {
     font-weight: bold;
     position: relative;
@@ -84,7 +110,6 @@
     position: relative;
 }
 
-
 .due-date {
     position: relative;
     font-weight: bold;
@@ -98,31 +123,29 @@
     top: 50%;
     transform: translateY(-50%);
     left: -10px;
-    /* Adjust as needed */
     border-radius: 50%;
     cursor: pointer;
-    /* Change cursor to pointer on hover */
 }
 
 /* Colors for different states */
 .status-box-far {
     background-color: #2ecc71;
-    /* Green for far due dates */
+        /* Green for far due dates */
 }
 
 .status-box-close {
-    background-color: #f39c12;
-    /* Orange for close due dates */
+    background-color: #ff3737;
+        /* Orange for close due dates */
 }
 
 .status-box-exact {
-    background-color: #e74c3c;
-    /* Red for exact due dates */
+    background-color: #4d0801;
+        /* Red for exact due dates */
 }
 
 .status-box-passed {
-    background-color: #bdc3c7;
-    /* Gray for passed due dates */
+    background-color: #333537;
+        /* Gray for passed due dates */
 }
 
 /* Tooltip styles */
