@@ -139,12 +139,12 @@
 }
 
 .status-box-exact {
-    background-color: #4d0801;
+    background-color: #2e47ff;
         /* Red for exact due dates */
 }
 
 .status-box-passed {
-    background-color: #333537;
+    background-color: #000000;
         /* Gray for passed due dates */
 }
 
@@ -167,4 +167,26 @@
 .status-box:hover::after {
     visibility: visible;
     opacity: 1;
+}
+
+.filter-label {
+    display: block;
+    margin-bottom: 5px;
+    margin-right: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+.filter-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.table-filter {
+    flex: 1;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
 }

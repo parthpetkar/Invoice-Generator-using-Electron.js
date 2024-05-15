@@ -350,18 +350,32 @@ ipcMain.on("notification", async (event, data) => {
     try {
         const options = {
             title: 'Invoice Due Today',
-            body: 'Invoice Pending From Customer ' + data.customer + '(' + data.project + ') ' + 'For Milestone ' + data.milestone, // Milestone name
+            body: 'Invoice Pending From Customer '
+                + data.customer
+                + '(' + data.project + ') '
+                + 'For Milestone ' + data.milestone,
             silent: false,
             icon: path.join(__dirname, '../assets/bell-solid.svg'),
             timeoutType: 'never',
             urgency: 'critical',
             closeButtonText: 'Close Button',
+            tag: 'invoice_due_' + data.customer + '_' + data.project,
         }
-
         const customNotification = new Notification(options);
         customNotification.show();
     } catch (error) {
-        console.error('Error:', err);
+        console.error('Error:', error);
+    }
+    try {
+        const updatedQuery = 'UPDATE invoices SET noti_sent = ? WHERE cin = ? AND pono = ? AND milestone_name = ?';
+        await connection.execute(updatedQuery, [
+            'yes',
+            data.invoice.cin,
+            data.invoice.pono,
+            data.invoice.milestone_name
+        ]);
+    } catch (error) {
+        console.error('Error:', error);
     }
 });
 

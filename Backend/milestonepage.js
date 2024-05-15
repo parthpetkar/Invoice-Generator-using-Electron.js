@@ -64,13 +64,14 @@ $(document).ready(async () => {
                         statusBox.addClass('status-box-close');
                     } else if (differenceInDays === 0) {
                         statusBox.addClass('status-box-exact');
-                        if (invoice.noti_sent == "No") {
+                        if (invoice.noti_sent === 'no') {
                             await window.electron.send('notification', {
                                 invoiceNumber: invoice.invoiceNumber,
                                 customer: customer.company_name,
                                 project: project.project_name,
-                                milestone: milestone.milestone_name
-                            });
+                                milestone: milestone.milestone_name,
+                                invoice: invoice
+                            })
                         }
                     } else {
                         statusBox.addClass('status-box-passed');
@@ -110,42 +111,13 @@ $(document).ready(async () => {
             displayInvoices(displayedInvoices);
         });
 
-        // Filter invoices based on invoice number
-        $('#invoiceNumberFilter').keyup(function () {
-            const value = $(this).val().toLowerCase();
-            displayedInvoices = invoices.filter(invoice => invoice.invoice_number.toLowerCase().includes(value));
-            displayInvoices(displayedInvoices);
+        $('#tableFilter').on('input', function () {
+            const filterValue = $(this).val().toLowerCase();
+            $('#displayTable tbody tr').filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(filterValue) > -1);
+            });
         });
 
-        // Filter invoices based on customer name
-        $('#customerNameFilter').keyup(function () {
-            const value = $(this).val().toLowerCase();
-            displayedInvoices = invoices.filter(invoice => {
-                const customer = customers.find(customer => customer.cin === invoice.cin);
-                return customer.company_name.toLowerCase().includes(value);
-            });
-            displayInvoices(displayedInvoices);
-        });
-
-        // Filter invoices based on project name
-        $('#projectNameFilter').keyup(function () {
-            const value = $(this).val().toLowerCase();
-            displayedInvoices = invoices.filter(invoice => {
-                const project = projects.find(project => project.cin === invoice.cin && project.pono === invoice.pono);
-                return project.project_name.toLowerCase().includes(value);
-            });
-            displayInvoices(displayedInvoices);
-        });
-
-        // Filter invoices based on milestone name
-        $('#milestoneNameFilter').keyup(function () {
-            const value = $(this).val().toLowerCase();
-            displayedInvoices = invoices.filter(invoice => {
-                const milestone = milestones.find(milestone => milestone.cin === invoice.cin && milestone.pono === invoice.pono && milestone.milestone_name === invoice.milestone_name);
-                return milestone.milestone_name.toLowerCase().includes(value);
-            });
-            displayInvoices(displayedInvoices);
-        });
 
         function formatDate(dateString) {
             const date = new Date(dateString);
