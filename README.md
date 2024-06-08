@@ -1,4 +1,4 @@
-# Invoice Generation System
+# Offline Invoice Generation System
 
 ## 🎨 Table of Contents
 - [Invoice Generation System](#invoice-generation-system)
