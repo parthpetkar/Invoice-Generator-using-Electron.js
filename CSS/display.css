@@ -4,8 +4,21 @@
     width: 100%;
     margin-bottom: 20px;
     border-radius: 8px;
-        overflow: hidden;
+    overflow: hidden;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: slideIn 1s forwards;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+    
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
 }
 
 #displayTable th,
@@ -130,22 +143,22 @@
 /* Colors for different states */
 .status-box-far {
     background-color: #2ecc71;
-        /* Green for far due dates */
+    /* Green for far due dates */
 }
 
 .status-box-close {
     background-color: #ff3737;
-        /* Orange for close due dates */
+    /* Orange for close due dates */
 }
 
 .status-box-exact {
     background-color: #2e47ff;
-        /* Red for exact due dates */
+    /* Red for exact due dates */
 }
 
 .status-box-passed {
     background-color: #000000;
-        /* Gray for passed due dates */
+    /* Gray for passed due dates */
 }
 
 /* Tooltip styles */

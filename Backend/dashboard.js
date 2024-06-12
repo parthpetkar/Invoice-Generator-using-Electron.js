@@ -8,13 +8,29 @@ $(document).ready(async () => {
         $("#totalPending").text(`₹${summaryData.amountPending.toLocaleString()}`);
 
         const invoiceData = await window.electron.invoke("get-invoice-data");
-        const dates = invoiceData.map((item) => item.invoice_date);
-        const amounts = invoiceData.map((item) => item.total_prices);
+
+        // Group invoices by date and calculate the total amount for each day
+        const groupedByDate = invoiceData.reduce((acc, invoice) => {
+            const dateKey = invoice.invoice_date.toDateString();
+            if (!acc[dateKey]) {
+                acc[dateKey] = { totalAmount: 0, count: 0 };
+            }
+            acc[dateKey].totalAmount += parseFloat(invoice.total_prices);
+            acc[dateKey].count++;
+            return acc;
+        }, {});
+
+        // Calculate the average amount for each day
+        const dates = Object.keys(groupedByDate);
+        const avgAmounts = dates.map((date) => {
+            const avg = groupedByDate[date].totalAmount / groupedByDate[date].count;
+            return avg.toFixed(2); // Round to 2 decimal places
+        });
 
         const invoicesData = [
             {
                 x: dates,
-                y: amounts,
+                y: avgAmounts,
                 type: "scatter",
                 mode: "lines+markers",
                 name: "Invoices",
@@ -22,14 +38,13 @@ $(document).ready(async () => {
         ];
 
         const layout = {
-            title: "Invoices Over Time",
+            title: "Average Invoice Amount Over Time",
             xaxis: {
-                title: "Date",
                 showgrid: false,
                 zeroline: false,
             },
             yaxis: {
-                title: "Amount ($)",
+                title: "Average Amount",
                 showline: false,
             },
         };
