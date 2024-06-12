@@ -112,19 +112,18 @@ color: #666;
 
 /* Styles for the extend button */
 .extend-button {
-display: block;
-    margin: 10px auto;
+    display: inline-block;
     padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
+    background-color: var(--primary-color);
+        color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.3s ease;
 }
 
 .extend-button:hover {
-background-color: #0056b3;
+    background-color: var(--secondary-color);
 }
 
 /* Modal styles */
