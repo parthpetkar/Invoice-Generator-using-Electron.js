@@ -1,0 +1,166 @@
+/* General styles for the dashboard container */
+.dashboard-container {
+    padding: 20px;
+    background-color: #f0f2f5;
+}
+
+/* Styles for the summary section */
+.dashboard-summary {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.summary-item {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    margin: 0 10px;
+    transition: transform 0.2s;
+}
+
+.summary-item:hover {
+    transform: scale(1.05);
+}
+
+.summary-item h2 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 20px;
+    /* Increase font size */
+}
+
+.summary-item p {
+    font-size: 18px;
+    /* Decrease font size */
+    color: #666;
+}
+
+/* Styles for the chart section */
+.dashboard-charts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.chart-container {
+    flex: 1;
+    min-width: 300px;
+}
+
+.chart {
+    width: 100%;
+    height: 400px;
+}
+
+/* Styles for the project section */
+.projects-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.project-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    flex: 1;
+    margin: 10px;
+    min-width: 280px;
+    text-align: left;
+}
+
+.project-card:hover {
+    transform: scale(1.05);
+}
+
+.project-card h3 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 20px;
+    /* Increase font size */
+}
+
+.project-card p {
+    color: #666;
+    font-size: 16px;
+    /* Decrease font size */
+    line-height: 1.5;
+    /* Improve line height */
+}
+
+/* Styles for the extend button */
+.extend-button {
+    display: block;
+    margin: 10px auto;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.extend-button:hover {
+    background-color: #0056b3;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.project-details h3,
+.milestone-card h4 {
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 20px;
+    /* Increase font size */
+}
+
+.project-details p,
+.milestone-card p {
+    font-size: 18px;
+    color: #666;
+}

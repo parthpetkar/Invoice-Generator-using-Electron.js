@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard</title>
+  <title>Invoice Gen</title>
   <link rel="stylesheet" href="../CSS/main_menu.css" />
   <link rel="stylesheet" href="../CSS/create_customer.css" />
   <link rel="stylesheet" href="../CSS/create_project.css" />
@@ -13,18 +13,27 @@
   <link rel="stylesheet" href="../CSS/milestone_addition.css" />
   <link rel="stylesheet" href="../CSS/invoice.css" />
   <link rel="stylesheet" href="../CSS/display.css" />
+  <link rel="stylesheet" href="../CSS/dashboard.css" />
   <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
     integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="./index.js"></script>
   <script src="../Backend/invoices.js"></script>
   <script src="../Backend/customer.js"></script>
   <script src="../Backend/milestonepage.js"></script>
+  <script src="../Backend/dashboard.js"></script>
 </head>
 
 <body>
   <nav class="main-menu" id="mainMenu">
     <button class="menu-toggle">Menu</button>
     <ul class="menu-items">
+      <li>
+        <a href="#dashboard" class="nav-menu-item">
+          <img src="../Assets/home-solid.svg" alt="Milestone Icon" class="nav-icon" />
+          <span class="nav-text">Dashboard</span>
+        </a>
+      </li>
       <li>
         <a href="#create_invoices" class="nav-menu-item">
           <img src="../Assets/file-invoice-solid.svg" alt="Create Invoice Icon" class="nav-icon" />
@@ -46,12 +55,45 @@
       <li></li>
       <li>
         <a href="#milestones" class="nav-menu-item">
-          <img src="../Assets/plus-solid.svg" alt="Milestone Icon" class="nav-icon" />
-          <span class="nav-text">Milestones</span>
+          <img src="../Assets/bars-solid.svg" alt="Milestone Icon" class="nav-icon" />
+          <span class="nav-text">View Invoices</span>
         </a>
       </li>
     </ul>
   </nav>
+  <section id="dashboard" class="content-section">
+    <div class="dashboard-container">
+      <div class="dashboard-summary">
+        <div class="summary-item">
+          <h2>Total Invoices</h2>
+          <p id="totalInvoices">Loading...</p>
+        </div>
+        <div class="summary-item">
+          <h2>Total Amount Collected</h2>
+          <p id="totalCollected">Loading...</p>
+        </div>
+        <div class="summary-item">
+          <h2>Total Amount Pending</h2>
+          <p id="totalPending">Loading...</p>
+        </div>
+      </div>
+      <div class="dashboard-charts">
+        <div class="chart-container">
+          <div id="invoicesChart" class="chart"></div>
+        </div>
+        <div class="chart-container">
+          <div id="statusChart" class="chart"></div>
+        </div>
+      </div>
+      <div id="projectsContainer" class="projects-container"></div>
+    </div>
+    <div id="milestonesModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <!-- Milestone details will be appended here -->
+      </div>
+    </div>
+  </section>
   <section id="create_invoices" class="content-section">
     <div class="form-container" id="customer_form">
       <form id="myForm">
@@ -244,6 +286,10 @@
         </table>
     </div>
   </section>
+
+
+
+
 </body>
 
 </html>

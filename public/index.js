@@ -1,6 +1,6 @@
 $(document).ready(function () {
     $('.content-section').hide();
-    $('#milestones').show();
+    $('#dashboard').show();
 
     $('.nav-menu-item').click(function (e) {
         e.preventDefault();

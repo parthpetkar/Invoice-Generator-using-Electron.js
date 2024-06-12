@@ -159,8 +159,8 @@ ipcMain.on("createCustomer", async (event, data) => {
 });
 
 ipcMain.on("createInvoice", async (event, data) => {
-    const invoiceData = data.invoiceData; 
-    const { formData, milestones } = invoiceData; 
+    const invoiceData = data.invoiceData;
+    const { formData, milestones } = invoiceData;
     milestones.forEach(async (milestone) => {
         try {
             await connection.query(`
@@ -175,10 +175,10 @@ ipcMain.on("createInvoice", async (event, data) => {
                 formData.invoiceDate,
                 formData.dueDate,
                 milestone.amount,
-                milestone.amount, 
+                milestone.amount,
                 milestone.milestone_name,
                 calculateRemainingAmount(milestone)
-            ]); 
+            ]);
             win.reload();
             console.log("Data inserted successfully");
         } catch (error) {
@@ -376,6 +376,69 @@ ipcMain.on("notification", async (event, data) => {
         ]);
     } catch (error) {
         console.error('Error:', error);
+    }
+});
+
+ipcMain.handle('get-summary-data', async () => {
+    try {
+        const [results] = await connection.execute(`
+        SELECT 
+          (SELECT COUNT(*) FROM milestones) AS totalMilestones,
+          (SELECT SUM(amount) FROM milestones WHERE status = 'paid') AS amountCollected,
+          (SELECT SUM(amount) FROM milestones WHERE status = 'unpaid') AS amountPending
+      `);
+        return results[0];
+    } catch (error) {
+        console.error('Error fetching summary data:', error);
+    }
+});
+
+ipcMain.handle('get-invoice-data', async () => {
+    try {
+        const [results] = await connection.execute(`
+        SELECT invoice_date, total_prices FROM invoices ORDER BY invoice_date
+      `);
+        return results;
+    } catch (error) {
+        console.error('Error fetching invoice data:', error);
+    }
+});
+
+ipcMain.handle('get-invoice-status-data', async () => {
+    try {
+        const [results] = await connection.execute(`
+        SELECT status, COUNT(*) as count FROM milestones GROUP BY status
+      `);
+        return results;
+    } catch (error) {
+        console.error('Error fetching invoice status data:', error);
+    }
+});
+
+ipcMain.handle('get-projects', async () => {
+    try {
+        const [projects] = await connection.execute(`
+        SELECT * FROM projects
+      `);
+        return projects;
+    } catch (error) {
+        console.error('Error fetching projects:', error);
+    }
+});
+
+ipcMain.handle('get-milestones', async (event, projectdata) => {
+    try {
+        const [milestones] = await connection.execute(`
+            SELECT * FROM milestones WHERE cin = ? AND pono = ?
+        `, [projectdata.cin, projectdata.pono]);
+
+        const [customers] = await connection.execute(`
+            SELECT * FROM customers WHERE cin = ?
+        `, [projectdata.cin]);
+
+        return { milestones, customers };
+    } catch (error) {
+        console.error('Error fetching milestones:', error);
     }
 });
 
