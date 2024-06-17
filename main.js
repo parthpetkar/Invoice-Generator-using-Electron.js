@@ -44,21 +44,9 @@ function createWindow() {
     win.maximize();
 }
 
-const NOTIFICATION_TITLE = 'Basic Notification'
-const NOTIFICATION_BODY = 'Notification from the Main process'
-
-function showNotification() {
-    try {
-        new Notification({ title: NOTIFICATION_TITLE, body: NOTIFICATION_BODY }).show();
-    } catch (error) {
-        console.error("Error showing notification:", error);
-    }
-}
-
 if (require('electron-squirrel-startup')) app.quit();
 app.whenReady().then(() => {
     createWindow();
-    // showNotification();
     connectToDB().catch(error => {
         console.error("Error connecting to database:", error);
     });
@@ -83,80 +71,121 @@ async function connectToDB() {
     }
 }
 
-
-ipcMain.on("insertMilestone", async (event, data) => {
-    const { rowDataArray, projectData } = data;
-    var c_name = projectData.customerName;
-
+ipcMain.on("createCustomer", async (event, data) => {
+    const { customerData } = data;
     try {
-        const [result] = await connection.execute(
-            `SELECT cin FROM customers where company_name = '${c_name}'`
-        );
-        const cin = result[0].cin;
+        const getLastCustomerIdQuery = `
+          SELECT customer_id FROM customers 
+          WHERE customer_id LIKE 'IEC_%' 
+          ORDER BY CAST(SUBSTRING(customer_id, 5) AS UNSIGNED) DESC 
+          LIMIT 1
+        `;
+        const [rows] = await connection.query(getLastCustomerIdQuery);
 
-        rowDataArray.forEach(async (rowData) => {
-            const { milestone, claimPercentage, amount } = rowData;
-            const query = `INSERT INTO milestones (cin, pono, milestone_name, claim_percent, amount) VALUES (?, ?, ?, ?, ?)`;
-            await connection.query(query, [
-                cin, projectData.poNo, milestone, claimPercentage, amount
-            ]
-            );
-        });
-        win.reload();
+        let newCustomerId;
+        if (rows.length > 0) {
+            const latestId = rows[0].customer_id;
+            const numericPart = parseInt(latestId.split('_')[1], 10);
+            newCustomerId = `IEC_${numericPart + 1}`;
+        } else {
+            newCustomerId = 'IEC_1';
+        }
+        const insertCustomerQuery = `
+          INSERT INTO customers (customer_id, company_name, address1, address2, address3, gstin, pan, cin)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        await connection.query(insertCustomerQuery, [
+            newCustomerId,
+            customerData.companyName,
+            customerData.address1,
+            customerData.address2,
+            customerData.address3,
+            customerData.gstin,
+            customerData.pan,
+            customerData.cin,
+        ]);
+
+        event.reply('createCustomerResponse', { success: true, message: "Data inserted successfully", customerId: newCustomerId });
     } catch (error) {
-        console.error("Error inserting project data:", error);
+        event.reply('createCustomerResponse', { success: false, message: "Error inserting data", error: error.message });
     }
 });
 
-ipcMain.on("createProject", async (event, data) => {
-    const { projectData } = data;
-    var c_name = projectData.customerName;
+ipcMain.on("insertMilestone", async (event, data) => {
+    const { milestones, projectData } = data;
+    const customer_name = projectData.customerName;
+    const currentYear = new Date().getFullYear();
 
     try {
         const [result] = await connection.execute(
-            `SELECT cin FROM customers where company_name = '${c_name}'`
+            `SELECT customer_id FROM customers WHERE company_name = ?`,
+            [customer_name]
         );
-        const cin = result[0].cin;
+        const customer_id = result[0].customer_id;
+
+        // Begin transaction
+        await connection.beginTransaction();
+
+        const [lastProjectResult] = await connection.execute(
+            `SELECT internal_project_id FROM projects WHERE internal_project_id LIKE ? ORDER BY internal_project_id DESC LIMIT 1`,
+            [`${currentYear}-%`]
+        );
+
+        // Generate a new project ID
+        let newProjectId;
+        if (lastProjectResult.length > 0) {
+            const lastProjectId = lastProjectResult[0].internal_project_id;
+            const lastProjectNumber = parseInt(lastProjectId.split('-')[1]);
+            const newProjectNumber = (lastProjectNumber + 1).toString().padStart(3, '0');
+            newProjectId = `${currentYear}-${newProjectNumber}`;
+        } else {
+            newProjectId = `${currentYear}-001`;
+        }
 
         const insertProjectQuery = `
-          INSERT INTO projects (cin, pono, total_prices, taxes, project_name)
-          VALUES (?, ?, ?, ?, ?)
+          INSERT INTO projects (customer_id, internal_project_id, pono, total_prices, taxes, project_name)
+          VALUES (?, ?, ?, ?, ?, ?)
         `;
         await connection.query(insertProjectQuery, [
-            cin,
+            customer_id,
+            newProjectId,
             projectData.poNo,
             projectData.totalPrice,
             projectData.taxTypes[0],
             projectData.projectName,
         ]);
 
-        console.log("Data inserted successfully");
+        // Insert milestones
+        for (const [index, milestone] of milestones.entries()) {
+            const milestoneNumber = (index + 1).toString().padStart(3, '0');
+            const milestone_id = `${newProjectId}_${milestoneNumber}`;
+
+            const query = `INSERT INTO milestones (customer_id, internal_project_id, milestone_id, milestone_name, claim_percent, amount) 
+            VALUES (?, ?, ?, ?, ?, ?)`;
+            await connection.query(query, [
+                customer_id,
+                newProjectId,
+                milestone_id,
+                milestone.milestone,
+                milestone.claimPercentage,
+                milestone.amount
+            ]);
+        }
+
+        // Commit transaction
+        await connection.commit();
+
+        win.reload();
+        event.reply('createProjectResponse', { success: true, message: "Project created successfully", internalProjectId: newProjectId });
     } catch (error) {
         console.error("Error inserting project data:", error);
+        // Rollback transaction in case of error
+        await connection.rollback();
+        event.reply('createProjectResponse', { success: false, message: "Error inserting project data", error: error.message });
     }
 });
 
-ipcMain.on("createCustomer", async (event, data) => {
-    const { customerData } = data;
-    try {
-        const insertCustomerQuery = `
-          INSERT INTO customers (company_name, address, phone, gstin, pan, cin)
-          VALUES (?, ?, ?, ?, ?, ?)
-        `;
-        await connection.query(insertCustomerQuery, [
-            customerData.companyName,
-            customerData.address,
-            customerData.phone,
-            customerData.gstin,
-            customerData.pan,
-            customerData.cin,
-        ]);
-        // win.reload();
-        console.log("Data inserted successfully");
-    } catch (error) {
-        console.error("Error inserting data:", error);
-    }
-});
+
 
 ipcMain.on("createInvoice", async (event, data) => {
     const invoiceData = data.invoiceData;
@@ -196,16 +225,48 @@ ipcMain.on("createInvoice", async (event, data) => {
     }
 });
 
+const templateConfig = {
+    template1: {
+        filePath: "IEC_Invoice_template.xlsx",
+        cells: {
+            companyName: "A13",
+            address1: "A14",
+            address2: "A15",
+            address3: "A16",
+            gstin: "A16",
+            pan: "A17",
+            cin: "C17",
+            description: "A22",
+            pono: "A21",
+            totalPrice: "C21",
+            invoiceDate: "F3",
+            invoiceNumber: "F4",
+            dueDate: "F5",
+            milestonesStartRow: 24
+        }
+    },
+};
+
 ipcMain.on("createForm", async (event, data) => {
     const invoiceData = data.invoiceData;
     const { formData, milestones } = invoiceData;
+    const templateType = formData.templateType;
+
+    if (!templateConfig[templateType]) {
+        console.error("Invalid template type");
+        return;
+    }
+
+    const template = templateConfig[templateType];
+    const cells = template.cells;
 
     const [rowforcin] = await connection.execute('select cin from invoices where invoice_number = ?', [formData.invoiceNumber]);
     const cin = rowforcin[0].cin;
 
-    const [customerDetails] = await connection.execute('select company_name, address, phone, gstin, pan from customers where cin = ?', [cin]);
-    const address = customerDetails[0].address;
-    const phone = customerDetails[0].phone;
+    const [customerDetails] = await connection.execute('select company_name, address1, address2, address3, gstin, pan from customers where cin = ?', [cin]);
+    const address1 = customerDetails[0].address1;
+    const address2 = customerDetails[0].address2;
+    const address3 = customerDetails[0].address3;
     const gstin = customerDetails[0].gstin;
     const pan = customerDetails[0].pan;
     const company_name = customerDetails[0].company_name;
@@ -221,24 +282,25 @@ ipcMain.on("createForm", async (event, data) => {
 
     const workbook = new ExcelJS.Workbook();
     workbook.xlsx
-        .readFile("IEC_Invoice_template.xlsx")
+        .readFile(template.filePath)
         .then(() => {
-            const worksheet = workbook.getWorksheet("Invoice 2");
+            const worksheet = workbook.getWorksheet("Invoice");
             if (worksheet) {
-                worksheet.getCell("A13").value = '  ' + company_name;
-                worksheet.getCell("A14").value = '  ' + address;
-                worksheet.getCell("A15").value = '  ' + phone;
-                worksheet.getCell("A16").value = '  GST No.-' + gstin;
-                worksheet.getCell("A17").value = '  PAN No.-' + pan;
-                worksheet.getCell("C17").value = 'CIN No.- ' + cin;
-                worksheet.getCell("A20").value = formData.description;
-                worksheet.getCell("A22").value = ' PONo, : ' + pono;
-                worksheet.getCell("C22").value = Number(total_price);
-                worksheet.getCell("F4").value = formatInvoiceNumber(formData.invoiceNumber);
-                worksheet.getCell("F3").value = formData.invoiceDate;
-                worksheet.getCell("F5").value = formData.dueDate;
+                worksheet.getCell(cells.companyName).value = '  ' + company_name;
+                worksheet.getCell(cells.address1).value = '  ' + address1;
+                worksheet.getCell(cells.address2).value = '  ' + address2;
+                worksheet.getCell(cells.address3).value = '  ' + address3;
+                worksheet.getCell(cells.gstin).value = '  GST No.-' + gstin;
+                worksheet.getCell(cells.pan).value = '  PAN No.-' + pan;
+                worksheet.getCell(cells.cin).value = 'CIN No.- ' + cin;
+                worksheet.getCell(cells.pono).value = ' PO NO : ' + pono;
+                worksheet.getCell(cells.description).value = formData.description;
+                worksheet.getCell(cells.totalPrice).value = Number(total_price);
+                worksheet.getCell(cells.invoiceNumber).value = formatInvoiceNumber(formData.invoiceNumber);
+                worksheet.getCell(cells.invoiceDate).value = formData.invoiceDate;
+                worksheet.getCell(cells.dueDate).value = formData.dueDate;
 
-                let row = 24;
+                let row = cells.milestonesStartRow;
                 milestones.forEach((milestone) => {
                     worksheet.getCell(`A${row}`).value = '  ' + milestone.milestone_name;
                     worksheet.getCell(`D${row}`).value = '  ' + Number(milestone.claim_percent) + '%';
@@ -248,7 +310,7 @@ ipcMain.on("createForm", async (event, data) => {
 
                 const options = {
                     title: "Save Invoice",
-                    defaultPath: `INV${formData.invoiceNumber}.xlsx`,
+                    defaultPath: `IEC_Invoice_${formatInvoiceNumber(formData.invoiceNumber)}_${company_name}_${pono}.xlsx`,
                     buttonLabel: "Save",
                     filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
                 };

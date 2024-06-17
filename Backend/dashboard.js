@@ -112,8 +112,6 @@ $(document).ready(async () => {
                 const milestoneCard = $(`
                     <div class="milestone-card">
                         <h4>${milestone.milestone_name}</h4>
-                        <p>CIN: ${milestone.cin}</p>
-                        <p>PONO: ${milestone.pono}</p>
                         <p>Claim Percent: ${milestone.claim_percent}%</p>
                         <p>Amount: ₹${milestone.amount}</p>
                         <p>Status: ${milestone.status}</p>

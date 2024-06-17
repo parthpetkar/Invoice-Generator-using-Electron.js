@@ -122,6 +122,18 @@
           </select>
         </div>
         <div class="form-group">
+          <label for="template_type">Template Type</label>
+          <select id="template_type" required>
+            <option value="" disabled selected>Select Template Type</option>
+            <option value="template1">Performa Invoice</option>
+            <option value="template1">Invoice</option>
+            <option value="template1">Tax Invoice</option>
+            <option value="template1">Dollar Invoice</option>
+            <!-- <option value="template2">Template 2</option> -->
+            <!-- Add more templates as needed -->
+          </select>
+        </div>
+        <div class="form-group">
           <label for="description">Description</label>
           <textarea id="description" placeholder="Description" style="height: 100px; width: 600px"></textarea>
         </div>
@@ -152,12 +164,16 @@
           <input type="text" id="customer_company_name" placeholder="Company Name" required />
         </div>
         <div class="form-group">
-          <label for="address">Address</label>
-          <input type="text" id="customer_address" placeholder="Address" required />
+          <label for="address">Address 1</label>
+          <input type="text" id="customer_address1" placeholder="Address1" required />
         </div>
         <div class="form-group">
-          <label for="phone">Phone</label>
-          <input type="text" id="customer_phone" placeholder="Phone" required />
+          <label for="address">Address 2(Optional)</label>
+          <input type="text" id="customer_address2" placeholder="Address2" />
+        </div>
+        <div class="form-group">
+          <label for="address">Address 3</label>
+          <input type="text" id="customer_address3" placeholder="Address2" required />
         </div>
         <div class="form-group">
           <label for="gstin">Gst Identification Number</label>
@@ -232,17 +248,17 @@
               <table id="dataTable">
                 <thead>
                   <tr>
-                    <th>Milestone Name</th>
+                    <th>Milestone</th>
                     <th>Claim Percentage</th>
                     <th>Amount</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- Data rows will be added dynamically -->
                 </tbody>
               </table>
             </div>
+            <button class="button" id="add_milestone">Add Milestones</button>
             <button class="button" type="button" id="create_milestone">
               Create Milestones
             </button>

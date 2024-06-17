@@ -57,6 +57,9 @@ $(document).ready(async () => {
             const invoiceDate = $("#invoice_date").val();
             const dueDate = $("#due_date").val();
             const description = $("#description").val();
+            const templateType = $('#template_type').val();
+
+            console.log(templateType)
 
             // Create an object to store the form data
             return {
@@ -65,7 +68,8 @@ $(document).ready(async () => {
                 invoiceNumber: invoiceNumber,
                 invoiceDate: invoiceDate,
                 dueDate: dueDate,
-                description: description
+                description: description,
+                templateType: templateType
             };
         }
 
