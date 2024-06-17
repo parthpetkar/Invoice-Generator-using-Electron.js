@@ -14,8 +14,9 @@
   <link rel="stylesheet" href="../CSS/invoice.css" />
   <link rel="stylesheet" href="../CSS/display.css" />
   <link rel="stylesheet" href="../CSS/dashboard.css" />
-  <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
-    integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="./index.js"></script>
   <script src="../Backend/invoices.js"></script>
@@ -111,15 +112,11 @@
         </div>
         <div class="form-group">
           <label for="customer">Customer</label>
-          <select id="customerChoose" required>
-            <option value="" disabled selected>Select Customer</option>
-          </select>
+          <input id="customerChoose" type="text" required placeholder="Select Customer"></input>
         </div>
         <div class="form-group">
           <label for="project">Project</label>
-          <select id="projectChoose" required>
-            <option value="" disabled selected>Select Project</option>
-          </select>
+          <input id="projectChoose" type="text" required placeholder="Select Project"></input>
         </div>
         <div class="form-group">
           <label for="template_type">Template Type</label>
@@ -129,8 +126,6 @@
             <option value="template1">Invoice</option>
             <option value="template1">Tax Invoice</option>
             <option value="template1">Dollar Invoice</option>
-            <!-- <option value="template2">Template 2</option> -->
-            <!-- Add more templates as needed -->
           </select>
         </div>
         <div class="form-group">
@@ -206,11 +201,7 @@
               <form id="projectForm">
                 <div class="form-group">
                   <label for="customerSelect">Select Customer</label>
-                  <select id="customerSelect" required>
-                    <option value="" disabled selected>
-                      Select Customer
-                    </option>
-                  </select>
+                  <input id="customerSelect" type="text" required placeholder="Select Customer">
                 </div>
                 <div class="form-group">
                   <label for="projectName">Project Name</label>

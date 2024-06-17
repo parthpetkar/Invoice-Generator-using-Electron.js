@@ -1,23 +1,38 @@
 $(document).ready(async () => {
     try {
-        const { company_name } = await window.electron.invoke('fetchCustomer');
         const $customerChoose = $('#customerChoose');
-        $customerChoose.empty();
-        $customerChoose.append('<option value="" disabled selected>Select Customer</option>');
-        company_name.forEach(obj => {
-            $customerChoose.append(`<option value="${obj.company_name}">${obj.company_name}</option>`);
+        const $projectChoose = $('#projectChoose');
+
+        // Fetch customer names
+        const { company_name } = await window.electron.invoke('fetchCustomer');
+
+        // Populate customer dropdown with autocomplete
+        const customerNames = company_name.map(obj => obj.company_name);
+        $customerChoose.autocomplete({
+            source: customerNames
         });
 
-        $customerChoose.change(async () => {
-            const selectedCompanyName = $customerChoose.val();
-            const { projects } = await window.electron.invoke('fetchProject', selectedCompanyName);
-            const $projectChoose = $('#projectChoose');
-            $projectChoose.empty();
-            $projectChoose.append('<option value="" disabled selected>Select Project</option>');
-            projects.forEach(obj => {
-                $projectChoose.append(`<option value="${obj.project_name}">${obj.project_name}</option>`);
-            });
+        // On customer selection change
+        $customerChoose.on('autocompleteselect', async function (event, ui) {
+            const selectedCompanyName = ui.item.value;
+
+            try {
+                // Fetch projects for the selected customer
+                const { projects } = await window.electron.invoke('fetchProject', selectedCompanyName);
+
+                // Populate project dropdown with autocomplete
+                const projectOptions = projects.map(obj => ({
+                    label: `${obj.internal_project_id}: ${obj.project_name}`,
+                    value: obj.internal_project_id
+                }));
+                $projectChoose.autocomplete({
+                    source: projectOptions
+                });
+            } catch (error) {
+                console.error("Error fetching project data:", error);
+            }
         });
+
 
         const $invoiceTableBody = $('#invoiceTable tbody');
         let selectedMilestones = [];

@@ -370,7 +370,7 @@ ipcMain.handle("fetchCustomer", async (event) => {
 ipcMain.handle("fetchProject", async (event, companyName) => {
     try {
         const [projects] = await connection.execute(
-            "SELECT projects.project_name FROM projects INNER JOIN customers ON projects.cin = customers.cin WHERE customers.company_name = ?",
+            "SELECT projects.project_name, projects.internal_project_id FROM projects INNER JOIN customers ON projects.customer_id = customers.customer_id WHERE customers.company_name = ?",
             [companyName]
         );
         return { projects };

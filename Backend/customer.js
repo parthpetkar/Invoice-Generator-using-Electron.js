@@ -293,26 +293,14 @@ $(document).ready(async () => {
         }
     });
 
-    // $("#create_milestone").click(async () => {
-    //     try {
-    //         await window.electron.send('insertMilestone', { rowDataArray, projectData });
-    //         window.electron.receive('createProjectResponse', (response) => {
-    //             if (response.success) {
-    //                 alert(`Project created successfully with ID: ${response.newProjectId}`);
-    //             } else {
-    //                 alert(`Error: ${response.message}\n${response.error}`);
-    //             }
-    //         });
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // });
-
     try {
         const { company_name } = await window.electron.invoke('fetchCustomer');
+        const customerNames = company_name.map(obj => obj.company_name);
+
         $('#customerSelect').empty();
-        $('#customerSelect').append('<option value="" disabled selected>Select Customer</option>');
-        company_name.forEach(obj => $('#customerSelect').append(`<option value="${obj.company_name}">${obj.company_name}</option>`));
+        $("#customerSelect").autocomplete({
+            source: customerNames
+        });
     } catch (error) {
         console.log(error);
     }
