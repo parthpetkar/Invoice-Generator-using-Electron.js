@@ -1,34 +1,119 @@
-$(document).ready(async () => { //it waits for html to load
+$(document).ready(async () => {
     function saveCustomerData() {
-        var companyName = $('#customer_company_name').val();
-        var address = $('#customer_address').val();
-        var phone = $('#customer_phone').val();
-        var gstin = $('#customer_gstin').val();
-        var pan = $('#customer_pan').val();
-        var cin = $('#customer_cin').val();
+        // var gstinPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+        // var panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        // var cinPattern = /^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/;
 
-        // Create a customer object
-        var customer = {
+        var isValid = true;
+        var companyName = $('#customer_company_name').val().trim();
+        var address1 = $('#customer_address1').val().trim();
+        var address2 = $('#customer_address2').val().trim();
+        var address3 = $('#customer_address3').val().trim();
+        var gstin = $('#customer_gstin').val().trim();
+        var pan = $('#customer_pan').val().trim();
+        var cin = $('#customer_cin').val().trim();
+
+        $('.error').remove();
+
+        if (companyName === '') {
+            isValid = false;
+            $('#customer_company_name').after('<span class="error">This field is required</span>');
+        }
+
+        if (address1 === '') {
+            isValid = false;
+            $('#customer_address1').after('<span class="error">This field is required</span>');
+        }
+
+        if (address3 === '') {
+            isValid = false;
+            $('#customer_address3').after('<span class="error">This field is required</span>');
+        }
+
+        if (gstin === '') {
+            isValid = false;
+            $('#customer_gstin').after('<span class="error">This field is required</span>');
+        }
+        // else if (!gstinPattern.test(gstin)) {
+        //     isValid = false;
+        //     $('#customer_gstin').after('<span class="error">Invalid GSTIN format</span>');
+        // }
+
+        if (pan === '') {
+            isValid = false;
+            $('#customer_pan').after('<span class="error">This field is required</span>');
+        }
+        // else if (!panPattern.test(pan)) {
+        //     isValid = false;
+        //     $('#customer_pan').after('<span class="error">Invalid PAN format</span>');
+        // }
+
+        // Validate CIN
+        if (cin === '') {
+            isValid = false;
+            $('#customer_cin').after('<span class="error">This field is required</span>');
+        }
+        // else if (!cinPattern.test(cin)) {
+        //     isValid = false;
+        //     $('#customer_cin').after('<span class="error">Invalid CIN format</span>');
+        // }
+
+        // If the form is valid, submit it
+        if (!isValid) {
+            alert('Form is invalid');
+        }
+
+        return {
             companyName: companyName,
-            address: address,
-            phone: phone,
+            address1: address1,
+            address2: address2,
+            address3: address3, 
             gstin: gstin,
             pan: pan,
             cin: cin
         };
-        return customer;
     }
 
-    // Function to save project data
+    var projectData = {};
     function saveProjectData() {
+        var isValid = true;
         var customerName = $('#customerSelect').val();
-        var projectName = $('#project_name').val();
-        var poNo = $('#customer_poNo').val();
-        var totalPrice = $('#total_price').val();
+        var projectName = $('#project_name').val().trim();
+        var poNo = $('#customer_poNo').val().trim();
+        var totalPrice = $('#total_price').val().trim();
         var taxes = $('#taxes_select').val();
         var taxTypes = $('#tax_type_select').val();
-        // Create a project object
-        var project = {
+
+        $('.error').remove();
+
+        if (!customerName) {
+            isValid = false;
+            $('#customerSelect').after('<span class="error">This field is required</span>');
+        }
+
+        if (projectName === '') {
+            isValid = false;
+            $('#project_name').after('<span class="error">This field is required</span>');
+        }
+
+        if (poNo === '') {
+            isValid = false;
+            $('#customer_poNo').after('<span class="error">This field is required</span>');
+        }
+
+        if (totalPrice === '') {
+            isValid = false;
+            $('#total_price').after('<span class="error">This field is required</span>');
+        } else if (isNaN(totalPrice)) {
+            isValid = false;
+            $('#total_price').after('<span class="error">Invalid price format</span>');
+        }
+
+        if (!isValid) {
+            alert('Form is invalid');
+        }
+
+        return {
             customerName: customerName,
             projectName: projectName,
             poNo: poNo,
@@ -36,155 +121,174 @@ $(document).ready(async () => { //it waits for html to load
             taxes: taxes,
             taxTypes: taxTypes
         };
-        return project;
     }
-    var customerData = {};
-    var projectData = {};
-    // Save customer data when save button on panel 1 is clicked
-    $('#saveCustomer').on('click', function () {
-        customerData = saveCustomerData();
-    });
-
-    // Save project data when save button on panel 2 is clicked
-    $("#saveProject").click(async () => {
-        projectData = saveProjectData();
-        try {
-            await window.electron.send('createProject', { projectData });
-            e.preventDefault();
-            $('#milestone_table').show();
-            $('#customer_form').hide();
-        }
-        catch (error) {
-            console.log(error);
-        }
-    })
 
     try {
         const tax = $('#taxes_select').val();
-        if (tax === true) {
-            $('#tax_type').show();
-        }
+        $('#tax_type').toggle(tax === "True");
 
         $('#taxes_select').change(function () {
-            const tax = $(this).val();
-            if (tax === "True") {
-                $('#tax_type').show();
-            } else {
-                $('#tax_type').hide();
-            }
+            $('#tax_type').toggle($(this).val() === "True");
         });
 
-        let rowDataArray = [];
+    } catch (error) {
+        console.log(error);
+    }
 
-        // Function to check if claim percentage exceeds 100%
+    try {
         function calculateTotalClaimPercentage() {
-            let totalClaimPercentage = 0;
-            rowDataArray.forEach(function (rowData) {
-                totalClaimPercentage += rowData.claimPercentage;
+            let total = 0;
+            $("#dataTable tbody tr").each(function () {
+                const claimPercentage = parseFloat($(this).find(".claimPercentageCell").text());
+                if (!isNaN(claimPercentage)) {
+                    total += claimPercentage;
+                }
             });
-            return totalClaimPercentage;
+            return total;
         }
 
-        // Function to toggle addRowBtn based on total claim percentage
-        function toggleAddRowButton() {
-            const totalClaimPercentage = calculateTotalClaimPercentage();
-            if (totalClaimPercentage === 100) {
-                $("#addRowBtn").prop("disabled", true);
-            } else {
-                $("#addRowBtn").prop("disabled", false);
+        function toggleAddMilestoneButton() {
+            $("#add_milestone").prop("disabled", calculateTotalClaimPercentage() >= 100);
+        }
+
+        function addRow() {
+            if (calculateTotalClaimPercentage() < 100) {
+                const newRow = $("<tr>");
+                const milestoneCell = $("<td>").addClass("milestoneCell").text("Milestone Name").attr("contenteditable", true);
+                const claimPercentageCell = $("<td>").addClass("claimPercentageCell").text("Claim Percentage").attr("contenteditable", true);
+                const amountCell = $("<td>").addClass("amountCell").text("Amount").prop("disabled", true);
+                const editBtn = $("<button>").addClass("editBtn").text("Edit");
+                const deleteBtn = $("<button>").addClass("deleteBtn").text("Delete");
+
+                claimPercentageCell.on("input", function () {
+                    const claimPercentage = parseFloat($(this).text());
+                    if (!isNaN(claimPercentage)) {
+                        const amount = claimPercentage * projectData.totalPrice / 100;
+                        amountCell.text(amount.toFixed(2)).prop("disabled", false);
+                    } else {
+                        amountCell.text("Amount").prop("disabled", true);
+                    }
+                });
+
+                newRow.append(milestoneCell, claimPercentageCell, amountCell, $("<td>").append(editBtn).append(deleteBtn));
+                $("#dataTable tbody").append(newRow);
             }
         }
 
-        // Event listener for Save button click
-        $("#dataTable").on("click", ".saveBtn", function () {
-            const row = $(this).closest("tr"); // Get the closest row to the clicked button
+        $("#dataTable").on("click", ".editBtn", function () {
+            const row = $(this).closest("tr");
+            const milestoneCell = row.find(".milestoneCell");
+            const claimPercentageCell = row.find(".claimPercentageCell");
 
-            // Get milestone name, claim percentage, and amount from the row
-            const milestone = row.find(".milestoneCell").text();
-            const claimPercentage = parseFloat(row.find(".claimPercentageCell").text());
-            const amount = parseFloat(row.find(".amountCell").text());
-
-            // Create an object representing row data
-            const rowData = {
-                milestone: milestone,
-                claimPercentage: claimPercentage,
-                amount: amount.toFixed(2)
-            };
-
-            // Push the row data object into the array
-            rowDataArray.push(rowData);
-            toggleAddRowButton();
-        });
-
-        $("#addRowBtn").click(function () {
-            // Create a new row
-            const newRow = $("<tr>");
-
-            // Add cells to the new row
-            const milestoneCell = $("<td>").addClass("milestoneCell").text("Milestone Name");
-            const claimPercentageCell = $("<td>").addClass("claimPercentageCell").text("Claim Percentage");
-            const amountCell = $("<td>").addClass("amountCell").text("Amount").prop("disabled", true); // Initially disabled
-            const saveBtn = $("<button>").addClass("saveBtn").text("Save");
-            const deleteBtn = $("<button>").addClass("deleteBtn").text("Delete"); // Add delete button
-
-            // Make cells mutable
             milestoneCell.attr("contenteditable", true);
             claimPercentageCell.attr("contenteditable", true);
 
-            // Event listener for claimPercentageCell changes
-            claimPercentageCell.on("input", function () {
-                const claimPercentage = parseFloat($(this).text());
-                if (!isNaN(claimPercentage)) { // If claim percentage is a valid number
-                    const amount = claimPercentage * projectData.totalPrice / 100;
-                    amountCell.text(amount.toFixed(2)).prop("disabled", false); // Enable and display amount
-                } else {
-                    amountCell.text("Amount").prop("disabled", true); // Disable amount if claim percentage is not valid
+            milestoneCell.focus(); // Optional: focus on milestone cell to start editing
+
+            $(this).remove(); // Remove edit button
+            row.find("td:last-child").prepend($("<button>").addClass("saveBtn").text("Save")); // Add save button
+        });
+
+        $("#dataTable").on("click", ".saveBtn", function () {
+            const row = $(this).closest("tr");
+            const milestoneCell = row.find(".milestoneCell");
+            const claimPercentageCell = row.find(".claimPercentageCell");
+
+            milestoneCell.attr("contenteditable", false);
+            claimPercentageCell.attr("contenteditable", false);
+
+            $(this).remove(); // Remove save button
+            row.find("td:last-child").prepend($("<button>").addClass("editBtn").text("Edit")); // Add edit button
+
+            toggleAddMilestoneButton();
+        });
+
+        $("#dataTable").on("click", ".deleteBtn", function () {
+            $(this).closest("tr").remove();
+            toggleAddMilestoneButton();
+        });
+
+        async function saveMilestones() {
+            const milestones = [];
+            $("#dataTable tbody tr").each(function () {
+                const row = $(this);
+                const milestone = row.find(".milestoneCell").text();
+                const claimPercentage = parseFloat(row.find(".claimPercentageCell").text());
+                const amount = parseFloat(row.find(".amountCell").text());
+
+                if (!isNaN(claimPercentage) && claimPercentage > 0 && milestone.trim() !== "") {
+                    milestones.push({
+                        milestone: milestone,
+                        claimPercentage: claimPercentage,
+                        amount: amount.toFixed(2)
+                    });
                 }
             });
 
-            newRow.append(milestoneCell, claimPercentageCell, amountCell, $("<td>").append(saveBtn).append(deleteBtn)); // Append the new row to the table
-            $("#dataTable tbody").append(newRow);
+            if (milestones.length > 0) {
+                // Handle saving milestones
+                console.log("Saving milestones:", milestones);
+                await window.electron.send('insertMilestone', { milestones, projectData });
+                window.electron.receive('createProjectResponse', (response) => {
+                    if (response.success) {
+                        alert(`Project created successfully`);
+                    } else {
+                        alert(`Error: ${response.message}\n${response.error}`);
+                    }
+                });
+            } else {
+                console.log("No valid milestones to save.");
+            }
+        }
+        $("#add_milestone").click(function () {
+            toggleAddMilestoneButton();
+            addRow();
         });
-
-        // Event listener for Delete button click
-        $("#dataTable").on("click", ".deleteBtn", function () {
-            const row = $(this).closest("tr"); // Get the closest row to the clicked button
-            const index = row.index(); // Get the index of the row
-            rowDataArray.splice(index, 1); // Remove the row data from the array
-            row.remove(); // Remove the row from the table
-            toggleAddRowButton(); // Toggle addRowBtn based on total claim percentage
-        });
-
-
-
         $("#create_milestone").click(async () => {
             try {
-                await window.electron.send('insertMilestone', { rowDataArray, projectData });
+                saveMilestones();
             } catch (error) {
-                console.log(error)
+                console.log(error);
             }
         });
+    } catch (error) {
+        console.log(error);
+    }
 
-        $("#saveCustomer").click(async () => {
-            try {
-                await window.electron.send('createCustomer', { customerData });
-            } catch (error) {
-                console.log(error)
-            }
-        });
+    $("#saveCustomer").click(async () => {
+        try {
+            const customerData = saveCustomerData();
+            await window.electron.send('createCustomer', { customerData });
+            window.electron.receive('createCustomerResponse', (response) => {
+                if (response.success) {
+                    alert(`Customer created successfully with ID: ${response.customerId}`);
+                } else {
+                    alert(`Error: ${response.message}\n${response.error}`);
+                }
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    });
 
+    $("#saveProject").click(async () => {
+        try {
+            projectData = saveProjectData();
+            $('#milestone_table').show();
+            $('#customer_form').hide();
+        } catch (error) {
+            console.log(error);
+        }
+    });
 
+    try {
         const { company_name } = await window.electron.invoke('fetchCustomer');
+        const customerNames = company_name.map(obj => obj.company_name);
+
         $('#customerSelect').empty();
-
-        // Add a default option
-        $('#customerSelect').append('<option value="" disabled selected>Select Customer</option>');
-
-        // Populate the dropdown with company names
-        company_name.forEach(function (obj) {
-            $('#customerSelect').append('<option value="' + obj.company_name + '">' + obj.company_name + '</option>');
+        $("#customerSelect").autocomplete({
+            source: customerNames
         });
-
     } catch (error) {
         console.log(error);
     }

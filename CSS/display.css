@@ -3,21 +3,35 @@
     border-collapse: collapse;
     width: 100%;
     margin-bottom: 20px;
-        border-radius: 8px;
-        overflow: hidden;
+    border-radius: 8px;
+    overflow: hidden;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: slideIn 1s forwards;
+    margin-top: 20px;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+    
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
 }
 
 #displayTable th,
 #displayTable td {
     border: none;
-        padding: 12px;
+    padding: 12px;
     text-align: center;
 }
 
 #displayTable th {
     background-color: #4285f4;
-        color: white;
+    color: white;
 }
 
 #displayTable tbody tr:nth-child(even) {
@@ -28,6 +42,30 @@
     background-color: #e0e0e0;
 }
 
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown select {
+    background-color: #4285f4;
+    border: 1px solid #4285f4;
+    color: #e9ecef;
+    font-weight: bold;
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.dropdown select:hover {
+    background-color: #4285f4;
+}
+
+.dropdown select:focus {
+    outline: none;
+    border-color: #4285f4;
+}
 
 @keyframes slideIn {
     from {
@@ -40,6 +78,7 @@
         transform: translateY(0);
     }
 }
+
 /* Row Animation */
 @keyframes pulse {
     0% {
@@ -57,4 +96,71 @@
 
 .row-animation {
     animation: pulse 0.5s ease-in-out;
+}
+
+.customer-name {
+    font-weight: bold;
+    position: relative;
+}
+
+.project-name {
+    font-style: italic;
+    font-weight: bold;
+    position: relative;
+}
+
+.milestone-name {
+    font-weight: bold;
+    position: relative;
+}
+
+.modal {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    /* Stay in place */
+    z-index: 1;
+    /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0);
+    /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 30%;
+    /* Could be more or less, depending on screen size */
+}
+
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.table-filter {
+    flex: 1;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
 }

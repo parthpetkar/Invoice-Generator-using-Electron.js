@@ -1,102 +1,103 @@
 $(document).ready(async () => {
     try {
+        const $customerChoose = $('#customerChoose');
+        const $projectChoose = $('#projectChoose');
+
+        // Fetch customer names
         const { company_name } = await window.electron.invoke('fetchCustomer');
-        $('#customerChoose').empty();
 
-        // Add a default option
-        $('#customerChoose').append('<option value="" disabled selected>Select Customer</option>');
-
-        // Populate the dropdown with company names
-        company_name.forEach(obj => {
-            $('#customerChoose').append('<option value="' + obj.company_name + '">' + obj.company_name + '</option>');
+        // Populate customer dropdown with autocomplete
+        const customerNames = company_name.map(obj => obj.company_name);
+        $customerChoose.autocomplete({
+            source: customerNames
         });
 
-        $('#customerChoose').change(async () => {
-            const selectedCompanyName = $('#customerChoose').val();
+        // On customer selection change
+        $customerChoose.on('autocompleteselect', async function (event, ui) {
+            const selectedCompanyName = ui.item.value;
 
-            const { projects } = await window.electron.invoke('fetchProject', selectedCompanyName);
-            $('#projectChoose').empty();
+            try {
+                // Fetch projects for the selected customer
+                const { projects } = await window.electron.invoke('fetchProject', selectedCompanyName);
 
-            // Add a default option
-            $('#projectChoose').append('<option value="" disabled selected>Select Project</option>');
-
-            // Populate the dropdown with project names
-            projects.forEach(obj => {
-                $('#projectChoose').append('<option value="' + obj.project_name + '">' + obj.project_name + '</option>');
-            });
+                // Populate project dropdown with autocomplete
+                const projectOptions = projects.map(obj => ({
+                    label: `${obj.internal_project_id}: ${obj.project_name}`,
+                    value: obj.internal_project_id
+                }));
+                $projectChoose.autocomplete({
+                    source: projectOptions
+                });
+            } catch (error) {
+                console.error("Error fetching project data:", error);
+            }
         });
 
+
+        const $invoiceTableBody = $('#invoiceTable tbody');
         let selectedMilestones = [];
 
         $('#projectChoose').change(async () => {
-            const selectedProjectName = $('#projectChoose').val();
-            const { milestones } = await window.electron.invoke('fetchMilestones', selectedProjectName);
-
-            // Clear previous data
-            $('#invoiceTable tbody').empty();
-
-            // Loop through milestoneData and insert into the table
+            const selectedProjectId = $('#projectChoose').val();
+            const { milestones } = await window.electron.invoke('fetchMilestones', selectedProjectId);
+            $invoiceTableBody.empty();
             milestones.forEach(milestone => {
                 // Create a new row
                 const newRow = $('<tr>');
 
-                // Add milestone name, claim percentage, and amount as cells in the row
-                newRow.append('<td>' + milestone.milestone_name + '</td>');
-                newRow.append('<td>' + milestone.claim_percent + '</td>');
-                newRow.append('<td>' + milestone.amount + '</td>');
+                newRow.append(`<td>${milestone.milestone_name}</td>`);
+                newRow.append(`<td>${milestone.claim_percent}</td>`);
+                newRow.append(`<td>${milestone.amount}</td>`);
 
-                // Create a checkbox for the action column
                 const checkbox = $('<input type="checkbox">');
                 checkbox.on('change', function () {
-                    // If checkbox is checked, add the milestone to the selectedMilestones array
                     if ($(this).is(':checked')) {
                         selectedMilestones.push(milestone);
                     } else {
-                        // If checkbox is unchecked, remove the milestone from the selectedMilestones array
                         selectedMilestones = selectedMilestones.filter(item => item !== milestone);
                     }
                 });
                 const actionCell = $('<td>').append(checkbox);
 
                 newRow.append(actionCell);
-
-                // Append the new row to the table body
-                $('#invoiceTable tbody').append(newRow);
+                $invoiceTableBody.append(newRow);
             });
         });
 
         function formdatafetch() {
             // Get form field values
-            var customer = $('#customerChoose').val();
-            var project = $('#projectChoose').val();
-            var invoiceNumber = $("#invoice_number").val();
-            var invoiceDate = $("#invoice_date").val();
-            var dueDate = $("#due_date").val();
-            var description = $("#description").val();
+            const customer = $customerChoose.val();
+            const project = $('#projectChoose').val();
+            const invoiceNumber = $("#invoice_number").val();
+            const invoiceDate = $("#invoice_date").val();
+            const dueDate = $("#due_date").val();
+            const description = $("#description").val();
+            const templateType = $('#template_type').val();
+
+            console.log(templateType)
 
             // Create an object to store the form data
-            var data = {
+            return {
                 customer: customer,
                 project: project,
                 invoiceNumber: invoiceNumber,
                 invoiceDate: invoiceDate,
                 dueDate: dueDate,
-                description: description
+                description: description,
+                templateType: templateType
             };
-            return data;
         }
 
         $("#createInvoice").click(async () => {
-            var formData = formdatafetch();
-            var invoiceData = {
+            const formData = formdatafetch();
+            const invoiceData = {
                 formData: formData,
                 milestones: selectedMilestones
             };
             try {
-                await window.electron.send('createInvoice', { invoiceData });//send to  db
-                await window.electron.send('createForm', { invoiceData }); //send to excel
-            }
-            catch (error) {
+                await window.electron.send('createInvoice', { invoiceData });
+                await window.electron.send('createForm', { invoiceData });
+            } catch (error) {
                 console.log(error);
             }
         });

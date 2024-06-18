@@ -1,71 +1,111 @@
 $(document).ready(async () => {
-    const { customers, milestones, projects, invoices } = await window.electron.invoke('fetchData');
-    const tableBody = $('#displayTable tbody');
 
-    // Iterate over each milestone data and create table rows
-    milestones.forEach(async (milestone) => {
-        const row = $('<tr>');
+    try {
+        const { customers, milestones, projects, invoices } = await window.electron.invoke('fetchData');
+        let displayedMilestones = [...milestones];
 
-        // Find the corresponding customer and project data using milestone's cin and pono
-        const customer = customers.find(customer => customer.cin === milestone.cin);
-        const project = projects.find(project => project.cin === milestone.cin && project.pono === milestone.pono);
-        const invoice = invoices.find(invoice => invoice.cin === milestone.cin && invoice.pono === milestone.pono && invoice.milestone_name === milestone.milestone_name);
+        const tableBody = $('#displayTable tbody');
 
-        // Fill the table cells with data
-        row.append(`<td>${invoice ? invoice.invoice_number : 'N/A'}</td>`);
-        row.append(`<td>${customer ? customer.company_name : 'N/A'}</td>`); // Check if customer exists
-        row.append(`<td>${project ? project.project_name : 'N/A'}</td>`); // Check if project exists
-        row.append(`<td>${milestone.milestone_name}</td>`);
-        row.append(`<td>${invoice ? formatDate(invoice.due_date) : 'N/A'}</td>`); // Update this with the actual due date field
-        row.append(`<td>${invoice ? formatCurrency(milestone.amount) : 'N/A'}</td>`); // Remaining Amount);
+        function displayMilestones(milestonesToDisplay) {
+            tableBody.empty();
 
-        // Status - Use the status from the milestone object
-        const statusCell = $('<td>'); // Create a cell for the status
-        if (invoice && milestone.status !== 'paid') {
-            const payButton = $('<button>').addClass('pay-btn').text('Pay'); // Create the "Pay" button
-            payButton.click(async function () {
+            milestonesToDisplay.forEach(async (milestone) => {
                 try {
-                    // Hide the button
-                    $(this).hide();
+                    const row = $('<tr>');
 
-                    // Get the row index
-                    const rowIndex = $(this).closest('tr').index();
+                    const customer = customers.find(customer => customer.customer_id === milestone.customer_id);
+                    const project = projects.find(project => project.customer_id === milestone.customer_id && project.internal_project_id === milestone.internal_project_id);
+                    const invoice = invoices.find(invoices => invoices.customer_id === milestone.customer_id && invoices.internal_project_id === milestone.internal_project_id && invoices.milestone_id === milestone.milestone_id);
 
-                    // Update the status to "paid"
-                    milestone.status = 'paid';
+                    row.append(`<td class="customer-name">${customer ? customer.company_name : '-'}</td>`);
+                    row.append(`<td class="project-name">${project ? project.internal_project_id : '-'}</td>`);
+                    row.append(`<td class="milestone-name">${milestone ? milestone.milestone_name : '-'}</td>`);
+                    row.append(`<td>${milestone ? milestone.claim_percent + '%' : '-'}</td>`);
+                    row.append(`<td>${milestone ? formatCurrency(milestone.amount) : '-'}</td>`);
+                    row.append(`<td>${invoice && invoice.pending === 'no' ? 'Invoice Issued' : 'Invoice Not Issued'}</td>`);
 
-                    // Update the corresponding cell text
-                    statusCell.text('Paid');
+                    const actionCell = $('<td>');
+                    const checkbox = $('<input type="checkbox" class="select-milestone">').data('milestone', { ...milestone, customer_name: customer ? customer.company_name : '-' }); // Include customer_name in the data object
+                    actionCell.append(checkbox);
+                    row.append(actionCell);
 
-                    // Send a request to update the milestone status
-                    await window.electron.send('paidstatus', { milestone });
+                    tableBody.append(row);
                 } catch (error) {
-                    console.error('Error paying milestone:', error);
-                    // Handle error if necessary
+                    console.error('Error processing milestone:', error);
                 }
             });
-            statusCell.append(payButton);
-        } else if (invoice && milestone.status === 'paid') {
-            statusCell.text('Paid');
-        } else {
-            statusCell.text('N/A');
         }
-        row.append(statusCell);
 
-        // Append the row to the table body
-        tableBody.append(row);
+        // Initial display of milestones
+        displayMilestones(displayedMilestones);
 
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const options = { year: 'numeric', month: 'short', day: 'numeric' };
-            return date.toLocaleDateString('en-IN', options);
-        };
+        $('#create_invoice').click(function () {
+            const selectedMilestones = $('.select-milestone:checked').map(function () {
+                return $(this).data('milestone');
+            }).get();
+
+            openModal(selectedMilestones);
+        });
+
+        $('#tableFilter').on('input', function () {
+            const filterValue = $(this).val().toLowerCase();
+            $('#displayTable tbody tr').filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(filterValue) > -1);
+            });
+        });
 
         function formatCurrency(amount) {
-            // Assuming amount is in USD, change currency and locale as needed
             return parseFloat(amount).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
-        };
+        }
 
-        // await window.electron.send('updatestatus', milestone)
-    });
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
 });
+
+function openModal(selectedMilestones) {
+    $('#invoiceModal').show();
+
+    const totalAmount = selectedMilestones.reduce((sum, milestone) => sum + parseFloat(milestone.amount), 0);
+    const customerName = selectedMilestones[0]?.customer_name || '-';
+    const projectID = selectedMilestones[0]?.internal_project_id || '-';
+
+    const selectedMilestonesList = selectedMilestones.map(milestone =>
+        `<li>${milestone.milestone_name} - ${formatCurrency(milestone.amount)}</li>`
+    ).join('');
+
+    $('#selectedMilestones').html(`
+        <h3>Selected Milestones:</h3>
+        <p>Company Name: ${customerName}</p>
+        <p>Project ID: ${projectID}</p>
+        <p>Total Amount: ${formatCurrency(totalAmount)}</p>
+        <ul>${selectedMilestonesList}</ul>
+    `);
+
+    $('#create_invoice').off('click').on('click', async function () {
+        try {
+            // Send data to ipcMain
+            window.electron.send('createForm', { invoiceData: { selectedMilestones } });
+
+            $('#invoiceModal').hide();
+            displayMilestones(displayedMilestones); // Refresh the table
+        } catch (error) {
+            console.error('Error creating invoices:', error);
+        }
+    });
+
+    $('.close-btn').click(function () {
+        $('#invoiceModal').hide();
+    });
+
+    $(window).click(function (event) {
+        if (event.target.id === 'invoiceModal') {
+            $('#invoiceModal').hide();
+        }
+    });
+}
+
+
+function formatCurrency(amount) {
+    return parseFloat(amount).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+}
