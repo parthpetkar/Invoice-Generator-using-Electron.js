@@ -38,8 +38,8 @@ $(document).ready(async () => {
         let selectedMilestones = [];
 
         $('#projectChoose').change(async () => {
-            const selectedProjectName = $('#projectChoose').val();
-            const { milestones } = await window.electron.invoke('fetchMilestones', selectedProjectName);
+            const selectedProjectId = $('#projectChoose').val();
+            const { milestones } = await window.electron.invoke('fetchMilestones', selectedProjectId);
             $invoiceTableBody.empty();
             milestones.forEach(milestone => {
                 // Create a new row

@@ -105,6 +105,7 @@ ipcMain.on("createCustomer", async (event, data) => {
             customerData.cin,
         ]);
 
+        win.reload();
         event.reply('createCustomerResponse', { success: true, message: "Data inserted successfully", customerId: newCustomerId });
     } catch (error) {
         event.reply('createCustomerResponse', { success: false, message: "Error inserting data", error: error.message });
@@ -378,12 +379,13 @@ ipcMain.handle("fetchProject", async (event, companyName) => {
         console.error("Error fetching data from database:", error);
     }
 });
-ipcMain.handle("fetchMilestones", async (event, projectName) => {
+ipcMain.handle("fetchMilestones", async (event, selectedProjectId) => {
     try {
         const [milestones] = await connection.execute(
-            "SELECT * FROM milestones INNER JOIN projects ON milestones.cin = projects.cin AND milestones.pono = projects.pono WHERE projects.project_name = ?",
-            [projectName]
+            "SELECT * FROM milestones INNER JOIN projects ON milestones.customer_id = projects.customer_id AND milestones.internal_project_id = projects.internal_project_id WHERE projects.internal_project_id = ?",
+            [selectedProjectId]
         );
+        console.log(milestones);
         return { milestones };
     } catch (error) {
         console.error("Error fetching data from database:", error);

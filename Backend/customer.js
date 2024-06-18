@@ -175,18 +175,6 @@ $(document).ready(async () => {
             }
         }
 
-        // $(document).ready(function () {
-        //     toggleAddMilestoneButton();
-
-        //     $("#add_milestone").click(function () {
-        //         addRow();
-        //     });
-
-        //     $("#create_milestones").click(function () {
-        //         saveMilestones();
-        //     });
-        // });
-
         $("#dataTable").on("click", ".editBtn", function () {
             const row = $(this).closest("tr");
             const milestoneCell = row.find(".milestoneCell");

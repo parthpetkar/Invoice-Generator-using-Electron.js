@@ -259,44 +259,40 @@
     </div>
   </section>
   <section id="milestones" class="content-section">
-    <div id="milestone_table">
-      <table id="displayTable">
-        <div class="filter-container">
-          <label for="tableFilter" class="filter-label">Search:</label>
-          <input type="text" id="tableFilter" class="table-filter" placeholder="Type to filter...">
-        </div>
-        <table id="displayTable">
-          <thead>
-            <tr>
-              <th>Invoice Number</th>
-              <th>Company Name</th>
-              <th>Project Name</th>
-              <th>Milestone Name</th>
-              <th>
-                Due Date
-                <div class="dropdown">
-                  <select id="dueDateFilter">
-                    <option value="all">All</option>
-                    <option value="newest">Newest</option>
-                    <option value="oldest">Oldest</option>
-                    <option value="dueToday">Due Today</option>
-                  </select>
-                </div>
-              </th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Data rows will be added dynamically -->
-          </tbody>
-        </table>
+    <div class="filter-container">
+      <input type="text" id="tableFilter" placeholder="Search...">
+      <button class="button" id="create_invoice">Create Invoice</button>
     </div>
+
+    <table id="displayTable">
+      <thead>
+        <tr>
+          <th>Company Name</th>
+          <th>Project ID</th>
+          <th>Milestone Name</th>
+          <th>Claim Percentage</th>
+          <th>Milestone Amount</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Table body will be dynamically generated -->
+      </tbody>
+    </table>
+
+    <!-- Modal for Creating Invoice -->
+    <!-- Modal for Creating Invoice -->
+    <div id="invoiceModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Create Invoice</h2>
+        <div id="selectedMilestones"></div> <!-- Display selected milestones here -->
+        <button class="button" id="createInvoiceBtn">Create Invoice</button>
+      </div>
+    </div>
+
   </section>
-
-
-
-
 </body>
 
 </html>

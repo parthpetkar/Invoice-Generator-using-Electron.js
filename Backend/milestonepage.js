@@ -2,113 +2,49 @@ $(document).ready(async () => {
 
     try {
         const { customers, milestones, projects, invoices } = await window.electron.invoke('fetchData');
-        let displayedInvoices = [...invoices];
+        let displayedMilestones = [...milestones];
 
         const tableBody = $('#displayTable tbody');
 
-        function displayInvoices(invoicesToDisplay) {
+        function displayMilestones(milestonesToDisplay) {
             tableBody.empty();
 
-            invoicesToDisplay.forEach(async (invoice) => {
+            milestonesToDisplay.forEach(async (milestone) => {
                 try {
                     const row = $('<tr>');
 
-                    const customer = customers.find(customer => customer.cin === invoice.cin);
-                    const project = projects.find(project => project.cin === invoice.cin && project.pono === invoice.pono);
-                    const milestone = milestones.find(
-                        milestone => milestone.cin === invoice.cin && milestone.pono === invoice.pono && milestone.milestone_name === invoice.milestone_name
-                    );
+                    const customer = customers.find(customer => customer.customer_id === milestone.customer_id);
+                    const project = projects.find(project => project.customer_id === milestone.customer_id && project.internal_project_id === milestone.internal_project_id);
+                    const invoice = invoices.find(invoices => invoices.customer_id === milestone.customer_id && invoices.internal_project_id === milestone.internal_project_id && invoices.milestone_id === milestone.milestone_id);
 
-                    row.append(`<td class="invoice-number">${invoice ? formatInvoiceNumber(invoice.invoice_number) : '-'}</td>`);
                     row.append(`<td class="customer-name">${customer ? customer.company_name : '-'}</td>`);
-                    row.append(`<td class="project-name">${project ? project.project_name : '-'}</td>`);
+                    row.append(`<td class="project-name">${project ? project.internal_project_id : '-'}</td>`);
                     row.append(`<td class="milestone-name">${milestone ? milestone.milestone_name : '-'}</td>`);
-                    row.append(`<td>${invoice ? formatDate(invoice.due_date) : '-'}</td>`);
+                    row.append(`<td>${milestone ? milestone.claim_percent + '%' : '-'}</td>`);
                     row.append(`<td>${milestone ? formatCurrency(milestone.amount) : '-'}</td>`);
+                    row.append(`<td>${invoice && invoice.pending === 'no' ? 'Invoice Issued' : 'Invoice Not Issued'}</td>`);
 
-                    const statusCell = $('<td>');
+                    const actionCell = $('<td>');
+                    const checkbox = $('<input type="checkbox" class="select-milestone">').data('milestone', { ...milestone, customer_name: customer ? customer.company_name : '-' }); // Include customer_name in the data object
+                    actionCell.append(checkbox);
+                    row.append(actionCell);
 
-                    if (invoice && milestone && milestone.status !== 'paid') {
-                        const payButton = $('<button>').addClass('pay-btn').text('Pay');
-                        payButton.click(async function () {
-                            try {
-                                $(this).hide();
-                                milestone.status = 'paid';
-                                statusCell.text('Paid');
-                                await window.electron.send('paidstatus', { milestone });
-                            } catch (error) {
-                                console.error('Error paying milestone:', error);
-                            }
-                        });
-                        statusCell.append(payButton);
-                    } else if (invoice && milestone && milestone.status === 'paid') {
-                        statusCell.text('Paid');
-                    } else {
-                        statusCell.text('-');
-                    }
-                    row.append(statusCell);
-
-                    const differenceInDays = finddifferenceindays(invoice.due_date);
-
-                    const statusBox = $('<span>')
-                        .addClass('status-box')
-                        .attr('data-difference', `${differenceInDays > 0 ?
-                            (differenceInDays === 0 ? 'Today'
-                                : `${Math.abs(differenceInDays)} day(s) left`)
-                            : `${Math.abs(differenceInDays)} day(s) overdue`}`
-                        );
-
-                    if (differenceInDays > 7) {
-                        statusBox.addClass('status-box-far');
-                    } else if (differenceInDays > 0) {
-                        statusBox.addClass('status-box-close');
-                    } else if (differenceInDays === 0) {
-                        statusBox.addClass('status-box-exact');
-                        if (invoice.noti_sent === 'no') {
-                            await window.electron.send('notification', {
-                                invoiceNumber: invoice.invoiceNumber,
-                                customer: customer.company_name,
-                                project: project.project_name,
-                                milestone: milestone.milestone_name,
-                                invoice: invoice
-                            })
-                        }
-                    } else {
-                        statusBox.addClass('status-box-passed');
-                    }
-
-                    row.find('td:nth-child(5)').addClass('due-date').append(statusBox);
                     tableBody.append(row);
                 } catch (error) {
-                    console.error('Error processing invoice:', error);
+                    console.error('Error processing milestone:', error);
                 }
             });
         }
 
-        // Initial display of invoices
-        displayInvoices(displayedInvoices);
+        // Initial display of milestones
+        displayMilestones(displayedMilestones);
 
-        // Filter invoices based on selected due date option
-        $('#dueDateFilter').change(function () {
-            const selectedFilter = $(this).val();
-            if (selectedFilter === 'newest') {
-                displayedInvoices = [...invoices];
-                displayedInvoices.sort((a, b) => new Date(b.due_date) - new Date(a.due_date));
-            } else if (selectedFilter === 'oldest') {
-                displayedInvoices = [...invoices];
-                displayedInvoices.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
-            } else if (selectedFilter === 'dueToday') {
-                const today = new Date();
-                displayedInvoices = invoices.filter(invoice => {
-                    const dueDate = new Date(invoice.due_date);
-                    return dueDate.getFullYear() === today.getFullYear() &&
-                        dueDate.getMonth() === today.getMonth() &&
-                        dueDate.getDate() === today.getDate();
-                });
-            } else {
-                displayedInvoices = [...invoices]; // Reset to show all invoices
-            }
-            displayInvoices(displayedInvoices);
+        $('#create_invoice').click(function () {
+            const selectedMilestones = $('.select-milestone:checked').map(function () {
+                return $(this).data('milestone');
+            }).get();
+
+            openModal(selectedMilestones);
         });
 
         $('#tableFilter').on('input', function () {
@@ -118,30 +54,58 @@ $(document).ready(async () => {
             });
         });
 
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const options = { year: 'numeric', month: 'short', day: 'numeric' };
-            return date.toLocaleDateString('en-IN', options);
-        };
-
         function formatCurrency(amount) {
             return parseFloat(amount).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
-        };
-
-        function formatInvoiceNumber(invoiceNumber) {
-            const yearPart = invoiceNumber.slice(0, 4);
-            const sequentialPart = invoiceNumber.slice(4);
-            return `${yearPart}-${sequentialPart}`;
         }
 
-        function finddifferenceindays(duwdate) {
-            const dueDate = new Date(duwdate);
-            const currentDate = new Date();
-            const differenceInDays = Math.floor((dueDate - currentDate) / (1000 * 60 * 60 * 24)) + 1;
-            return differenceInDays;
-        }
     } catch (error) {
         console.error('Error fetching data:', error);
     }
 });
+
+function openModal(selectedMilestones) {
+    $('#invoiceModal').show();
+
+    const totalAmount = selectedMilestones.reduce((sum, milestone) => sum + parseFloat(milestone.amount), 0);
+    const customerName = selectedMilestones[0]?.customer_name || '-';
+    const projectID = selectedMilestones[0]?.internal_project_id || '-';
+
+    const selectedMilestonesList = selectedMilestones.map(milestone =>
+        `<li>${milestone.milestone_name} - ${formatCurrency(milestone.amount)}</li>`
+    ).join('');
+
+    $('#selectedMilestones').html(`
+        <h3>Selected Milestones:</h3>
+        <p>Company Name: ${customerName}</p>
+        <p>Project ID: ${projectID}</p>
+        <p>Total Amount: ${formatCurrency(totalAmount)}</p>
+        <ul>${selectedMilestonesList}</ul>
+    `);
+
+    $('#create_invoice').off('click').on('click', async function () {
+        try {
+            // Send data to ipcMain
+            window.electron.send('createForm', { invoiceData: { selectedMilestones } });
+
+            $('#invoiceModal').hide();
+            displayMilestones(displayedMilestones); // Refresh the table
+        } catch (error) {
+            console.error('Error creating invoices:', error);
+        }
+    });
+
+    $('.close-btn').click(function () {
+        $('#invoiceModal').hide();
+    });
+
+    $(window).click(function (event) {
+        if (event.target.id === 'invoiceModal') {
+            $('#invoiceModal').hide();
+        }
+    });
+}
+
+
+function formatCurrency(amount) {
+    return parseFloat(amount).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+}
