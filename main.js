@@ -63,7 +63,7 @@ async function connectToDB() {
         connection = await mysql.createConnection({
             host: "localhost",
             user: "root",
-            password: "parthYM8",
+            password: "sanjayP@37",
             database: "invoice",
         });
     } catch (error) {
@@ -309,6 +309,7 @@ ipcMain.on("createForm", async (event, data) => {
                     row++;
                 });
 
+
                 const options = {
                     title: "Save Invoice",
                     defaultPath: `IEC_Invoice_${formatInvoiceNumber(formData.invoiceNumber)}_${company_name}_${pono}.xlsx`,
@@ -329,10 +330,13 @@ ipcMain.on("createForm", async (event, data) => {
                             });
                     }
                 });
+
             } else {
                 throw new Error("Worksheet not found in the Excel file.");
             }
         })
+
+ 
         .catch((error) => {
             console.error(error);
         });
