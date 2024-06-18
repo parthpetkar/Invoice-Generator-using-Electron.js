@@ -2,20 +2,18 @@ $(document).ready(async () => {
     try {
         const summaryData = await window.electron.invoke("get-summary-data");
         $("#totalInvoices").text(summaryData.totalMilestones);
-        $("#totalCollected").text(
-            `₹${summaryData.amountCollected.toLocaleString()}`
-        );
+        $("#totalCollected").text(`₹${summaryData.amountCollected.toLocaleString()}`);
         $("#totalPending").text(`₹${summaryData.amountPending.toLocaleString()}`);
 
         const invoiceData = await window.electron.invoke("get-invoice-data");
 
         // Group invoices by date and calculate the total amount for each day
         const groupedByDate = invoiceData.reduce((acc, invoice) => {
-            const dateKey = invoice.invoice_date.toDateString();
+            const dateKey = new Date(invoice.invoice_date).toDateString(); // Ensure it's a Date object
             if (!acc[dateKey]) {
                 acc[dateKey] = { totalAmount: 0, count: 0 };
             }
-            acc[dateKey].totalAmount += parseFloat(invoice.total_prices);
+            acc[dateKey].totalAmount += parseFloat(invoice.total_prices); // Adjust field name
             acc[dateKey].count++;
             return acc;
         }, {});
@@ -51,9 +49,7 @@ $(document).ready(async () => {
 
         Plotly.newPlot("invoicesChart", invoicesData, layout);
 
-        const invoiceStatusData = await window.electron.invoke(
-            "get-invoice-status-data"
-        );
+        const invoiceStatusData = await window.electron.invoke("get-invoice-status-data");
         const statuses = invoiceStatusData.map((item) => item.status);
         const counts = invoiceStatusData.map((item) => item.count);
 
@@ -84,11 +80,11 @@ $(document).ready(async () => {
         const projects = await window.electron.invoke("get-projects");
         projects.forEach((project) => {
             const projectCard = $(`
-                <div class="project-card" data-cin="${project.cin}" data-pono="${project.pono}">
+                <div class="project-card" data-customer-id="${project.customer_id}" data-project-id="${project.internal_project_id}">
                     <h3>${project.project_name}</h3>
-                    <p>CIN: ${project.cin}</p>
-                    <p>PONO: ${project.pono}</p>
-                    <p>Total Price: ₹ ${project.total_prices}</p>
+                    <p>Customer ID: ${project.customer_id}</p>
+                    <p>Internal Project ID: ${project.internal_project_id}</p> <!-- Adjust field name -->
+                    <p>Total Price: ₹ ${project.total_prices}</p> <!-- Adjust field name -->
                     <button class="extend-button">Extend</button>
                 </div>
             `);
@@ -99,11 +95,13 @@ $(document).ready(async () => {
         $(".project-card").on("click", ".extend-button", async function () {
             const projectCard = $(this).closest(".project-card");
             const projectdata = {
-                cin: projectCard.data("cin"),
-                pono: projectCard.data("pono"),
-            };
+                customer_id: projectCard.data("customer-id"),
+                project_id: projectCard.data("project-id"),
+            };  
+            console.log(projectdata)
 
             const { milestones, customers } = await window.electron.invoke("get-milestones", projectdata);
+            console.log(customers)
             const modalContent = $("#milestonesModal .modal-content");
             modalContent.empty();
             modalContent.append($(`<h2>${customers[0].company_name}</h2>`));
@@ -114,7 +112,7 @@ $(document).ready(async () => {
                         <h4>${milestone.milestone_name}</h4>
                         <p>Claim Percent: ${milestone.claim_percent}%</p>
                         <p>Amount: ₹${milestone.amount}</p>
-                        <p>Status: ${milestone.status}</p>
+                        <p>Pending: ${milestone.pending}</p>
                     </div>
                 `);
                 modalContent.append(milestoneCard);

@@ -35,12 +35,12 @@
           <span class="nav-text">Dashboard</span>
         </a>
       </li>
-      <li>
+      <!-- <li>
         <a href="#create_invoices" class="nav-menu-item">
           <img src="../Assets/file-invoice-solid.svg" alt="Create Invoice Icon" class="nav-icon" />
           <span class="nav-text">Create Invoices</span>
         </a>
-      </li>
+      </li> -->
       <li>
         <a href="#create_customers" class="nav-menu-item">
           <img src="../Assets/users-solid.svg" alt="Create Customer Icon" class="nav-icon" />
@@ -95,7 +95,7 @@
       </div>
     </div>
   </section>
-  <section id="create_invoices" class="content-section">
+  <!-- <section id="create_invoices" class="content-section">
     <div class="form-container" id="customer_form">
       <form id="myForm">
         <div class="form-group">
@@ -143,14 +143,13 @@
               </tr>
             </thead>
             <tbody>
-              <!-- Data rows will be added dynamically -->
             </tbody>
           </table>
         </div>
         <button class="button" type="button" id="createInvoice">Save Invoice</button>
       </form>
     </div>
-  </section>
+  </section> -->
   <section id="create_customers" class="content-section">
     <div class="form-container" id="customer_form">
       <form id="customerForm">
@@ -263,7 +262,6 @@
       <input type="text" id="tableFilter" placeholder="Search...">
       <button class="button" id="create_invoice">Create Invoice</button>
     </div>
-
     <table id="displayTable">
       <thead>
         <tr>
@@ -280,18 +278,35 @@
         <!-- Table body will be dynamically generated -->
       </tbody>
     </table>
-
-    <!-- Modal for Creating Invoice -->
-    <!-- Modal for Creating Invoice -->
     <div id="invoiceModal" class="modal">
       <div class="modal-content">
         <span class="close-btn">&times;</span>
         <h2>Create Invoice</h2>
         <div id="selectedMilestones"></div> <!-- Display selected milestones here -->
+        <label>
+          <input type="checkbox" id="customDateCheckbox"> Use Custom Date
+        </label>
+        <div id="customDateContainer" style="display:none; margin:10px;">
+          <label for="customDate">Select Date: </label>
+          <input type="date" id="customDate">
+        </div>
         <button class="button" id="createInvoiceBtn">Create Invoice</button>
       </div>
     </div>
-
+    <div id="invoiceDetailsCard" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <h3>Invoice Details</h3>
+          <button id="closeInvoiceDetailsCard">Close</button>
+        </div>
+        <div class="card-body">
+          <!-- Invoice details will be populated here -->
+        </div>
+        <div class="card-footer">
+          <button id="payInvoiceButton">Pay</button>
+        </div>
+      </div>
+    </div>
   </section>
 </body>
 
