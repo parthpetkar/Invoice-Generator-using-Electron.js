@@ -41,6 +41,7 @@
     "jquery": "^3.7.1",
     "json2xls": "^0.1.2",
     "mysql2": "^3.9.7",
+    "node-schedule": "^2.1.1",
     "pdfkit": "^0.15.0",
     "pizzip": "^3.1.7",
     "plotly.js": "^2.32.0"

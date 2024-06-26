@@ -1,10 +1,17 @@
 $(document).ready(async () => {
-
     try {
         const { customers, milestones, projects, invoices } = await window.electron.invoke('fetchData');
         let displayedMilestones = [...milestones];
 
         const tableBody = $('#displayTable tbody');
+
+        function daysUntilDue(dueDate) {
+            const currentDate = new Date();
+            const dueDateObj = new Date(dueDate);
+            const diffTime = dueDateObj - currentDate;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
 
         function displayMilestones(milestonesToDisplay) {
             tableBody.empty();
@@ -22,7 +29,27 @@ $(document).ready(async () => {
                     row.append(`<td class="milestone-name">${milestone ? milestone.milestone_name : '-'}</td>`);
                     row.append(`<td>${milestone ? milestone.claim_percent + '%' : '-'}</td>`);
                     row.append(`<td>${milestone ? formatCurrency(milestone.amount) : '-'}</td>`);
-                    row.append(`<td>${milestone.pending === 'no' ? 'Invoice Issued' : 'Invoice Not Issued'}</td>`);
+
+                    // Add indicator for due date
+                    if (invoice) {
+                        const daysLeft = daysUntilDue(invoice.due_date);
+                        let textColor;
+                        if (daysLeft < 0) {
+                            textColor = 'red'; // Overdue
+                        } else if (daysLeft === 0) {
+                            textColor = 'orange'; // Due today
+                        } else if (daysLeft <= 3) {
+                            textColor = 'black'; // Due within a week
+                        } else {
+                            textColor = 'green'; // Due later
+                        }
+                        const dueDateContent = invoice.status === 'paid' ? '-' : `${daysLeft} days`;
+                        row.append(`<td style="color: ${textColor};">${dueDateContent}</td>`);
+                    } else {
+                        row.append('<td>-</td>');
+                    }
+
+                    row.append(`<td>${milestone.pending === 'no' ? `${invoice.status === 'paid' ? 'Paid' : 'Invoice Issued'}` : 'Invoice Not Issued'}</td>`);
 
                     const actionCell = $('<td>');
                     if (milestone.pending === 'no') {
@@ -134,7 +161,7 @@ $(document).ready(async () => {
         function openInvoiceDetails(invoice, milestone) {
             const invoiceDetailsCard = $('#invoiceDetailsCard');
             const cardBody = invoiceDetailsCard.find('.card-body');
-
+            console.log(invoice);
             cardBody.html(`
                 <p><strong>Invoice Number:</strong> ${invoice.invoice_number}</p>
                 <p><strong>Invoice Date:</strong> ${invoice.invoice_date}</p>
@@ -150,7 +177,7 @@ $(document).ready(async () => {
                 const payButton = $('<button class="button" id="payInvoiceBtn">Pay</button>');
                 payButton.on('click', async () => {
                     try {
-                        await window.electron.invoke('updateMilestoneStatus', milestone.milestone_id);
+                        await window.electron.invoke('payInvoice', milestone.milestone_id);
                         invoiceDetailsCard.hide();
                         invoice.status = 'paid';
                         displayMilestones(displayedMilestones); // Refresh the table

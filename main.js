@@ -5,6 +5,7 @@ const ExcelJS = require("exceljs");
 const { dialog, shell } = require('electron');
 require("dotenv").config();
 const { Menu, MenuItem } = require('electron');
+const schedule = require('node-schedule');
 
 let connection;
 let win;
@@ -62,7 +63,7 @@ async function connectToDB() {
     try {
         connection = await mysql.createConnection({
             host: "localhost",
-            user: "root",
+            user: "parth",
             password: "parthYM8",
             database: "invoice",
         });
@@ -115,8 +116,6 @@ ipcMain.on("createCustomer", async (event, data) => {
 ipcMain.on("insertMilestone", async (event, data) => {
     const { milestones, projectData } = data;
     const customer_name = projectData.customerName;
-    const currentYear = new Date().getFullYear();
-
     try {
         const [result] = await connection.execute(
             `SELECT customer_id FROM customers WHERE company_name = ?`,
@@ -127,29 +126,13 @@ ipcMain.on("insertMilestone", async (event, data) => {
         // Begin transaction
         await connection.beginTransaction();
 
-        const [lastProjectResult] = await connection.execute(
-            `SELECT internal_project_id FROM projects WHERE internal_project_id LIKE ? ORDER BY internal_project_id DESC LIMIT 1`,
-            [`${currentYear}-%`]
-        );
-
-        // Generate a new project ID
-        let newProjectId;
-        if (lastProjectResult.length > 0) {
-            const lastProjectId = lastProjectResult[0].internal_project_id;
-            const lastProjectNumber = parseInt(lastProjectId.split('-')[1]);
-            const newProjectNumber = (lastProjectNumber + 1).toString().padStart(3, '0');
-            newProjectId = `${currentYear}-${newProjectNumber}`;
-        } else {
-            newProjectId = `${currentYear}-001`;
-        }
-
         const insertProjectQuery = `
           INSERT INTO projects (customer_id, internal_project_id, pono, total_prices, taxes, project_name)
           VALUES (?, ?, ?, ?, ?, ?)
         `;
         await connection.query(insertProjectQuery, [
             customer_id,
-            newProjectId,
+            projectData.projectNumber,
             projectData.poNo,
             projectData.totalPrice,
             projectData.taxTypes[0],
@@ -159,13 +142,13 @@ ipcMain.on("insertMilestone", async (event, data) => {
         // Insert milestones
         for (const [index, milestone] of milestones.entries()) {
             const milestoneNumber = (index + 1).toString().padStart(3, '0');
-            const milestone_id = `${newProjectId}_${milestoneNumber}`;
+            const milestone_id = `${projectData.projectNumber}_${milestoneNumber}`;
 
             const query = `INSERT INTO milestones (customer_id, internal_project_id, milestone_id, milestone_name, claim_percent, amount) 
             VALUES (?, ?, ?, ?, ?, ?)`;
             await connection.query(query, [
                 customer_id,
-                newProjectId,
+                projectData.projectNumber,
                 milestone_id,
                 milestone.milestone,
                 milestone.claimPercentage,
@@ -177,7 +160,7 @@ ipcMain.on("insertMilestone", async (event, data) => {
         await connection.commit();
 
         win.reload();
-        event.reply('createProjectResponse', { success: true, message: "Project created successfully", internalProjectId: newProjectId });
+        event.reply('createProjectResponse', { success: true, message: "Project created successfully", internalProjectId: internal_project_id });
     } catch (error) {
         console.error("Error inserting project data:", error);
         // Rollback transaction in case of error
@@ -187,18 +170,13 @@ ipcMain.on("insertMilestone", async (event, data) => {
 });
 
 
-
-
 ipcMain.on("createInvoice", async (event, data) => {
     const selectedMilestones = data.selectedMilestones;
 
-    // Generate current date in YYYY-MM-DD format
     const currentDate = new Date().toISOString().split('T')[0];
 
-    // Generate the next invoice number
     const invoiceNumber = await generateInvoiceNumber();
 
-    // Calculate due date as 10 days from the current date if custom_date is null
     function calculateDueDate(date) {
         const dueDate = new Date(date);
         dueDate.setDate(dueDate.getDate() + 10);
@@ -207,8 +185,8 @@ ipcMain.on("createInvoice", async (event, data) => {
 
     for (const milestone of selectedMilestones) {
         try {
-            const invoiceDate = milestone.custom_date ? milestone.custom_date : currentDate;
-            const dueDate = milestone.custom_date ? milestone.due_date : calculateDueDate(invoiceDate);
+            const invoiceDate = milestone.custom_date ? milestone.custom_date : calculateDueDate(currentDate);
+            const dueDate = calculateDueDate(invoiceDate);
 
             await connection.query(`
                 INSERT INTO Invoices (customer_id, internal_project_id, invoice_number, company_name, project_name, invoice_date, due_date, total_prices, milestone_id, milestone_name)
@@ -261,7 +239,7 @@ ipcMain.on("createInvoice", async (event, data) => {
         return `${currentYear}-${nextNumber.toString().padStart(3, '0')}`;
     }
 
-    event.reply('invoiceCreated'); // Notify the renderer process that the invoice has been created
+    event.reply('invoiceCreated');
 });
 
 const templateConfig = {
@@ -290,7 +268,6 @@ ipcMain.on("createForm", async (event, data) => {
     try {
         // Retrieve necessary data from the first milestone
         const milestone = selectedMilestones[0];
-        console.log(milestone)
 
         // Fetch customer details if not present
         const [customerDetails] = await connection.execute('SELECT company_name, address1, address2, address3, gstin, pan, cin FROM customers WHERE customer_id = ?', [milestone.customer_id]);
@@ -318,7 +295,7 @@ ipcMain.on("createForm", async (event, data) => {
         worksheet.getCell(cells.gstin).value = '  GST No.-' + customer.gstin;
         worksheet.getCell(cells.pan).value = '  PAN No.-' + customer.pan;
         worksheet.getCell(cells.cin).value = 'CIN No.- ' + customer.cin;
-        worksheet.getCell(cells.pono).value = ' PO NO : ' + milestone.project_name;
+        worksheet.getCell(cells.pono).value = ' PO No.: ' + milestone.project_name + '& Date: ' + project.project_date;
         worksheet.getCell(cells.description).value = milestone.description || '';
         worksheet.getCell(cells.totalPrice).value = Number(project.total_prices);
         worksheet.getCell(cells.invoiceNumber).value = detail.invoice_number;
@@ -344,18 +321,18 @@ ipcMain.on("createForm", async (event, data) => {
         if (!result.canceled) {
             const filePath = result.filePath;
             await workbook.xlsx.writeFile(filePath);
-            console.log("Invoice generated successfully!");
             await shell.openPath(filePath);
         }
+        win.reload();   
     } catch (error) {
         console.error(error);
     }
 });
 
-ipcMain.handle('payInvoice', async (event, { milestone_id }) => {
+ipcMain.handle('payInvoice', async (event, milestone_id) => {
     try {
         await connection.execute('UPDATE invoices SET status = "paid" WHERE milestone_id = ?', [milestone_id]);
-        console.log(`Milestone ${milestone_id} marked as paid.`);
+        win.reload();
     } catch (error) {
         console.error('Error updating milestone status:', error);
         throw error;
@@ -407,43 +384,63 @@ ipcMain.handle("fetchMilestones", async (event, selectedProjectId) => {
             "SELECT * FROM milestones INNER JOIN projects ON milestones.customer_id = projects.customer_id AND milestones.internal_project_id = projects.internal_project_id WHERE projects.internal_project_id = ?",
             [selectedProjectId]
         );
-        console.log(milestones);
         return { milestones };
     } catch (error) {
         console.error("Error fetching data from database:", error);
     }
 });
 
-ipcMain.on("notification", async (event, data) => {
+function sendNotification(data) {
+    const options = {
+        title: 'Invoice Due Today',
+        body: `Invoice Pending From Customer ${data.customer} (${data.project}) For Milestone ${data.milestone}`,
+        silent: false,
+        icon: path.join(__dirname, 'assets/bell-solid.svg'),
+        timeoutType: 'never',
+        urgency: 'critical',
+        closeButtonText: 'Close',
+        tag: `invoice_due_${data.customer}_${data.project}`,
+    };
+    const customNotification = new Notification(options);
+    customNotification.show();
+}
+
+// Schedule the daily check for invoices due today
+const dailyCheckJob = schedule.scheduleJob('0 0 * * *', async () => { // Run at midnight every day
     try {
-        const options = {
-            title: 'Invoice Due Today',
-            body: 'Invoice Pending From Customer '
-                + data.customer
-                + '(' + data.project + ') '
-                + 'For Milestone ' + data.milestone,
-            silent: false,
-            icon: path.join(__dirname, '../assets/bell-solid.svg'),
-            timeoutType: 'never',
-            urgency: 'critical',
-            closeButtonText: 'Close Button',
-            tag: 'invoice_due_' + data.customer + '_' + data.project,
-        }
-        const customNotification = new Notification(options);
-        customNotification.show();
+        const [invoices] = await connection.execute('SELECT * FROM invoices WHERE due_date = CURDATE() AND noti_sent = "no"');
+        const [customers] = await connection.execute('SELECT * FROM customers');
+        const [projects] = await connection.execute('SELECT * FROM projects');
+        const [milestones] = await connection.execute('SELECT * FROM milestones');
+
+        invoices.forEach(invoice => {
+            const customer = customers.find(c => c.customer_id === invoice.customer_id);
+            const project = projects.find(p => p.internal_project_id === invoice.internal_project_id);
+            const milestone = milestones.find(m => m.milestone_id === invoice.milestone_id);
+
+            if (customer && project && milestone) {
+                const data = {
+                    customer: customer.company_name,
+                    project: project.project_name,
+                    milestone: milestone.milestone_name,
+                    invoice: invoice
+                };
+
+                // Send notification
+                sendNotification(data);
+
+                // Update the invoice to mark the notification as sent
+                const updatedQuery = 'UPDATE invoices SET noti_sent = ? WHERE customer_id = ? AND internal_project_id = ? AND milestone_id = ?';
+                connection.execute(updatedQuery, [
+                    'yes',
+                    invoice.customer_id,
+                    invoice.internal_project_id,
+                    invoice.milestone_id
+                ]);
+            }
+        });
     } catch (error) {
-        console.error('Error:', error);
-    }
-    try {
-        const updatedQuery = 'UPDATE invoices SET noti_sent = ? WHERE cin = ? AND pono = ? AND milestone_name = ?';
-        await connection.execute(updatedQuery, [
-            'yes',
-            data.invoice.cin,
-            data.invoice.pono,
-            data.invoice.milestone_name
-        ]);
-    } catch (error) {
-        console.error('Error:', error);
+        console.error('Error checking due dates:', error);
     }
 });
 

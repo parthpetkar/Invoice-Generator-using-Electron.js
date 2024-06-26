@@ -1,8 +1,5 @@
 $(document).ready(async () => {
     function saveCustomerData() {
-        // var gstinPattern = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-        // var panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-        // var cinPattern = /^[A-Z]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/;
 
         var isValid = true;
         var companyName = $('#customer_company_name').val().trim();
@@ -34,51 +31,38 @@ $(document).ready(async () => {
             isValid = false;
             $('#customer_gstin').after('<span class="error">This field is required</span>');
         }
-        // else if (!gstinPattern.test(gstin)) {
-        //     isValid = false;
-        //     $('#customer_gstin').after('<span class="error">Invalid GSTIN format</span>');
-        // }
-
         if (pan === '') {
             isValid = false;
             $('#customer_pan').after('<span class="error">This field is required</span>');
         }
-        // else if (!panPattern.test(pan)) {
-        //     isValid = false;
-        //     $('#customer_pan').after('<span class="error">Invalid PAN format</span>');
-        // }
-
-        // Validate CIN
         if (cin === '') {
             isValid = false;
             $('#customer_cin').after('<span class="error">This field is required</span>');
         }
-        // else if (!cinPattern.test(cin)) {
-        //     isValid = false;
-        //     $('#customer_cin').after('<span class="error">Invalid CIN format</span>');
-        // }
-
-        // If the form is valid, submit it
         if (!isValid) {
             alert('Form is invalid');
+        } else {
+
+            return {
+                companyName: companyName,
+                address1: address1,
+                address2: address2,
+                address3: address3,
+                gstin: gstin,
+                pan: pan,
+                cin: cin
+            };
         }
 
-        return {
-            companyName: companyName,
-            address1: address1,
-            address2: address2,
-            address3: address3, 
-            gstin: gstin,
-            pan: pan,
-            cin: cin
-        };
     }
 
     var projectData = {};
     function saveProjectData() {
         var isValid = true;
         var customerName = $('#customerSelect').val();
+        var projectNumber = $('#project_number').val().trim();
         var projectName = $('#project_name').val().trim();
+        var projectDate = $('#project_date').val().trim();
         var poNo = $('#customer_poNo').val().trim();
         var totalPrice = $('#total_price').val().trim();
         var taxes = $('#taxes_select').val();
@@ -91,6 +75,14 @@ $(document).ready(async () => {
             $('#customerSelect').after('<span class="error">This field is required</span>');
         }
 
+        if (projectNumber === '') {
+            isValid = false;
+            $('#project_number').after('<span class="error">This field is required</span>');
+        }
+        if (projectDate === '') {
+            isValid = false;
+            $('#project_date').after('<span class="error">This field is required</span>');
+        }
         if (projectName === '') {
             isValid = false;
             $('#project_name').after('<span class="error">This field is required</span>');
@@ -111,16 +103,21 @@ $(document).ready(async () => {
 
         if (!isValid) {
             alert('Form is invalid');
+        } else {
+            console.log(projectNumber)
+
+            return {
+                customerName: customerName,
+                projectNumber: projectNumber,
+                projectName: projectName,
+                projectDate: projectDate,
+                poNo: poNo,
+                totalPrice: totalPrice,
+                taxes: taxes,
+                taxTypes: taxTypes
+            };
         }
 
-        return {
-            customerName: customerName,
-            projectName: projectName,
-            poNo: poNo,
-            totalPrice: totalPrice,
-            taxes: taxes,
-            taxTypes: taxTypes
-        };
     }
 
     try {

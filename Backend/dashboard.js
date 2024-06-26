@@ -83,8 +83,9 @@ $(document).ready(async () => {
                 <div class="project-card" data-customer-id="${project.customer_id}" data-project-id="${project.internal_project_id}">
                     <h3>${project.project_name}</h3>
                     <p>Customer ID: ${project.customer_id}</p>
-                    <p>Internal Project ID: ${project.internal_project_id}</p> <!-- Adjust field name -->
-                    <p>Total Price: ₹ ${project.total_prices}</p> <!-- Adjust field name -->
+                    <p>Internal Project Number: ${project.internal_project_id}</p>
+                    <p>Internal PO No. : ${project.pono}</p>
+                    <p>Total Price: ₹ ${project.total_prices}</p>
                     <button class="extend-button">Extend</button>
                 </div>
             `);
@@ -98,7 +99,6 @@ $(document).ready(async () => {
                 customer_id: projectCard.data("customer-id"),
                 project_id: projectCard.data("project-id"),
             };  
-            console.log(projectdata)
 
             const { milestones, customers } = await window.electron.invoke("get-milestones", projectdata);
             console.log(customers)
