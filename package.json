@@ -29,7 +29,7 @@
     "exceljs": "^4.4.0",
     "jquery": "^3.7.1",
     "json2xls": "^0.1.2",
-    "mysql2": "^3.9.7",
+    "mysql2": "^3.9.8",
     "nodemon": "^3.1.0",
     "pdfkit": "^0.15.0",
     "pizzip": "^3.1.7"
@@ -40,7 +40,7 @@
     "exceljs": "^4.4.0",
     "jquery": "^3.7.1",
     "json2xls": "^0.1.2",
-    "mysql2": "^3.9.7",
+    "mysql2": "^3.9.8",
     "node-schedule": "^2.1.1",
     "pdfkit": "^0.15.0",
     "pizzip": "^3.1.7",
