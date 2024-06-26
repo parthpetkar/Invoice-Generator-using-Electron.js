@@ -59,18 +59,27 @@ app.on("window-all-closed", () => {
     }
 });
 
-async function connectToDB() {
+async function connectToDB(username, password) {
+    // console.log(username); //debugging
     try {
-        connection = await mysql.createConnection({
+        connection = await mysql.
+        createConnection({
             host: "localhost",
-            user: "parth",
-            password: "parthYM8",
+            user: username,
+            password: password,
             database: "invoice",
         });
     } catch (error) {
         console.error("Error connecting to database:", error);
     }
 }
+
+ipcMain.on("login", async (event, data) => {
+    const { username, password } = data;
+    // console.log(data);
+    // console.log(username);
+    connectToDB(username, password);
+})
 
 ipcMain.on("createCustomer", async (event, data) => {
     const { customerData } = data;
