@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Invoice Gen</title>
   <link rel="stylesheet" href="../CSS/main_menu.css" />
+  <link rel="stylesheet" href="../CSS/login.css" />
   <link rel="stylesheet" href="../CSS/create_customer.css" />
   <link rel="stylesheet" href="../CSS/create_project.css" />
   <link rel="stylesheet" href="../CSS/overall.css" />
@@ -23,12 +24,19 @@
   <script src="../Backend/customer.js"></script>
   <script src="../Backend/milestonepage.js"></script>
   <script src="../Backend/dashboard.js"></script>
+  <script src="../Backend/login.js"></script>
 </head>
 
 <body>
   <nav class="main-menu" id="mainMenu">
     <button class="menu-toggle">Menu</button>
     <ul class="menu-items">
+      <li>
+        <a href="#login" class="nav-menu-item">
+          <!-- <img src="../Assets/login-icon.svg" alt="Login Icon" class="nav-icon" /> -->
+          <span class="nav-text">Login</span>
+        </a>
+      </li>
       <li>
         <a href="#dashboard" class="nav-menu-item">
           <img src="../Assets/home-solid.svg" alt="Milestone Icon" class="nav-icon" />
@@ -256,6 +264,23 @@
       </div>
     </div>
   </section>
+  <section id="login" class="content-section">
+    <div class="login-container">
+      <h1>Login</h1>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input type="text" id="username" placeholder="username" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" id="password" placeholder="password" required />
+        </div>
+        <button class="button" type="button" id="loginbutton">Login</button>
+      </form>
+    </div>
+  </section>
+  <!-- <script src="../Backend/login.js"></script> -->
 
 </body>
 
