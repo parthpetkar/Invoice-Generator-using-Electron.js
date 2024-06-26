@@ -36,12 +36,6 @@
         </a>
       </li>
       <li>
-        <a href="#create_invoices" class="nav-menu-item">
-          <img src="../Assets/file-invoice-solid.svg" alt="Create Invoice Icon" class="nav-icon" />
-          <span class="nav-text">Create Invoices</span>
-        </a>
-      </li>
-      <li>
         <a href="#create_customers" class="nav-menu-item">
           <img src="../Assets/users-solid.svg" alt="Create Customer Icon" class="nav-icon" />
           <span class="nav-text">Create Customer</span>
@@ -90,65 +84,9 @@
     </div>
     <div id="milestonesModal" class="modal">
       <div class="modal-content">
-        <span class="close">&times;</span>
+        <span class="close-btn">&times;</span>
         <!-- Milestone details will be appended here -->
       </div>
-    </div>
-  </section>
-  <section id="create_invoices" class="content-section">
-    <div class="form-container" id="customer_form">
-      <form id="myForm">
-        <div class="form-group">
-          <label for="invoice_number">Invoice Number</label>
-          <input type="number" id="invoice_number" placeholder="Invoice Number" required />
-        </div>
-        <div class="form-group">
-          <label for="invoice_date">Invoice Date</label>
-          <input type="date" id="invoice_date" required />
-        </div>
-        <div class="form-group">
-          <label for="due_date">Due Date</label>
-          <input type="date" id="due_date" required />
-        </div>
-        <div class="form-group">
-          <label for="customer">Customer</label>
-          <input id="customerChoose" type="text" required placeholder="Select Customer"></input>
-        </div>
-        <div class="form-group">
-          <label for="project">Project</label>
-          <input id="projectChoose" type="text" required placeholder="Select Project"></input>
-        </div>
-        <div class="form-group">
-          <label for="template_type">Template Type</label>
-          <select id="template_type" required>
-            <option value="" disabled selected>Select Template Type</option>
-            <option value="template1">Performa Invoice</option>
-            <option value="template1">Invoice</option>
-            <option value="template1">Tax Invoice</option>
-            <option value="template1">Dollar Invoice</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="description">Description</label>
-          <textarea id="description" placeholder="Description" style="height: 100px; width: 600px"></textarea>
-        </div>
-        <div id="milestone_table">
-          <table id="invoiceTable">
-            <thead>
-              <tr>
-                <th>Milestone Name</th>
-                <th>Claim Percentage</th>
-                <th>Amount</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Data rows will be added dynamically -->
-            </tbody>
-          </table>
-        </div>
-        <button class="button" type="button" id="createInvoice">Save Invoice</button>
-      </form>
     </div>
   </section>
   <section id="create_customers" class="content-section">
@@ -204,8 +142,16 @@
                   <input id="customerSelect" type="text" required placeholder="Select Customer">
                 </div>
                 <div class="form-group">
+                  <label for="projectNumber">Internal Project Number</label>
+                  <input type="text" id="project_number" placeholder="Internal Project Number" required />
+                </div>
+                <div class="form-group">
                   <label for="projectName">Project Name</label>
                   <input type="text" id="project_name" placeholder="Project Name" required />
+                </div>
+                <div class="form-group">
+                  <label for="projectName">Project Date</label>
+                  <input type="date" id="project_date" required />
                 </div>
                 <div class="form-group">
                   <label for="poNo">Purchase Order Number</label>
@@ -259,40 +205,58 @@
     </div>
   </section>
   <section id="milestones" class="content-section">
-    <div class="filter-container">
+    <div class="filter-container sticky-header">
       <input type="text" id="tableFilter" placeholder="Search...">
       <button class="button" id="create_invoice">Create Invoice</button>
     </div>
-
     <table id="displayTable">
-      <thead>
+      <thead class="sticky-header">
         <tr>
-          <th>Company Name</th>
-          <th>Project ID</th>
+          <th>Client Name</th>
+          <th>Project Number</th>
           <th>Milestone Name</th>
-          <th>Claim Percentage</th>
-          <th>Milestone Amount</th>
+          <th>Claim Percent</th>
+          <th>Amount</th>
+          <th>Due In</th>
           <th>Status</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
-        <!-- Table body will be dynamically generated -->
+        <!-- Rows will be dynamically added here -->
       </tbody>
     </table>
-
-    <!-- Modal for Creating Invoice -->
-    <!-- Modal for Creating Invoice -->
     <div id="invoiceModal" class="modal">
       <div class="modal-content">
         <span class="close-btn">&times;</span>
         <h2>Create Invoice</h2>
         <div id="selectedMilestones"></div> <!-- Display selected milestones here -->
+        <label>
+          <input type="checkbox" id="customDateCheckbox"> Use Custom Date
+        </label>
+        <div id="customDateContainer" style="display:none; margin:10px;">
+          <label for="customDate">Select Date: </label>
+          <input type="date" id="customDate">
+        </div>
         <button class="button" id="createInvoiceBtn">Create Invoice</button>
       </div>
     </div>
-
+    <div id="invoiceDetailsCard" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <h3>Invoice Details</h3>
+          <button id="closeInvoiceDetailsCard">Close</button>
+        </div>
+        <div class="card-body">
+          <!-- Invoice details will be populated here -->
+        </div>
+        <div class="card-footer">
+          <button id="payInvoiceButton">Pay</button>
+        </div>
+      </div>
+    </div>
   </section>
+
 </body>
 
 </html>

@@ -5,6 +5,7 @@ const ExcelJS = require("exceljs");
 const { dialog, shell } = require('electron');
 require("dotenv").config();
 const { Menu, MenuItem } = require('electron');
+const schedule = require('node-schedule');
 
 let connection;
 let win;
@@ -62,8 +63,8 @@ async function connectToDB() {
     try {
         connection = await mysql.createConnection({
             host: "localhost",
-            user: "root",
-            password: "sanjayP@37",
+            user: "parth",
+            password: "parthYM8",
             database: "invoice",
         });
     } catch (error) {
@@ -115,8 +116,6 @@ ipcMain.on("createCustomer", async (event, data) => {
 ipcMain.on("insertMilestone", async (event, data) => {
     const { milestones, projectData } = data;
     const customer_name = projectData.customerName;
-    const currentYear = new Date().getFullYear();
-
     try {
         const [result] = await connection.execute(
             `SELECT customer_id FROM customers WHERE company_name = ?`,
@@ -127,29 +126,13 @@ ipcMain.on("insertMilestone", async (event, data) => {
         // Begin transaction
         await connection.beginTransaction();
 
-        const [lastProjectResult] = await connection.execute(
-            `SELECT internal_project_id FROM projects WHERE internal_project_id LIKE ? ORDER BY internal_project_id DESC LIMIT 1`,
-            [`${currentYear}-%`]
-        );
-
-        // Generate a new project ID
-        let newProjectId;
-        if (lastProjectResult.length > 0) {
-            const lastProjectId = lastProjectResult[0].internal_project_id;
-            const lastProjectNumber = parseInt(lastProjectId.split('-')[1]);
-            const newProjectNumber = (lastProjectNumber + 1).toString().padStart(3, '0');
-            newProjectId = `${currentYear}-${newProjectNumber}`;
-        } else {
-            newProjectId = `${currentYear}-001`;
-        }
-
         const insertProjectQuery = `
           INSERT INTO projects (customer_id, internal_project_id, pono, total_prices, taxes, project_name)
           VALUES (?, ?, ?, ?, ?, ?)
         `;
         await connection.query(insertProjectQuery, [
             customer_id,
-            newProjectId,
+            projectData.projectNumber,
             projectData.poNo,
             projectData.totalPrice,
             projectData.taxTypes[0],
@@ -159,13 +142,13 @@ ipcMain.on("insertMilestone", async (event, data) => {
         // Insert milestones
         for (const [index, milestone] of milestones.entries()) {
             const milestoneNumber = (index + 1).toString().padStart(3, '0');
-            const milestone_id = `${newProjectId}_${milestoneNumber}`;
+            const milestone_id = `${projectData.projectNumber}_${milestoneNumber}`;
 
             const query = `INSERT INTO milestones (customer_id, internal_project_id, milestone_id, milestone_name, claim_percent, amount) 
             VALUES (?, ?, ?, ?, ?, ?)`;
             await connection.query(query, [
                 customer_id,
-                newProjectId,
+                projectData.projectNumber,
                 milestone_id,
                 milestone.milestone,
                 milestone.claimPercentage,
@@ -177,7 +160,7 @@ ipcMain.on("insertMilestone", async (event, data) => {
         await connection.commit();
 
         win.reload();
-        event.reply('createProjectResponse', { success: true, message: "Project created successfully", internalProjectId: newProjectId });
+        event.reply('createProjectResponse', { success: true, message: "Project created successfully", internalProjectId: internal_project_id });
     } catch (error) {
         console.error("Error inserting project data:", error);
         // Rollback transaction in case of error
@@ -187,162 +170,174 @@ ipcMain.on("insertMilestone", async (event, data) => {
 });
 
 
-
 ipcMain.on("createInvoice", async (event, data) => {
-    const invoiceData = data.invoiceData;
-    const { formData, milestones } = invoiceData;
-    milestones.forEach(async (milestone) => {
+    const selectedMilestones = data.selectedMilestones;
+
+    const currentDate = new Date().toISOString().split('T')[0];
+
+    const invoiceNumber = await generateInvoiceNumber();
+
+    function calculateDueDate(date) {
+        const dueDate = new Date(date);
+        dueDate.setDate(dueDate.getDate() + 10);
+        return dueDate.toISOString().split('T')[0];
+    }
+
+    for (const milestone of selectedMilestones) {
         try {
+            const invoiceDate = milestone.custom_date ? milestone.custom_date : calculateDueDate(currentDate);
+            const dueDate = calculateDueDate(invoiceDate);
+
             await connection.query(`
-                INSERT INTO Invoices (cin, pono, company_name, project_name, invoice_number, invoice_date, due_date, taxes_excluded, total_prices, milestone_name, remaining_amount)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO Invoices (customer_id, internal_project_id, invoice_number, company_name, project_name, invoice_date, due_date, total_prices, milestone_id, milestone_name)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `, [
-                milestone.cin,
-                milestone.pono,
-                formData.customer,
-                formData.project,
-                formData.invoiceNumber,
-                formData.invoiceDate,
-                formData.dueDate,
+                milestone.customer_id,
+                milestone.internal_project_id,
+                invoiceNumber,
+                milestone.customer_name,
+                milestone.project_name,
+                invoiceDate, // Use custom_date if provided, otherwise current date
+                dueDate, // Calculate due date based on custom_date or current date
                 milestone.amount,
-                milestone.amount,
-                milestone.milestone_name,
-                calculateRemainingAmount(milestone)
+                milestone.milestone_id,
+                milestone.milestone_name
             ]);
-            win.reload();
-            console.log("Data inserted successfully");
+
+            await connection.query(`
+                UPDATE milestones
+                SET pending = 'no'
+                WHERE milestone_id = ?
+            `, [milestone.milestone_id]);
+
+            console.log("Data inserted and milestone updated successfully");
         } catch (error) {
-            console.error("Error inserting data:", error);
+            console.error("Error inserting data or updating milestone:", error);
+        }
+    }
+
+    async function generateInvoiceNumber() {
+        const currentYear = new Date().getFullYear();
+        let nextNumber = 1;
+
+        try {
+            const [rows] = await connection.query(`
+                SELECT MAX(invoice_number) AS lastInvoiceNumber 
+                FROM Invoices 
+                WHERE invoice_number LIKE '${currentYear}-%'
+            `);
+
+            if (rows.length > 0 && rows[0].lastInvoiceNumber) {
+                const lastInvoiceNumber = rows[0].lastInvoiceNumber;
+                const lastSequentialNumber = parseInt(lastInvoiceNumber.split('-')[1]);
+                nextNumber = lastSequentialNumber + 1;
+            }
+        } catch (error) {
+            console.error("Error fetching last invoice number:", error);
         }
 
-    })
-
-    function calculateRemainingAmount(milestone) {
-        const totalAmount = parseFloat(milestone.total_prices);
-        const totalPaidAmount = parseFloat(milestone.amount);
-        const remainingAmount = totalAmount - totalPaidAmount;
-
-        return remainingAmount;
+        return `${currentYear}-${nextNumber.toString().padStart(3, '0')}`;
     }
+
+    event.reply('invoiceCreated');
 });
 
 const templateConfig = {
-    template1: {
-        filePath: "IEC_Invoice_template.xlsx",
-        cells: {
-            companyName: "A13",
-            address1: "A14",
-            address2: "A15",
-            address3: "A16",
-            gstin: "A16",
-            pan: "A17",
-            cin: "C17",
-            description: "A22",
-            pono: "A21",
-            totalPrice: "C21",
-            invoiceDate: "F3",
-            invoiceNumber: "F4",
-            dueDate: "F5",
-            milestonesStartRow: 24
-        }
-    },
+    filePath: "IEC_Invoice_template.xlsx",
+    cells: {
+        companyName: "A13",
+        address1: "A14",
+        address2: "A15",
+        address3: "A16",
+        gstin: "A16",
+        pan: "A17",
+        cin: "C17",
+        description: "A22",
+        pono: "A21",
+        totalPrice: "C21",
+        invoiceDate: "F3",
+        invoiceNumber: "F4",
+        dueDate: "F5",
+        milestonesStartRow: 24
+    }
 };
 
 ipcMain.on("createForm", async (event, data) => {
-    const invoiceData = data.invoiceData;
-    const { formData, milestones } = invoiceData;
-    const templateType = formData.templateType;
+    const selectedMilestones = data.selectedMilestones;
 
-    if (!templateConfig[templateType]) {
-        console.error("Invalid template type");
-        return;
-    }
+    try {
+        // Retrieve necessary data from the first milestone
+        const milestone = selectedMilestones[0];
 
-    const template = templateConfig[templateType];
-    const cells = template.cells;
+        // Fetch customer details if not present
+        const [customerDetails] = await connection.execute('SELECT company_name, address1, address2, address3, gstin, pan, cin FROM customers WHERE customer_id = ?', [milestone.customer_id]);
+        const customer = customerDetails[0];
 
-    const [rowforcin] = await connection.execute('select cin from invoices where invoice_number = ?', [formData.invoiceNumber]);
-    const cin = rowforcin[0].cin;
+        // Fetch project details if not present
+        const [projectDetails] = await connection.execute('SELECT pono, total_prices FROM projects WHERE customer_id = ? AND internal_project_id = ?', [milestone.customer_id, milestone.internal_project_id]);
+        const project = projectDetails[0];
 
-    const [customerDetails] = await connection.execute('select company_name, address1, address2, address3, gstin, pan from customers where cin = ?', [cin]);
-    const address1 = customerDetails[0].address1;
-    const address2 = customerDetails[0].address2;
-    const address3 = customerDetails[0].address3;
-    const gstin = customerDetails[0].gstin;
-    const pan = customerDetails[0].pan;
-    const company_name = customerDetails[0].company_name;
+        // Fetch invoice details
+        const [details] = await connection.execute('SELECT invoice_number, invoice_date, due_date FROM invoices WHERE customer_id = ? AND internal_project_id = ?', [milestone.customer_id, milestone.internal_project_id]);
+        const detail = details[0];
 
-    const pono = milestones[0].pono;
-    const total_price = milestones[0].total_prices;
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.readFile(templateConfig.filePath);
 
-    function formatInvoiceNumber(invoiceNumber) {
-        const yearPart = invoiceNumber.slice(0, 4);
-        const sequentialPart = invoiceNumber.slice(4);
-        return `${yearPart}-${sequentialPart}`;
-    }
+        const worksheet = workbook.getWorksheet("Invoice");
+        if (!worksheet) throw new Error("Worksheet not found in the Excel file.");
 
-    const workbook = new ExcelJS.Workbook();
-    workbook.xlsx
-        .readFile(template.filePath)
-        .then(() => {
-            const worksheet = workbook.getWorksheet("Invoice");
-            if (worksheet) {
-                worksheet.getCell(cells.companyName).value = '  ' + company_name;
-                worksheet.getCell(cells.address1).value = '  ' + address1;
-                worksheet.getCell(cells.address2).value = '  ' + address2;
-                worksheet.getCell(cells.address3).value = '  ' + address3;
-                worksheet.getCell(cells.gstin).value = '  GST No.-' + gstin;
-                worksheet.getCell(cells.pan).value = '  PAN No.-' + pan;
-                worksheet.getCell(cells.cin).value = 'CIN No.- ' + cin;
-                worksheet.getCell(cells.pono).value = ' PO NO : ' + pono;
-                worksheet.getCell(cells.description).value = formData.description;
-                worksheet.getCell(cells.totalPrice).value = Number(total_price);
-                worksheet.getCell(cells.invoiceNumber).value = formatInvoiceNumber(formData.invoiceNumber);
-                worksheet.getCell(cells.invoiceDate).value = formData.invoiceDate;
-                worksheet.getCell(cells.dueDate).value = formData.dueDate;
+        const cells = templateConfig.cells;
+        worksheet.getCell(cells.companyName).value = '  ' + customer.company_name;
+        worksheet.getCell(cells.address1).value = '  ' + customer.address1;
+        worksheet.getCell(cells.address2).value = '  ' + customer.address2;
+        worksheet.getCell(cells.address3).value = '  ' + customer.address3;
+        worksheet.getCell(cells.gstin).value = '  GST No.-' + customer.gstin;
+        worksheet.getCell(cells.pan).value = '  PAN No.-' + customer.pan;
+        worksheet.getCell(cells.cin).value = 'CIN No.- ' + customer.cin;
+        worksheet.getCell(cells.pono).value = ' PO No.: ' + milestone.project_name + '& Date: ' + project.project_date;
+        worksheet.getCell(cells.description).value = milestone.description || '';
+        worksheet.getCell(cells.totalPrice).value = Number(project.total_prices);
+        worksheet.getCell(cells.invoiceNumber).value = detail.invoice_number;
+        worksheet.getCell(cells.invoiceDate).value = detail.invoice_date;
+        worksheet.getCell(cells.dueDate).value = detail.due_date;
 
-                let row = cells.milestonesStartRow;
-                milestones.forEach((milestone) => {
-                    worksheet.getCell(`A${row}`).value = '  ' + milestone.milestone_name;
-                    worksheet.getCell(`D${row}`).value = '  ' + Number(milestone.claim_percent) + '%';
-                    worksheet.getCell(`F${row}`).value = '  ' + Number(milestone.amount);
-                    row++;
-                });
-
-
-                const options = {
-                    title: "Save Invoice",
-                    defaultPath: `IEC_Invoice_${formatInvoiceNumber(formData.invoiceNumber)}_${company_name}_${pono}.xlsx`,
-                    buttonLabel: "Save",
-                    filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
-                };
-
-                dialog.showSaveDialog(null, options).then(result => {
-                    if (!result.canceled) {
-                        const filePath = result.filePath;
-                        workbook.xlsx.writeFile(filePath)
-                            .then(() => {
-                                console.log("Invoice generated successfully!");
-                                shell.openPath(filePath);
-                            })
-                            .catch((error) => {
-                                console.error(error);
-                            });
-                    }
-                });
-
-            } else {
-                throw new Error("Worksheet not found in the Excel file.");
-            }
-        })
-
- 
-        .catch((error) => {
-            console.error(error);
+        let row = cells.milestonesStartRow;
+        selectedMilestones.forEach((milestone) => {
+            worksheet.getCell(`A${row}`).value = '  ' + milestone.milestone_name;
+            worksheet.getCell(`D${row}`).value = '  ' + Number(milestone.claim_percent) + '%';
+            worksheet.getCell(`F${row}`).value = '  ' + Number(milestone.amount);
+            row++;
         });
+
+        const options = {
+            title: "Save Invoice",
+            defaultPath: `IEC_Invoice_${detail.invoice_number}_${customer.company_name}_${project.pono}.xlsx`,
+            buttonLabel: "Save",
+            filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
+        };
+
+        const result = await dialog.showSaveDialog(null, options);
+        if (!result.canceled) {
+            const filePath = result.filePath;
+            await workbook.xlsx.writeFile(filePath);
+            await shell.openPath(filePath);
+        }
+        win.reload();   
+    } catch (error) {
+        console.error(error);
+    }
 });
 
-
+ipcMain.handle('payInvoice', async (event, milestone_id) => {
+    try {
+        await connection.execute('UPDATE invoices SET status = "paid" WHERE milestone_id = ?', [milestone_id]);
+        win.reload();
+    } catch (error) {
+        console.error('Error updating milestone status:', error);
+        throw error;
+    }
+});
 
 ipcMain.handle("fetchData", async (event) => {
     try {
@@ -389,124 +384,131 @@ ipcMain.handle("fetchMilestones", async (event, selectedProjectId) => {
             "SELECT * FROM milestones INNER JOIN projects ON milestones.customer_id = projects.customer_id AND milestones.internal_project_id = projects.internal_project_id WHERE projects.internal_project_id = ?",
             [selectedProjectId]
         );
-        console.log(milestones);
         return { milestones };
     } catch (error) {
         console.error("Error fetching data from database:", error);
     }
 });
-ipcMain.on("paidstatus", async (event, data) => {
+
+function sendNotification(data) {
+    const options = {
+        title: 'Invoice Due Today',
+        body: `Invoice Pending From Customer ${data.customer} (${data.project}) For Milestone ${data.milestone}`,
+        silent: false,
+        icon: path.join(__dirname, 'assets/bell-solid.svg'),
+        timeoutType: 'never',
+        urgency: 'critical',
+        closeButtonText: 'Close',
+        tag: `invoice_due_${data.customer}_${data.project}`,
+    };
+    const customNotification = new Notification(options);
+    customNotification.show();
+}
+
+// Schedule the daily check for invoices due today
+const dailyCheckJob = schedule.scheduleJob('0 0 * * *', async () => { // Run at midnight every day
     try {
-        const milestone = data.milestone;
+        const [invoices] = await connection.execute('SELECT * FROM invoices WHERE due_date = CURDATE() AND noti_sent = "no"');
+        const [customers] = await connection.execute('SELECT * FROM customers');
+        const [projects] = await connection.execute('SELECT * FROM projects');
+        const [milestones] = await connection.execute('SELECT * FROM milestones');
 
-        const selectQuery = 'SELECT * FROM milestones WHERE cin = ? AND pono = ? AND milestone_name = ?';
-        const [milestones] = await connection.execute(selectQuery, [milestone.cin, milestone.pono, milestone.milestone_name]);
+        invoices.forEach(invoice => {
+            const customer = customers.find(c => c.customer_id === invoice.customer_id);
+            const project = projects.find(p => p.internal_project_id === invoice.internal_project_id);
+            const milestone = milestones.find(m => m.milestone_id === invoice.milestone_id);
 
-        if (milestones.length > 0) {
-            const updateQuery = 'UPDATE milestones SET status = ? WHERE cin = ? AND pono = ? AND milestone_name = ?';
-            await connection.execute(updateQuery, ['paid', milestone.cin, milestone.pono, milestone.milestone_name]);
-            console.log('Milestone status updated to paid');
-        } else {
-            console.log('Milestone not found');
-        }
-    } catch (err) {
-        console.error('Error:', err);
-    }
-});
+            if (customer && project && milestone) {
+                const data = {
+                    customer: customer.company_name,
+                    project: project.project_name,
+                    milestone: milestone.milestone_name,
+                    invoice: invoice
+                };
 
-ipcMain.on("notification", async (event, data) => {
-    try {
-        const options = {
-            title: 'Invoice Due Today',
-            body: 'Invoice Pending From Customer '
-                + data.customer
-                + '(' + data.project + ') '
-                + 'For Milestone ' + data.milestone,
-            silent: false,
-            icon: path.join(__dirname, '../assets/bell-solid.svg'),
-            timeoutType: 'never',
-            urgency: 'critical',
-            closeButtonText: 'Close Button',
-            tag: 'invoice_due_' + data.customer + '_' + data.project,
-        }
-        const customNotification = new Notification(options);
-        customNotification.show();
+                // Send notification
+                sendNotification(data);
+
+                // Update the invoice to mark the notification as sent
+                const updatedQuery = 'UPDATE invoices SET noti_sent = ? WHERE customer_id = ? AND internal_project_id = ? AND milestone_id = ?';
+                connection.execute(updatedQuery, [
+                    'yes',
+                    invoice.customer_id,
+                    invoice.internal_project_id,
+                    invoice.milestone_id
+                ]);
+            }
+        });
     } catch (error) {
-        console.error('Error:', error);
-    }
-    try {
-        const updatedQuery = 'UPDATE invoices SET noti_sent = ? WHERE cin = ? AND pono = ? AND milestone_name = ?';
-        await connection.execute(updatedQuery, [
-            'yes',
-            data.invoice.cin,
-            data.invoice.pono,
-            data.invoice.milestone_name
-        ]);
-    } catch (error) {
-        console.error('Error:', error);
+        console.error('Error checking due dates:', error);
     }
 });
 
 ipcMain.handle('get-summary-data', async () => {
     try {
         const [results] = await connection.execute(`
-        SELECT 
-          (SELECT COUNT(*) FROM milestones) AS totalMilestones,
-          (SELECT SUM(amount) FROM milestones WHERE status = 'paid') AS amountCollected,
-          (SELECT SUM(amount) FROM milestones WHERE status = 'unpaid') AS amountPending
-      `);
+            SELECT 
+                (SELECT COUNT(*) FROM invoices) AS totalMilestones,
+                (SELECT SUM(total_prices) FROM invoices WHERE status = 'paid') AS amountCollected,
+                (SELECT SUM(total_prices) FROM invoices WHERE status = 'unpaid') AS amountPending
+        `);
         return results[0];
     } catch (error) {
         console.error('Error fetching summary data:', error);
+        return { totalMilestones: 0, amountCollected: 0, amountPending: 0 };
     }
 });
 
 ipcMain.handle('get-invoice-data', async () => {
     try {
         const [results] = await connection.execute(`
-        SELECT invoice_date, total_prices FROM invoices ORDER BY invoice_date
-      `);
+            SELECT invoice_date, total_prices FROM invoices ORDER BY invoice_date
+        `);
         return results;
     } catch (error) {
         console.error('Error fetching invoice data:', error);
+        return [];
     }
 });
 
 ipcMain.handle('get-invoice-status-data', async () => {
     try {
         const [results] = await connection.execute(`
-        SELECT status, COUNT(*) as count FROM milestones GROUP BY status
-      `);
+            SELECT status, COUNT(*) as count FROM invoices GROUP BY status
+        `);
         return results;
     } catch (error) {
         console.error('Error fetching invoice status data:', error);
+        return [];
     }
 });
 
 ipcMain.handle('get-projects', async () => {
     try {
         const [projects] = await connection.execute(`
-        SELECT * FROM projects
-      `);
+            SELECT * FROM projects
+        `);
         return projects;
     } catch (error) {
         console.error('Error fetching projects:', error);
+        return [];
     }
 });
 
 ipcMain.handle('get-milestones', async (event, projectdata) => {
     try {
         const [milestones] = await connection.execute(`
-            SELECT * FROM milestones WHERE cin = ? AND pono = ?
-        `, [projectdata.cin, projectdata.pono]);
+            SELECT * FROM milestones WHERE customer_id = ? AND internal_project_id = ?
+        `, [projectdata.customer_id, projectdata.project_id]);
 
         const [customers] = await connection.execute(`
-            SELECT * FROM customers WHERE cin = ?
-        `, [projectdata.cin]);
+            SELECT * FROM customers WHERE customer_id = ?
+        `, [projectdata.customer_id]);
 
         return { milestones, customers };
     } catch (error) {
         console.error('Error fetching milestones:', error);
+        return { milestones: [], customers: [] };
     }
 });
 

@@ -1,25 +1,24 @@
+/* General Table Styling */
 #displayTable {
     font-family: 'Roboto', sans-serif;
     border-collapse: collapse;
     width: 100%;
     margin-bottom: 20px;
     border-radius: 8px;
-    overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     animation: slideIn 1s forwards;
-    margin-top: 20px;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
     }
-    
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-    
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 #displayTable th,
@@ -42,6 +41,27 @@
     background-color: #e0e0e0;
 }
 
+/* Sticky Elements */
+.filter-container {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 1001;
+    /* Ensure the filter container is above the table header */
+}
+
+.sticky-header th {
+    position: sticky;
+    top: 50px;
+    /* Height of the filter-container */
+    background-color: #4285f4;
+    z-index: 1000;
+    /* Ensure the table headers are above the table rows */
+}
+
+/* Dropdown Styling */
 .dropdown {
     position: relative;
     display: inline-block;
@@ -65,18 +85,6 @@
 .dropdown select:focus {
     outline: none;
     border-color: #4285f4;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-50px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 /* Row Animation */
@@ -114,6 +122,7 @@
     position: relative;
 }
 
+/* Modal Styling */
 .modal {
     display: none;
     /* Hidden by default */
@@ -157,10 +166,45 @@
     cursor: pointer;
 }
 
-.table-filter {
-    flex: 1;
-    padding: 5px;
+/* Custom Date Container Styling */
+.customDateContainer {
+    margin: 10px;
+    padding: 10px;
+}
+
+/* Invoice Details Card Styling */
+#invoiceDetailsCard {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    width: 400px;
+    max-width: 90%;
+}
+
+.card {
+    padding: 20px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.card-body {
+    padding: 10px 0;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: center;
+    padding-top: 10px;
+    border-top: 1px solid #ccc;
 }
