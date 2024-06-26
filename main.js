@@ -48,9 +48,7 @@ function createWindow() {
 if (require('electron-squirrel-startup')) app.quit();
 app.whenReady().then(() => {
     createWindow();
-    connectToDB().catch(error => {
-        console.error("Error connecting to database:", error);
-    });
+    // connectToDB()
 });
 
 app.on("window-all-closed", () => {
@@ -62,8 +60,7 @@ app.on("window-all-closed", () => {
 async function connectToDB(username, password) {
     // console.log(username); //debugging
     try {
-        connection = await mysql.
-        createConnection({
+        connection = await mysql.createConnection({
             host: "localhost",
             user: username,
             password: password,
@@ -75,10 +72,17 @@ async function connectToDB(username, password) {
 }
 
 ipcMain.on("login", async (event, data) => {
-    const { username, password } = data;
-    // console.log(data);
-    // console.log(username);
-    connectToDB(username, password);
+    try {
+        const { username, password } = data;
+        connectToDB(username, password).catch(error => {
+            console.error("Error connecting to database:", error);
+        });;
+        win.reload();
+        event.reply('loginResponse', { success: true, message: "Login successful" });
+    } catch (error) {
+        event.reply('loginResponse', { success: false, message: "Error connecting to database", error: error.message });
+    }
+
 })
 
 ipcMain.on("createCustomer", async (event, data) => {
@@ -124,11 +128,10 @@ ipcMain.on("createCustomer", async (event, data) => {
 
 ipcMain.on("insertMilestone", async (event, data) => {
     const { milestones, projectData } = data;
-    const customer_name = projectData.customerName;
     try {
         const [result] = await connection.execute(
             `SELECT customer_id FROM customers WHERE company_name = ?`,
-            [customer_name]
+            [projectData.customerName]
         );
         const customer_id = result[0].customer_id;
 
@@ -169,7 +172,7 @@ ipcMain.on("insertMilestone", async (event, data) => {
         await connection.commit();
 
         win.reload();
-        event.reply('createProjectResponse', { success: true, message: "Project created successfully", internalProjectId: internal_project_id });
+        event.reply('createProjectResponse', { success: true, message: "Project created successfully", internalProjectId: projectData.projectNumber });
     } catch (error) {
         console.error("Error inserting project data:", error);
         // Rollback transaction in case of error

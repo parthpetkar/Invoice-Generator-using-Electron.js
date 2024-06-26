@@ -6,13 +6,13 @@ $(document).ready(async () => {
         try {
             // const customerData = saveCustomerData();
             await window.electron.send('login', { username, password });
-            // window.electron.receive('createCustomerResponse', (response) => {
-            //     if (response.success) {
-            //         alert(`Customer created successfully with ID: ${response.customerId}`);
-            //     } else {
-            //         alert(`Error: ${response.message}\n${response.error}`);
-            //     }
-            // });
+            window.electron.receive('loginResponse', (response) => {
+                if (response.success) {
+                    alert(`${response.message}`);
+                } else {
+                    alert(`Error: ${response.message}\n${response.error}`);
+                }
+            });
         } catch (error) {
             console.log(error);
         }
