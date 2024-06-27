@@ -9,8 +9,9 @@ $(document).ready(async () => {
             window.electron.receive('loginResponse', (response) => {
                 if (response.success) {
                     alert(`${response.message}`);
-                } else {
-                    alert(`Error: ${response.message}\n${response.error}`);
+                }
+                else {
+                    alert(`Invalid Credentials Error: ${response.message}`);
                 }
             });
         } catch (error) {

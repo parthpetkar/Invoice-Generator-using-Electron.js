@@ -67,20 +67,28 @@ async function connectToDB(username, password) {
             database: "invoice",
         });
     } catch (error) {
-        console.error("Error connecting to database:", error);
+        console.error("Error connecting:", error);
     }
 }
 
 ipcMain.on("login", async (event, data) => {
     try {
         const { username, password } = data;
-        connectToDB(username, password).catch(error => {
-            console.error("Error connecting to database:", error);
-        });;
+        connection = await mysql.createConnection({
+            host: "localhost",
+            user: username,
+            password: password,
+            database: "invoice",
+        });
+        console.log(connection); //debugging
+        // connectToDB(username, password).catch(error => {
+        //     console.error("Error connecting to database:", error);
+        //     event.reply('loginResponse', { success: invalid, message: "Invalid credentials" });
+        // });;
         win.reload();
         event.reply('loginResponse', { success: true, message: "Login successful" });
     } catch (error) {
-        event.reply('loginResponse', { success: false, message: "Error connecting to database", error: error.message });
+        event.reply('loginResponse', { success: false, message: "Invalid Credentials" });
     }
 
 })
