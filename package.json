@@ -1,5 +1,5 @@
 {
-  "name": "invoice_gen",
+  "name": "office-invoice",
   "version": "1.0.0",
   "description": "test",
   "main": "main.js",
@@ -10,7 +10,7 @@
     "make": "electron-forge make"
   },
   "keywords": [
-    "invoice_gen"
+    "office-invoice"
   ],
   "author": "Parth Petkar, Parth Kalani",
   "license": "ISC",
