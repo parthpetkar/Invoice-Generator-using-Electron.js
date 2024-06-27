@@ -60,12 +60,12 @@ app.on("window-all-closed", () => {
 async function connectToDB(username, password) {
     // console.log(username); //debugging
     try {
-        connection = await mysql.createConnection({
-            host: "localhost",
-            user: username,
-            password: password,
-            database: "invoice",
-        });
+        // connection = await mysql.createConnection({
+        //     host: '192.168.201.80',
+        //     user: username,
+        //     password: password,
+        //     database: "invoice",
+        // });
     } catch (error) {
         console.error("Error connecting:", error);
     }
@@ -75,7 +75,7 @@ ipcMain.on("login", async (event, data) => {
     try {
         const { username, password } = data;
         connection = await mysql.createConnection({
-            host: "localhost",
+            host: '192.168.2.5',
             user: username,
             password: password,
             database: "invoice",
