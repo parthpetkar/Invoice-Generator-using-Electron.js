@@ -55,34 +55,58 @@ To install and run this project locally, follow these steps:
    create schema invoice;
    use invoice;
    CREATE TABLE `customers` (
+      `customer_id` varchar(255) NOT NULL,
       `company_name` varchar(255) DEFAULT NULL,
-      `address` varchar(255) DEFAULT NULL,
-      `phone` varchar(20) DEFAULT NULL,
-      `gstin` varchar(20) DEFAULT NULL,
-      `pan` varchar(20) DEFAULT NULL,
-      `cin` varchar(20) NOT NULL,
-      PRIMARY KEY (`cin`)
-   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+      `address1` varchar(255) DEFAULT NULL,
+      `address2` varchar(255) DEFAULT NULL,
+      `address3` varchar(255) DEFAULT NULL,
+      `gstin` varchar(255) DEFAULT NULL,
+      `pan` varchar(255) DEFAULT NULL,
+      `cin` varchar(255) DEFAULT NULL,
+      PRIMARY KEY (`customer_id`)
+   );
 
    CREATE TABLE `projects` (
-      `cin` varchar(20) NOT NULL,
-      `pono` varchar(20) NOT NULL,
-      `total_prices` decimal(10,2) DEFAULT NULL,
-      `taxes` enum('GST','IGST') DEFAULT NULL,
+      `customer_id` varchar(255) NOT NULL,
+      `internal_project_id` varchar(255) NOT NULL,
       `project_name` varchar(255) DEFAULT NULL,
-      PRIMARY KEY (`cin`,`pono`),
-      CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`cin`) REFERENCES `customers` (`cin`)
-   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+      `project_date` DATE DEFAULT NULL,
+      `pono` varchar(255) DEFAULT NULL,
+      `total_prices` decimal(10,2) DEFAULT NULL,
+      `taxes` enum('CGST','SGST','IGST') DEFAULT NULL,
+      PRIMARY KEY (`customer_id`,`internal_project_id`),
+      CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`)
+   );
 
    CREATE TABLE `milestones` (
-      `cin` varchar(20) NOT NULL,
-      `pono` varchar(20) NOT NULL,
-      `milestone_name` varchar(255) NOT NULL,
+      `customer_id` varchar(255) NOT NULL,
+      `internal_project_id` varchar(255) NOT NULL,
+      `milestone_id` varchar(255) NOT NULL,
+      `milestone_name` varchar(255) DEFAULT NULL,
       `claim_percent` decimal(5,2) DEFAULT NULL,
       `amount` decimal(10,2) DEFAULT NULL,
-      PRIMARY KEY (`cin`,`pono`,`milestone_name`),
-      CONSTRAINT `milestones_ibfk_1` FOREIGN KEY (`cin`, `pono`) REFERENCES `projects` (`cin`, `pono`)
-   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+      `pending` enum('yes','no') NOT NULL DEFAULT 'yes',
+      PRIMARY KEY (`customer_id`,`internal_project_id`,`milestone_id`),
+      CONSTRAINT `milestones_ibfk_1` FOREIGN KEY (`customer_id`, `internal_project_id`) REFERENCES `projects` (`customer_id`, `internal_project_id`)
+   );
+   CREATE TABLE `invoices` (
+      `customer_id` VARCHAR(255) NOT NULL,
+      `internal_project_id` VARCHAR(255) NOT NULL,
+      `invoice_number` VARCHAR(255) NOT NULL,
+      `company_name` VARCHAR(255) DEFAULT NULL,
+      `project_name` VARCHAR(255) DEFAULT NULL,
+      `invoice_date` DATE DEFAULT NULL,
+      `due_date` DATE DEFAULT NULL,
+      `total_prices` DECIMAL(10 , 2 ) DEFAULT NULL,
+      `milestone_id` VARCHAR(255) NOT NULL,
+      `milestone_name` VARCHAR(255) DEFAULT NULL,
+      `status` ENUM('unpaid', 'paid') NOT NULL DEFAULT 'unpaid',
+      `noti_send` enum('yes','no') NOT NULL DEFAULT 'no',
+      PRIMARY KEY (`customer_id` , `internal_project_id` , `milestone_id`),
+      CONSTRAINT `fk_projects` FOREIGN KEY (`customer_id` , `internal_project_id`)
+         REFERENCES `projects` (`customer_id` , `internal_project_id`)
+   );
+
    
 - Update the MySQL connection details in `.env`.
    ```
