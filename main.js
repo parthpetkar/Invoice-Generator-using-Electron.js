@@ -263,23 +263,89 @@ ipcMain.on("createInvoice", async (event, data) => {
 });
 
 const templateConfig = {
-    filePath: "IEC_Invoice_template.xlsx",
-    cells: {
-        companyName: "A13",
-        address1: "A14",
-        address2: "A15",
-        address3: "A16",
-        gstin: "A16",
-        pan: "A17",
-        cin: "C17",
-        description: "A22",
-        pono: "A21",
-        totalPrice: "C21",
-        invoiceDate: "F3",
-        invoiceNumber: "F4",
-        dueDate: "F5",
-        milestonesStartRow: 24
-    }
+    Regular: {
+        filePath: "./invoice-templates/Regular.xls",
+        cells: {
+            companyName: "A13",
+            address1: "A14",
+            address2: "A15",
+            address3: "A16",
+            gstin: "A17",
+            // pan: "A17",
+            cin: "C17",
+            // description: "A22",
+            pono: "A21",
+            totalPrice: "C23",
+            invoiceDate: "F3",
+            invoiceNumber: "F4",
+            dueDate: "F5",
+            milestonesStartRow: 23,
+            taxed : "E23"
+        }
+    },
+
+    Dollar: {
+        filePath: "./invoice-templates/Dollar.xls",
+        cells: {
+            companyName: "A13",
+            address1: "A14",
+            address2: "A15",
+            address3: "A16",
+            // gstin: "A17",
+            // pan: "A17",
+            // cin: "C17",
+            // description: "A22",
+            pono: "A21",
+            totalPrice: "C23",
+            invoiceDate: "F3",
+            invoiceNumber: "F4",
+            dueDate: "F5",
+            milestonesStartRow: 23,
+            taxed : "E23"
+        }
+    },
+
+    Proforma: {
+        filePath: "./invoice-templates/Proforma.xls",
+        cells: {
+            companyName: "A13",
+            address1: "A14",
+            address2: "A15",
+            address3: "A16",
+            // gstin: "A17",
+            pan: "A17",
+            // cin: "C17",
+            // description: "A22",
+            pono: "A21",
+            totalPrice: "C23",
+            invoiceDate: "F3",
+            invoiceNumber: "F4",
+            dueDate: "F5",
+            milestonesStartRow: 23,
+            taxed : "E23"
+        }
+    },
+
+    Masshoor: {
+        filePath: "./invoice-templates/Masshoor.xls",
+        cells: {
+            // companyName: "A13",
+            address1: "A14",
+            address2: "A15",
+            address3: "A16",
+            // gstin: "A17",
+            // pan: "A17",
+            // cin: "C17",
+            // description: "A22",
+            pono: "C12",
+            // totalPrice: "C23",
+            invoiceDate: "F3",
+            invoiceNumber: "F4",
+            dueDate: "F5",
+            // milestonesStartRow: 23,
+            // taxed : "E23"
+        }
+    }    
 };
 
 ipcMain.on("createForm", async (event, data) => {
