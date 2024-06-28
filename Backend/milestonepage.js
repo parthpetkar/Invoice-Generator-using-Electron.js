@@ -138,7 +138,7 @@ $(document).ready(async () => {
                     });
 
                     const invoiceType = $('#invoiceType').val();
-                    // await window.electron.send('createInvoice', { selectedMilestones });
+                    await window.electron.send('createInvoice', { selectedMilestones });
                     await window.electron.send('createForm', { selectedMilestones, invoiceType });
 
                     $('#invoiceModal').hide();
