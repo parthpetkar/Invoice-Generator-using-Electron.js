@@ -41,6 +41,7 @@ $(document).ready(async () => {
         }
         if (!isValid) {
             alert('Form is invalid');
+            return false;
         } else {
 
             return {
@@ -103,9 +104,8 @@ $(document).ready(async () => {
 
         if (!isValid) {
             alert('Form is invalid');
+            return false;
         } else {
-            console.log(projectNumber)
-
             return {
                 customerName: customerName,
                 projectNumber: projectNumber,
@@ -224,11 +224,10 @@ $(document).ready(async () => {
 
             if (milestones.length > 0) {
                 // Handle saving milestones
-                console.log("Saving milestones:", milestones);
                 await window.electron.send('insertMilestone', { milestones, projectData });
                 window.electron.receive('createProjectResponse', (response) => {
                     if (response.success) {
-                        alert(`Project created successfully`);
+                        alert(`Project created successfully with ID: ${response.internalProjectId}`,);
                     } else {
                         alert(`Error: ${response.message}\n${response.error}`);
                     }
@@ -255,14 +254,17 @@ $(document).ready(async () => {
     $("#saveCustomer").click(async () => {
         try {
             const customerData = saveCustomerData();
-            await window.electron.send('createCustomer', { customerData });
-            window.electron.receive('createCustomerResponse', (response) => {
-                if (response.success) {
-                    alert(`Customer created successfully with ID: ${response.customerId}`);
-                } else {
-                    alert(`Error: ${response.message}\n${response.error}`);
-                }
-            });
+            if (customerData) {
+            // Handle the case where customerData is null or undefined (optional)
+                await window.electron.send('createCustomer', { customerData });
+                window.electron.receive('createCustomerResponse', (response) => {
+                    if (response.success) {
+                        alert(`Customer created successfully with ID: ${response.customerId}`);
+                    } else {
+                        alert(`Error: ${response.message}\n${response.error}`);
+                    }
+                });
+            }
         } catch (error) {
             console.log(error);
         }
@@ -271,8 +273,11 @@ $(document).ready(async () => {
     $("#saveProject").click(async () => {
         try {
             projectData = saveProjectData();
-            $('#milestone_table').show();
-            $('#customer_form').hide();
+            if (projectData) {
+            // Handle the case where customerData is null or undefined (optional)
+                $('#milestone_table').show();
+                $('#customer_form').hide();
+            }
         } catch (error) {
             console.log(error);
         }

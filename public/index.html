@@ -68,16 +68,16 @@
     <div class="dashboard-container">
       <div class="dashboard-summary">
         <div class="summary-item">
-          <h2>Total Invoices</h2>
-          <p id="totalInvoices">Loading...</p>
+          <h2>Total</h2>
+          <p id="totalAmount">0</p>
         </div>
         <div class="summary-item">
           <h2>Total Amount Collected</h2>
-          <p id="totalCollected">Loading...</p>
+          <p id="totalCollected">0</p>
         </div>
         <div class="summary-item">
           <h2>Total Amount Pending</h2>
-          <p id="totalPending">Loading...</p>
+          <p id="totalPending">0</p>
         </div>
       </div>
       <div class="dashboard-charts">
@@ -93,7 +93,23 @@
     <div id="milestonesModal" class="modal">
       <div class="modal-content">
         <span class="close-btn">&times;</span>
-        <!-- Milestone details will be appended here -->
+      </div>
+    </div>
+    <div id="editProjectModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <form id="editProjectForm">
+          <h2>Edit Project</h2>
+          <label for="projectName">Project Name:</label>
+          <input type="text" id="projectName" name="projectName" required>
+          <label for="projectDate">Project Date:</label>
+          <input type="date" id="projectDate" name="projectDate" required>
+          <label for="poNo">PO No.:</label>
+          <input type="text" id="poNo" name="poNo" required>
+          <label for="totalPrices">Total Price:</label>
+          <input type="number" id="totalPrices" name="totalPrices" required>
+          <button class="button" type="submit">Save Changes</button>
+        </form>
       </div>
     </div>
   </section>
@@ -203,6 +219,7 @@
                 </tbody>
               </table>
             </div>
+            <button class="button" id="backToProject">Back</button>
             <button class="button" id="add_milestone">Add Milestones</button>
             <button class="button" type="button" id="create_milestone">
               Create Milestones
@@ -243,9 +260,21 @@
           <input type="checkbox" id="customDateCheckbox"> Use Custom Date
         </label>
         <div id="customDateContainer" style="display:none; margin:10px;">
-          <label for="customDate">Select Date: </label>
+          <label for="customDate">Select Due Date: </label>
           <input type="date" id="customDate">
         </div>
+        <div id="invoicedrop">
+          <label for="invoiceType">Select Invoice Type:</label>
+          <select id="invoiceType">
+            <option value="Regular">Regular Invoice</option>
+            <option value="Regular2">Regular 2 Invoice (Without Due Date)</option>
+            <option value="Proforma">Proforma Invoice</option>
+            <option value="Masshoor">Masshoor Invoice</option>
+            <option value="Dollar">Dollar Invoice</option>
+            <!-- Add more options as needed -->
+          </select>
+        </div>
+
         <button class="button" id="createInvoiceBtn">Create Invoice</button>
       </div>
     </div>
@@ -269,12 +298,12 @@
       <h1>Login</h1>
       <form id="loginForm">
         <div class="form-group">
-          <label for="username">Username:</label>
-          <input type="text" id="username" placeholder="username" required />
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="Username" required />
         </div>
         <div class="form-group">
-          <label for="password">Password:</label>
-          <input type="password" id="password" placeholder="password" required />
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Password" required />
         </div>
         <button class="button" type="button" id="loginbutton">Login</button>
       </form>

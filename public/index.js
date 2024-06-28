@@ -37,4 +37,17 @@ $(document).ready(function () {
         $('a[href="#' + currentTabLink + '"]').parent().removeClass('is-active');
         $('a[href="#' + nextTab.attr('id') + '"]').parent().addClass('is-active');
     });
+
+    // Back button functionality
+    $('#backToProject').click(function () {
+        var currentTab = $(this).closest('.tabs-panel');
+        var prevTab = currentTab.prev('.tabs-panel');
+
+        currentTab.removeClass('is-active');
+        prevTab.addClass('is-active');
+        var currentTabLink = currentTab.attr('id');
+        $('a[href="#' + currentTabLink + '"]').parent().removeClass('is-active');
+        $('a[href="#' + prevTab.attr('id') + '"]').parent().addClass('is-active');
+    });
+
 });

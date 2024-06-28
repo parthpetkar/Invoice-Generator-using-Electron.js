@@ -57,19 +57,6 @@ app.on("window-all-closed", () => {
     }
 });
 
-async function connectToDB(username, password) {
-    // console.log(username); //debugging
-    try {
-        connection = await mysql.createConnection({
-            host: "localhost",
-            user: username,
-            password: password,
-            database: "invoice",
-        });
-    } catch (error) {
-        console.error("Error connecting:", error);
-    }
-}
 
 ipcMain.on("login", async (event, data) => {
     try {
@@ -79,12 +66,10 @@ ipcMain.on("login", async (event, data) => {
             user: username,
             password: password,
             database: "invoice",
+            waitForConnections: true,
+            connectionLimit: 10,
+            queueLimit: 0
         });
-        console.log(connection); //debugging
-        // connectToDB(username, password).catch(error => {
-        //     console.error("Error connecting to database:", error);
-        //     event.reply('loginResponse', { success: invalid, message: "Invalid credentials" });
-        // });;
         win.reload();
         event.reply('loginResponse', { success: true, message: "Login successful" });
     } catch (error) {
@@ -142,21 +127,22 @@ ipcMain.on("insertMilestone", async (event, data) => {
             [projectData.customerName]
         );
         const customer_id = result[0].customer_id;
-
+        console.log(projectData);
         // Begin transaction
         await connection.beginTransaction();
 
         const insertProjectQuery = `
-          INSERT INTO projects (customer_id, internal_project_id, pono, total_prices, taxes, project_name)
-          VALUES (?, ?, ?, ?, ?, ?)
+          INSERT INTO projects (customer_id, internal_project_id, project_name, project_date, pono, total_prices, taxes)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
         await connection.query(insertProjectQuery, [
             customer_id,
             projectData.projectNumber,
+            projectData.projectName,    // Change order here
+            projectData.projectDate,
             projectData.poNo,
             projectData.totalPrice,
-            projectData.taxTypes[0],
-            projectData.projectName,
+            projectData.taxTypes[0]
         ]);
 
         // Insert milestones
@@ -262,39 +248,114 @@ ipcMain.on("createInvoice", async (event, data) => {
     event.reply('invoiceCreated');
 });
 
-const templateConfig = {
-    filePath: "IEC_Invoice_template.xlsx",
-    cells: {
-        companyName: "A13",
-        address1: "A14",
-        address2: "A15",
-        address3: "A16",
-        gstin: "A16",
-        pan: "A17",
-        cin: "C17",
-        description: "A22",
-        pono: "A21",
-        totalPrice: "C21",
-        invoiceDate: "F3",
-        invoiceNumber: "F4",
-        dueDate: "F5",
-        milestonesStartRow: 24
-    }
+
+const templateConfigs = {
+    Regular: {
+        filePath: path.join(__dirname, "Templates/Regular-Invoice.xlsx"),
+        cells: {
+            companyName: "A13",
+            address1: "A14",
+            address2: "A15",
+            address3: "A16",
+            gstin: "A17",
+            cin: "C17",
+            pono: "A21",
+            totalPrice: "C23",
+            invoiceDate: "F3",
+            invoiceNumber: "F4",
+            dueDate: "F5",
+            taxed: "E23",
+            milestonesStartRow: 23
+        }
+    },
+    Proforma: {
+        filePath: path.join(__dirname, "Templates/Proforma-Invoice.xlsx"),
+        cells: {
+            companyName: "A13",
+            address1: "A14",
+            address2: "A15",
+            address3: "A16",
+            cin: "C17",
+            pono: "A21",
+            totalPrice: "C23",
+            invoiceDate: "F3",
+            invoiceNumber: "F4",
+            dueDate: "F5",
+            taxed: "E23",
+            milestonesStartRow: 23
+        }
+    },
+    Regular2: {
+        filePath: path.join(__dirname, "Templates/Regular-2-Invoice.xlsx"),
+        cells: {
+            companyName: "A13",
+            address1: "A14",
+            address2: "A15",
+            address3: "A16",
+            gstin: "A17",
+            cin: "C17",
+            pono: "A21",
+            totalPrice: "C23",
+            invoiceDate: "F3",
+            invoiceNumber: "F4",
+            taxed: "E23",
+            milestonesStartRow: 23
+        }
+    },
+    Dollar: {
+        filePath: path.join(__dirname, "Templates/Dollar-Invoice.xlsx"),
+        cells: {
+            companyName: "A13",
+            address1: "A14",
+            address2: "A15",
+            address3: "A16",
+            pono: "A21",
+            totalPrice: "C23",
+            invoiceDate: "F3",
+            invoiceNumber: "F4",
+            taxed: "E23",
+            milestonesStartRow: 23
+        }
+    },
+    Masshoor: {
+        filePath: path.join(__dirname, "Templates/Dollar-Invoice.xlsx"),
+        cells: {
+            companyName: "A13",
+            address1: "A14",
+            address2: "A15",
+            address3: "A16",
+        }
+    },
+    // Add more invoice types as needed
 };
 
 ipcMain.on("createForm", async (event, data) => {
-    const selectedMilestones = data.selectedMilestones;
-
+    const { selectedMilestones, invoiceType } = data;
     try {
+        function to_date(date) {
+            if (!date) return '-';
+            const d = new Date(date);
+            const day = d.getDate().toString().padStart(2, '0');
+            const month = (d.getMonth() + 1).toString().padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        // Select the template config based on invoice type
+        const templateConfig = templateConfigs[invoiceType];
+        if (!templateConfig) {
+            throw new Error("Invalid invoice type selected.");
+        }
+
         // Retrieve necessary data from the first milestone
         const milestone = selectedMilestones[0];
 
-        // Fetch customer details if not present
+        // Fetch customer details
         const [customerDetails] = await connection.execute('SELECT company_name, address1, address2, address3, gstin, pan, cin FROM customers WHERE customer_id = ?', [milestone.customer_id]);
         const customer = customerDetails[0];
 
-        // Fetch project details if not present
-        const [projectDetails] = await connection.execute('SELECT pono, total_prices FROM projects WHERE customer_id = ? AND internal_project_id = ?', [milestone.customer_id, milestone.internal_project_id]);
+        // Fetch project details
+        const [projectDetails] = await connection.execute('SELECT project_date, pono, total_prices FROM projects WHERE customer_id = ? AND internal_project_id = ?', [milestone.customer_id, milestone.internal_project_id]);
         const project = projectDetails[0];
 
         // Fetch invoice details
@@ -305,30 +366,93 @@ ipcMain.on("createForm", async (event, data) => {
         await workbook.xlsx.readFile(templateConfig.filePath);
 
         const worksheet = workbook.getWorksheet("Invoice");
-        if (!worksheet) throw new Error("Worksheet not found in the Excel file.");
+        if (!worksheet) {
+            throw new Error("Worksheet not found in the Excel file.");
+        }
 
         const cells = templateConfig.cells;
-        worksheet.getCell(cells.companyName).value = '  ' + customer.company_name;
-        worksheet.getCell(cells.address1).value = '  ' + customer.address1;
-        worksheet.getCell(cells.address2).value = '  ' + customer.address2;
-        worksheet.getCell(cells.address3).value = '  ' + customer.address3;
-        worksheet.getCell(cells.gstin).value = '  GST No.-' + customer.gstin;
-        worksheet.getCell(cells.pan).value = '  PAN No.-' + customer.pan;
-        worksheet.getCell(cells.cin).value = 'CIN No.- ' + customer.cin;
-        worksheet.getCell(cells.pono).value = ' PO No.: ' + milestone.project_name + '& Date: ' + project.project_date;
-        worksheet.getCell(cells.description).value = milestone.description || '';
-        worksheet.getCell(cells.totalPrice).value = Number(project.total_prices);
-        worksheet.getCell(cells.invoiceNumber).value = detail.invoice_number;
-        worksheet.getCell(cells.invoiceDate).value = detail.invoice_date;
-        worksheet.getCell(cells.dueDate).value = detail.due_date;
 
-        let row = cells.milestonesStartRow;
-        selectedMilestones.forEach((milestone) => {
-            worksheet.getCell(`A${row}`).value = '  ' + milestone.milestone_name;
-            worksheet.getCell(`D${row}`).value = '  ' + Number(milestone.claim_percent) + '%';
-            worksheet.getCell(`F${row}`).value = '  ' + Number(milestone.amount);
-            row++;
-        });
+        // Update cells only if they exist in the template
+        if (cells.companyName) {
+            const companyCell = worksheet.getCell(cells.companyName);
+            companyCell.value = customer.company_name || '-';
+            companyCell.font = { name: 'Trebuchet MS', size: 10 };
+            companyCell.alignment = { horizontal: 'left', vertical: 'bottom' };
+        }
+
+        if (cells.address1) {
+            worksheet.getCell(cells.address1).value = customer.address1 || '-';
+            worksheet.getCell(cells.address1).font = { name: 'Trebuchet MS', size: 10 };
+            worksheet.getCell(cells.address1).alignment = { horizontal: 'left', vertical: 'bottom' };
+        }
+
+        if (cells.address2) {
+            worksheet.getCell(cells.address2).value = customer.address2 || '-';
+            worksheet.getCell(cells.address2).font = { name: 'Trebuchet MS', size: 10 };
+            worksheet.getCell(cells.address2).alignment = { horizontal: 'left', vertical: 'bottom' };
+        }
+
+        if (cells.address3) {
+            worksheet.getCell(cells.address3).value = customer.address3 || '-';
+            worksheet.getCell(cells.address3).font = { name: 'Trebuchet MS', size: 10 };
+            worksheet.getCell(cells.address3).alignment = { horizontal: 'left', vertical: 'bottom' };
+        }
+
+        if (cells.gstin) {
+            worksheet.getCell(cells.gstin).value = customer.gstin ? `GST No.- ${customer.gstin}` : '-';
+            worksheet.getCell(cells.gstin).font = { name: 'Trebuchet MS', size: 10 };
+            worksheet.getCell(cells.gstin).alignment = { horizontal: 'left', vertical: 'bottom' };
+        }
+
+        if (cells.cin) {
+            worksheet.getCell(cells.cin).value = customer.cin ? `CIN No.- ${customer.cin}` : '-';
+            worksheet.getCell(cells.cin).font = { name: 'Trebuchet MS', size: 10 };
+            worksheet.getCell(cells.cin).alignment = { horizontal: 'left', vertical: 'bottom' };
+        }
+
+        if (cells.pono) {
+            worksheet.getCell(cells.pono).value = `PO No. & Date: ${milestone.project_name || '-'} , ${to_date(project.project_date) || '-'}`;
+            worksheet.getCell(cells.pono).font = { name: 'Trebuchet MS', size: 10 };
+            worksheet.getCell(cells.pono).alignment = { horizontal: 'left', vertical: 'bottom' };
+        }
+
+        if (cells.totalPrice) {
+            worksheet.getCell(cells.totalPrice).value = project.total_prices || '-';
+            worksheet.getCell(cells.totalPrice).font = { name: 'Trebuchet MS', size: 10 };
+        }
+
+        if (cells.invoiceNumber) {
+            worksheet.getCell(cells.invoiceNumber).value = detail.invoice_number || '-';
+            worksheet.getCell(cells.invoiceNumber).font = { name: 'Trebuchet MS', size: 10 };
+        }
+
+        if (cells.invoiceDate) {
+            worksheet.getCell(cells.invoiceDate).value = to_date(detail.invoice_date) || '-';
+            worksheet.getCell(cells.invoiceDate).font = { name: 'Trebuchet MS', size: 10 };
+            worksheet.getCell(cells.invoiceDate).alignment = { horizontal: 'center' };
+        }
+
+        if (cells.dueDate) {
+            worksheet.getCell(cells.dueDate).value = to_date(detail.due_date) || '-';
+            worksheet.getCell(cells.dueDate).font = { name: 'Trebuchet MS', size: 10 };
+            worksheet.getCell(cells.dueDate).alignment = { horizontal: 'center' };
+        }
+
+        // Update milestones if the start row is defined
+        if (cells.milestonesStartRow) {
+            let row = cells.milestonesStartRow;
+            selectedMilestones.forEach((milestone) => {
+                worksheet.getCell(`A${row}`).value = milestone.milestone_name || '-';
+                worksheet.getCell(`A${row}`).font = { name: 'Trebuchet MS', size: 10 };
+                worksheet.getCell(`A${row}`).alignment = { horizontal: 'left', vertical: 'bottom' };
+
+                worksheet.getCell(`D${row}`).value = Number(milestone.claim_percent) ? `${Number(milestone.claim_percent)}%` : '-';
+                worksheet.getCell(`D${row}`).font = { name: 'Trebuchet MS', size: 10 };
+                worksheet.getCell(`D${row}`).alignment = { horizontal: 'left', vertical: 'bottom' };
+
+                row++;
+            });
+        }
 
         const options = {
             title: "Save Invoice",
@@ -343,11 +467,12 @@ ipcMain.on("createForm", async (event, data) => {
             await workbook.xlsx.writeFile(filePath);
             await shell.openPath(filePath);
         }
-        win.reload();   
+        win.reload();
     } catch (error) {
         console.error(error);
     }
 });
+
 
 ipcMain.handle('payInvoice', async (event, milestone_id) => {
     try {
@@ -466,18 +591,32 @@ const dailyCheckJob = schedule.scheduleJob('0 0 * * *', async () => { // Run at 
 
 ipcMain.handle('get-summary-data', async () => {
     try {
-        const [results] = await connection.execute(`
-            SELECT 
-                (SELECT COUNT(*) FROM invoices) AS totalMilestones,
-                (SELECT SUM(total_prices) FROM invoices WHERE status = 'paid') AS amountCollected,
-                (SELECT SUM(total_prices) FROM invoices WHERE status = 'unpaid') AS amountPending
+        const [total] = await connection.execute(`SELECT SUM(total_prices) as total_prices FROM projects`);
+
+        const [paidResults] = await connection.execute(`
+            SELECT SUM(total_prices) AS amountCollected FROM invoices WHERE status = 'paid'
         `);
-        return results[0];
+
+        const [unpaidResults] = await connection.execute(`
+            SELECT SUM(total_prices) AS amountPending FROM invoices WHERE status = 'unpaid'
+        `);
+        console.log(paidResults, unpaidResults);
+        const amountCollected = Number(paidResults[0].amountCollected) || 0;
+        const amountPending = Number(unpaidResults[0].amountPending) || 0;
+        const totalAmount = total[0].total_prices;
+        console.log(totalAmount, amountPending, amountCollected);
+
+        return {
+            amountCollected: amountCollected,
+            amountPending: amountPending,
+            totalAmount: totalAmount
+        };
     } catch (error) {
         console.error('Error fetching summary data:', error);
-        return { totalMilestones: 0, amountCollected: 0, amountPending: 0 };
+        return { amountCollected: 0, amountPending: 0, totalAmount: 0 };
     }
 });
+
 
 ipcMain.handle('get-invoice-data', async () => {
     try {
@@ -531,6 +670,47 @@ ipcMain.handle('get-milestones', async (event, projectdata) => {
         return { milestones: [], customers: [] };
     }
 });
+
+ipcMain.handle('update-project', async (event, projectData) => {
+    const connection = await pool.getConnection(); // Assuming you are using a connection pool
+    await connection.beginTransaction(); // Begin a transaction
+
+    try {
+        const { project_id, customer_id, project_name, project_date, pono, total_prices } = projectData;
+
+        // Update the project details
+        await connection.execute(
+            'UPDATE projects SET project_name = ?, project_date = ?, pono = ?, total_prices = ? WHERE customer_id = ? AND internal_project_id = ?',
+            [project_name, project_date, pono, total_prices, customer_id, project_id]
+        );
+
+        // Retrieve the milestones for this project
+        const [milestones] = await connection.execute(
+            'SELECT milestone_id, claim_percent FROM milestones WHERE customer_id = ? AND internal_project_id = ?',
+            [customer_id, project_id]
+        );
+
+        // Update the milestone amounts based on the new total price
+        for (const milestone of milestones) {
+            const newAmount = (milestone.claim_percent / 100) * total_prices;
+            await connection.execute(
+                'UPDATE milestones SET amount = ? WHERE milestone_id = ?',
+                [newAmount, milestone.milestone_id]
+            );
+        }
+
+        await connection.commit(); // Commit the transaction
+
+        return { success: true };
+    } catch (error) {
+        await connection.rollback(); // Rollback the transaction in case of error
+        console.error('Error updating project:', error);
+        throw error;
+    } finally {
+        connection.release(); // Release the connection back to the pool
+    }
+});
+
 
 app.on("quit", () => {
     if (connection) {
