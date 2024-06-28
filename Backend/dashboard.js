@@ -1,28 +1,30 @@
 $(document).ready(async () => {
     try {
         const summaryData = await window.electron.invoke("get-summary-data");
-        $("#totalInvoices").text(summaryData.totalMilestones);
+        $("#totalAmount").text(`₹${summaryData.totalAmount.toLocaleString()}`);
         $("#totalCollected").text(`₹${summaryData.amountCollected.toLocaleString()}`);
         $("#totalPending").text(`₹${summaryData.amountPending.toLocaleString()}`);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
 
+    try {
         const invoiceData = await window.electron.invoke("get-invoice-data");
 
-        // Group invoices by date and calculate the total amount for each day
         const groupedByDate = invoiceData.reduce((acc, invoice) => {
-            const dateKey = new Date(invoice.invoice_date).toDateString(); // Ensure it's a Date object
+            const dateKey = new Date(invoice.invoice_date).toDateString();
             if (!acc[dateKey]) {
                 acc[dateKey] = { totalAmount: 0, count: 0 };
             }
-            acc[dateKey].totalAmount += parseFloat(invoice.total_prices); // Adjust field name
+            acc[dateKey].totalAmount += parseFloat(invoice.total_prices);
             acc[dateKey].count++;
             return acc;
         }, {});
 
-        // Calculate the average amount for each day
         const dates = Object.keys(groupedByDate);
         const avgAmounts = dates.map((date) => {
             const avg = groupedByDate[date].totalAmount / groupedByDate[date].count;
-            return avg.toFixed(2); // Round to 2 decimal places
+            return avg.toFixed(2);
         });
 
         const invoicesData = [
@@ -37,18 +39,16 @@ $(document).ready(async () => {
 
         const layout = {
             title: "Average Invoice Amount Over Time",
-            xaxis: {
-                showgrid: false,
-                zeroline: false,
-            },
-            yaxis: {
-                title: "Average Amount",
-                showline: false,
-            },
+            xaxis: { showgrid: false, zeroline: false },
+            yaxis: { title: "Average Amount", showline: false },
         };
 
         Plotly.newPlot("invoicesChart", invoicesData, layout);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
 
+    try {
         const invoiceStatusData = await window.electron.invoke("get-invoice-status-data");
         const statuses = invoiceStatusData.map((item) => item.status);
         const counts = invoiceStatusData.map((item) => item.count);
@@ -64,19 +64,16 @@ $(document).ready(async () => {
 
         const statusLayout = {
             title: "Invoices by Status",
-            xaxis: {
-                title: "Status",
-                showgrid: false,
-                zeroline: false,
-            },
-            yaxis: {
-                title: "Count",
-                showline: false,
-            },
+            xaxis: { title: "Status", showgrid: false, zeroline: false },
+            yaxis: { title: "Count", showline: false },
         };
 
         Plotly.newPlot("statusChart", statusData, statusLayout);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
 
+    try {
         const projects = await window.electron.invoke("get-projects");
         projects.forEach((project) => {
             const projectCard = $(`
@@ -84,15 +81,16 @@ $(document).ready(async () => {
                     <h3>${project.project_name}</h3>
                     <p>Customer ID: ${project.customer_id}</p>
                     <p>Internal Project Number: ${project.internal_project_id}</p>
-                    <p>Internal PO No. : ${project.pono}</p>
-                    <p>Total Price: ₹ ${project.total_prices}</p>
+                    <p>Project Date: ${new Date(project.project_date).toLocaleDateString()}</p>
+                    <p>PO No. : ${project.pono}</p>
+                    <p>Total Price: ₹ ${project.total_prices.toLocaleString()}</p>
                     <button class="extend-button">Extend</button>
+                    <button class="edit-button">Edit</button>
                 </div>
             `);
             $("#projectsContainer").append(projectCard);
         });
 
-        // Event listener for the "Extend" button
         $(".project-card").on("click", ".extend-button", async function () {
             const projectCard = $(this).closest(".project-card");
             const projectdata = {
@@ -101,7 +99,6 @@ $(document).ready(async () => {
             };  
 
             const { milestones, customers } = await window.electron.invoke("get-milestones", projectdata);
-            console.log(customers)
             const modalContent = $("#milestonesModal .modal-content");
             modalContent.empty();
             modalContent.append($(`<h2>${customers[0].company_name}</h2>`));
@@ -118,17 +115,51 @@ $(document).ready(async () => {
                 modalContent.append(milestoneCard);
             });
 
-            // Show the modal
             $("#milestonesModal").css("display", "block");
         });
 
-        // Close the modal when clicking on the close button or outside the modal content
-        $("#milestonesModal .close, #milestonesModal").on("click", function (event) {
-            if (event.target === this) {
-                $("#milestonesModal").css("display", "none");
+        $(".project-card").on("click", ".edit-button", function () {
+            const projectCard = $(this).closest(".project-card");
+            const projectId = projectCard.data("project-id");
+            const customerId = projectCard.data("customer-id");
+
+            $("#projectName").val(projectCard.find("h3").text());
+            $("#projectDate").val(new Date(projectCard.find("p:nth-child(4)").text().split(": ")[1]).toISOString().split("T")[0]);
+            $("#poNo").val(projectCard.find("p:nth-child(5)").text().split(": ")[1]);
+            $("#totalPrices").val(projectCard.find("p:nth-child(6)").text().split("₹ ")[1].replace(/,/g, ''));
+
+            $("#editProjectForm").data("project-id", projectId).data("customer-id", customerId);
+
+            $("#editProjectModal").css("display", "block");
+        });
+
+        $("#editProjectForm").submit(async function (event) {
+            event.preventDefault();
+
+            const projectData = {
+                project_id: $(this).data("project-id"),
+                customer_id: $(this).data("customer-id"),
+                project_name: $("#projectName").val(),
+                project_date: $("#projectDate").val(),
+                pono: $("#poNo").val(),
+                total_prices: $("#totalPrices").val(),
+            };
+
+            try {
+                await window.electron.invoke("update-project", projectData);
+                alert("Project updated successfully!");
+                $("#editProjectModal").css("display", "none");
+                location.reload();
+            } catch (error) {
+                console.error("Error updating project:", error);
             }
         });
 
+        $("#editProjectModal .close, #editProjectModal").on("click", function (event) {
+            if (event.target === this) {
+                $("#editProjectModal").css("display", "none");
+            }
+        });
     } catch (error) {
         console.error("Error fetching data:", error);
     }

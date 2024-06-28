@@ -32,7 +32,7 @@ $(document).ready(async () => {
 
                     // Add indicator for due date
                     if (invoice) {
-                        const daysLeft = daysUntilDue(invoice.due_date);
+                        const daysLeft = daysUntilDue(invoice.invoice_date);
                         let textColor;
                         if (daysLeft < 0) {
                             textColor = 'red'; // Overdue
@@ -137,8 +137,9 @@ $(document).ready(async () => {
                         milestone.custom_date = customDate;
                     });
 
-                    await window.electron.send('createInvoice', { selectedMilestones });
-                    await window.electron.send('createForm', { selectedMilestones });
+                    const invoiceType = $('#invoiceType').val();
+                    // await window.electron.send('createInvoice', { selectedMilestones });
+                    await window.electron.send('createForm', { selectedMilestones, invoiceType });
 
                     $('#invoiceModal').hide();
                     displayMilestones(displayedMilestones); // Refresh the table

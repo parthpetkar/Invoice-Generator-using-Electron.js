@@ -172,7 +172,14 @@
     padding: 10px;
 }
 
-/* Invoice Details Card Styling */
+.invoicedrop {
+    margin: 20px;
+    padding: 10px;
+}
+
+.createInvoiceBtn {
+    margin: 20px;
+}
 #invoiceDetailsCard {
     position: fixed;
     top: 50%;
@@ -183,7 +190,9 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     width: 400px;
-    max-width: 90%;
+        /* Fixed width */
+        max-width: 90%;
+        /* Maximum width as a percentage of the viewport */
 }
 
 .card {
@@ -195,16 +204,57 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #ccc;
-    margin-bottom: 10px;
+    padding-bottom: 10px;
+        /* Improved spacing */
+    }
+    
+    .card-header h2 {
+        font-size: 1.2em;
+        /* Adjusted font size for header */
+        margin: 0;
+        /* Reset margin for consistency */
 }
 
 .card-body {
     padding: 10px 0;
+        /* Improved padding */
 }
 
 .card-footer {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
+        /* Adjusted alignment */
     padding-top: 10px;
     border-top: 1px solid #ccc;
+}
+.card-footer button {
+    padding: 8px 16px;
+    /* Improved button padding */
+    margin-left: 10px;
+    /* Space between buttons */
+    cursor: pointer;
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.card-footer button:hover {
+    background-color: #3367d6;
+    /* Darker shade on hover */
+}
+
+.close-btn {
+    color: #aaa;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: #555;
+    /* Darker on hover/focus */
+    text-decoration: none;
 }
