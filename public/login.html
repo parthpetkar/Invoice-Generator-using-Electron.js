@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../Backend/login.js"></script>
+    <link rel="stylesheet" href="../CSS/login.css" />
+</head>
+
+<body>
+    <section id="login" class="content-section">
+        <div class="login-container">
+            <h1>Login</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Username" required />
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Password" required />
+                </div>
+                <button class="button" type="button" id="loginButton">Login</button>
+            </form>
+            <div class="error" id="errorMessage">Invalid Credentials</div>
+        </div>
+    </section>
+</body>
+
+</html>

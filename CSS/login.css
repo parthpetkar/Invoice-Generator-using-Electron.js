@@ -1,48 +1,117 @@
-/* login.css */
 
-/* Styles for login page */
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
 .login-container {
-    width: 400px;
-    margin: 100px auto;
-    padding: 20px;
-    border: 1px solid #ccc;
+    position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 300px;
+        padding: 40px;
+        background: rgba(0, 0, 0, 0.75);
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     text-align: center;
+    animation: slideIn 1s ease-out forwards;
 }
 
-.login-container h1 {
-    margin-bottom: 20px;
+@keyframes slideIn {
+    from {
+        transform: translate(-50%, -150%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+    }
 }
 
-.login-container .form-group {
+h1 {
+    margin: 0 0 20px;
+    color: #fff;
+    font-size: 24px;
+    animation: fadeIn 2s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.form-group {
     margin-bottom: 15px;
-    text-align: left;
+    animation: zoomIn 1s ease forwards;
 }
 
-.login-container label {
+@keyframes zoomIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.form-group label {
     display: block;
     margin-bottom: 5px;
+    color: #fff;
+        text-align: left;
 }
 
-.login-container input {
-    width: 90%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-.login-container .button {
+.form-group input {
     width: 100%;
     padding: 10px;
-    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    box-sizing: border-box;
+        outline: none;
+        font-size: 14px;
+}
+
+.button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 16px;
+        margin-top: 10px;
+        transition: background-color 0.3s;
 }
 
-.login-container .button:hover {
-    background-color: #218838;
+.button:hover {
+    background-color: #0056b3;
+}
+
+.button:focus {
+    outline: none;
+}
+
+.error {
+    margin-top: 10px;
+    color: #ff4c4c;
+    display: none;
 }

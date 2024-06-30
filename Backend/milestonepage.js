@@ -162,7 +162,6 @@ $(document).ready(async () => {
         function openInvoiceDetails(invoice, milestone) {
             const invoiceDetailsCard = $('#invoiceDetailsCard');
             const cardBody = invoiceDetailsCard.find('.card-body');
-            console.log(invoice);
             cardBody.html(`
                 <p><strong>Invoice Number:</strong> ${invoice.invoice_number}</p>
                 <p><strong>Invoice Date:</strong> ${invoice.invoice_date}</p>

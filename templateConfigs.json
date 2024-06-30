@@ -1,0 +1,78 @@
+{
+    "Regular": {
+        "filePath": "Templates/Regular-Invoice.xlsx",
+        "cells": {
+            "companyName": "A13",
+            "address1": "A14",
+            "address2": "A15",
+            "address3": "A16",
+            "gstin": "A17",
+            "cin": "C17",
+            "pono": "A21",
+            "totalPrice": "C23",
+            "invoiceDate": "F3",
+            "invoiceNumber": "F4",
+            "dueDate": "F5",
+            "taxed": "E23",
+            "milestonesStartRow": 23
+        }
+    },
+    "Proforma": {
+        "filePath": "Templates/Proforma-Invoice.xlsx",
+        "cells": {
+            "companyName": "A13",
+            "address1": "A14",
+            "address2": "A15",
+            "address3": "A16",
+            "cin": "C17",
+            "pono": "A21",
+            "totalPrice": "C23",
+            "invoiceDate": "F3",
+            "invoiceNumber": "F4",
+            "dueDate": "F5",
+            "taxed": "E23",
+            "milestonesStartRow": 23
+        }
+    },
+    "Regular2": {
+        "filePath": "Templates/Regular-2-Invoice.xlsx",
+        "cells": {
+            "companyName": "A13",
+            "address1": "A14",
+            "address2": "A15",
+            "address3": "A16",
+            "gstin": "A17",
+            "cin": "C17",
+            "pono": "A21",
+            "totalPrice": "C23",
+            "invoiceDate": "F3",
+            "invoiceNumber": "F4",
+            "taxed": "E23",
+            "milestonesStartRow": 23
+        }
+    },
+    "Dollar": {
+        "filePath": "Templates/Dollar-Invoice.xlsx",
+        "cells": {
+            "companyName": "A13",
+            "address1": "A14",
+            "address2": "A15",
+            "address3": "A16",
+            "pono": "A21",
+            "totalPrice": "C23",
+            "invoiceDate": "F3",
+            "invoiceNumber": "F4",
+            "taxed": "E23",
+            "milestonesStartRow": 23
+        }
+    },
+    "Masshoor": {
+        "filePath": "Templates/Dollar-Invoice.xlsx",
+        "cells": {
+            "companyName": "A13",
+            "address1": "A14",
+            "address2": "A15",
+            "address3": "A16"
+        }
+    }
+}

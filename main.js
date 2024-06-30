@@ -5,7 +5,6 @@ const ExcelJS = require("exceljs");
 const { dialog, shell } = require('electron');
 require("dotenv").config();
 const { Menu, MenuItem } = require('electron');
-const schedule = require('node-schedule');
 
 let connection;
 let win;
@@ -41,14 +40,13 @@ function createWindow() {
         menu.popup();
     });
 
-    win.loadFile("public/index.html");
+    win.loadFile("public/login.html");
     win.maximize();
 }
 
 if (require('electron-squirrel-startup')) app.quit();
 app.whenReady().then(() => {
     createWindow();
-    // connectToDB()
 });
 
 app.on("window-all-closed", () => {
@@ -61,7 +59,7 @@ ipcMain.on("login", async (event, data) => {
     try {
         const { username, password } = data;
         connection = await mysql.createConnection({
-            host: '192.168.2.5',
+            host: 'localhost',
             user: username,
             password: password,
             database: "invoice",
@@ -69,13 +67,77 @@ ipcMain.on("login", async (event, data) => {
             connectionLimit: 10,
             queueLimit: 0
         });
-        win.reload();
         event.reply('loginResponse', { success: true, message: "Login successful" });
+        win.reload();
+        await checkInvoicesDueToday();
     } catch (error) {
         event.reply('loginResponse', { success: false, message: "Invalid Credentials" });
     }
+});
 
-})
+async function checkInvoicesDueToday() {
+    try {
+        // Fetch invoices due today and not yet notified
+        const [invoices] = await connection.execute('SELECT * FROM invoices WHERE due_date = CURDATE() AND noti_send = "no"');
+
+        if (invoices.length === 0) return;
+
+        // Fetch all necessary related data
+        const [customers] = await connection.execute('SELECT * FROM customers');
+        const [projects] = await connection.execute('SELECT * FROM projects');
+        const [milestones] = await connection.execute('SELECT * FROM milestones');
+
+        // Process each invoice
+        for (let invoice of invoices) {
+            const customer = customers.find(c => c.customer_id === invoice.customer_id);
+            const project = projects.find(p => p.internal_project_id === invoice.internal_project_id);
+            const milestone = milestones.find(m => m.milestone_id === invoice.milestone_id);
+
+            if (customer && project && milestone) {
+                const data = {
+                    customer: customer.company_name,
+                    project: project.project_name,
+                    milestone: milestone.milestone_name,
+                    invoice: invoice
+                };
+
+                // Send notification
+                sendNotification(data);
+
+                // Update the invoice to mark the notification as sent
+                const updatedQuery = 'UPDATE invoices SET noti_send = ? WHERE customer_id = ? AND internal_project_id = ? AND milestone_id = ?';
+                await connection.execute(updatedQuery, [
+                    'yes',
+                    invoice.customer_id,
+                    invoice.internal_project_id,
+                    invoice.milestone_id
+                ]);
+            }
+        }
+    } catch (error) {
+        console.error('Error checking due dates:', error);
+    }
+}
+
+
+function sendNotification(data) {
+    const options = {
+        title: 'Invoice Due Today',
+        body: `Invoice Pending From Customer ${data.customer} (${data.project}) For Milestone ${data.milestone}`,
+        silent: false,
+        icon: path.join(__dirname, 'assets/bell-solid.svg'),
+        timeoutType: 'never',
+        urgency: 'critical',
+        closeButtonText: 'Close',
+        tag: `invoice_due_${data.customer}_${data.project}`,
+    };
+    const customNotification = new Notification(options);
+    customNotification.show();
+}
+
+ipcMain.on("load-main-content", () => {
+    win.loadFile("public/index.html");  // Load the main content page after successful login
+});
 
 ipcMain.on("createCustomer", async (event, data) => {
     const { customerData } = data;
@@ -126,7 +188,6 @@ ipcMain.on("insertMilestone", async (event, data) => {
             [projectData.customerName]
         );
         const customer_id = result[0].customer_id;
-        console.log(projectData);
         // Begin transaction
         await connection.beginTransaction();
 
@@ -215,7 +276,6 @@ ipcMain.on("createInvoice", async (event, data) => {
                 WHERE milestone_id = ?
             `, [milestone.milestone_id]);
 
-            console.log("Data inserted and milestone updated successfully");
         } catch (error) {
             console.error("Error inserting data or updating milestone:", error);
         }
@@ -247,90 +307,17 @@ ipcMain.on("createInvoice", async (event, data) => {
     event.reply('invoiceCreated');
 });
 
+async function loadTemplateConfigs() {
+    const data = await fs.readFile(path.join(__dirname, "templateConfigs.json"), "utf8");
+    return JSON.parse(data);
+}
 
-const templateConfigs = {
-    Regular: {
-        filePath: path.join(__dirname, "Templates/Regular-Invoice.xlsx"),
-        cells: {
-            companyName: "A13",
-            address1: "A14",
-            address2: "A15",
-            address3: "A16",
-            gstin: "A17",
-            cin: "C17",
-            pono: "A21",
-            totalPrice: "C23",
-            invoiceDate: "F3",
-            invoiceNumber: "F4",
-            dueDate: "F5",
-            taxed: "E23",
-            milestonesStartRow: 23
-        }
-    },
-    Proforma: {
-        filePath: path.join(__dirname, "Templates/Proforma-Invoice.xlsx"),
-        cells: {
-            companyName: "A13",
-            address1: "A14",
-            address2: "A15",
-            address3: "A16",
-            cin: "C17",
-            pono: "A21",
-            totalPrice: "C23",
-            invoiceDate: "F3",
-            invoiceNumber: "F4",
-            dueDate: "F5",
-            taxed: "E23",
-            milestonesStartRow: 23
-        }
-    },
-    Regular2: {
-        filePath: path.join(__dirname, "Templates/Regular-2-Invoice.xlsx"),
-        cells: {
-            companyName: "A13",
-            address1: "A14",
-            address2: "A15",
-            address3: "A16",
-            gstin: "A17",
-            cin: "C17",
-            pono: "A21",
-            totalPrice: "C23",
-            invoiceDate: "F3",
-            invoiceNumber: "F4",
-            taxed: "E23",
-            milestonesStartRow: 23
-        }
-    },
-    Dollar: {
-        filePath: path.join(__dirname, "Templates/Dollar-Invoice.xlsx"),
-        cells: {
-            companyName: "A13",
-            address1: "A14",
-            address2: "A15",
-            address3: "A16",
-            pono: "A21",
-            totalPrice: "C23",
-            invoiceDate: "F3",
-            invoiceNumber: "F4",
-            taxed: "E23",
-            milestonesStartRow: 23
-        }
-    },
-    Masshoor: {
-        filePath: path.join(__dirname, "Templates/Dollar-Invoice.xlsx"),
-        cells: {
-            companyName: "A13",
-            address1: "A14",
-            address2: "A15",
-            address3: "A16",
-        }
-    },
-    // Add more invoice types as needed
-};
 
 ipcMain.on("createForm", async (event, data) => {
     const { selectedMilestones, invoiceType } = data;
     try {
+        const templateConfigs = await loadTemplateConfigs();
+
         function to_date(date) {
             if (!date) return '-';
             const d = new Date(date);
@@ -534,60 +521,6 @@ ipcMain.handle("fetchMilestones", async (event, selectedProjectId) => {
     }
 });
 
-function sendNotification(data) {
-    const options = {
-        title: 'Invoice Due Today',
-        body: `Invoice Pending From Customer ${data.customer} (${data.project}) For Milestone ${data.milestone}`,
-        silent: false,
-        icon: path.join(__dirname, 'assets/bell-solid.svg'),
-        timeoutType: 'never',
-        urgency: 'critical',
-        closeButtonText: 'Close',
-        tag: `invoice_due_${data.customer}_${data.project}`,
-    };
-    const customNotification = new Notification(options);
-    customNotification.show();
-}
-
-// Schedule the daily check for invoices due today
-const dailyCheckJob = schedule.scheduleJob('0 0 * * *', async () => { // Run at midnight every day
-    try {
-        const [invoices] = await connection.execute('SELECT * FROM invoices WHERE due_date = CURDATE() AND noti_sent = "no"');
-        const [customers] = await connection.execute('SELECT * FROM customers');
-        const [projects] = await connection.execute('SELECT * FROM projects');
-        const [milestones] = await connection.execute('SELECT * FROM milestones');
-
-        invoices.forEach(invoice => {
-            const customer = customers.find(c => c.customer_id === invoice.customer_id);
-            const project = projects.find(p => p.internal_project_id === invoice.internal_project_id);
-            const milestone = milestones.find(m => m.milestone_id === invoice.milestone_id);
-
-            if (customer && project && milestone) {
-                const data = {
-                    customer: customer.company_name,
-                    project: project.project_name,
-                    milestone: milestone.milestone_name,
-                    invoice: invoice
-                };
-
-                // Send notification
-                sendNotification(data);
-
-                // Update the invoice to mark the notification as sent
-                const updatedQuery = 'UPDATE invoices SET noti_sent = ? WHERE customer_id = ? AND internal_project_id = ? AND milestone_id = ?';
-                connection.execute(updatedQuery, [
-                    'yes',
-                    invoice.customer_id,
-                    invoice.internal_project_id,
-                    invoice.milestone_id
-                ]);
-            }
-        });
-    } catch (error) {
-        console.error('Error checking due dates:', error);
-    }
-});
-
 ipcMain.handle('get-summary-data', async () => {
     try {
         const [total] = await connection.execute(`SELECT SUM(total_prices) as total_prices FROM projects`);
@@ -599,11 +532,9 @@ ipcMain.handle('get-summary-data', async () => {
         const [unpaidResults] = await connection.execute(`
             SELECT SUM(total_prices) AS amountPending FROM invoices WHERE status = 'unpaid'
         `);
-        console.log(paidResults, unpaidResults);
         const amountCollected = Number(paidResults[0].amountCollected) || 0;
         const amountPending = Number(unpaidResults[0].amountPending) || 0;
         const totalAmount = total[0].total_prices;
-        console.log(totalAmount, amountPending, amountCollected);
 
         return {
             amountCollected: amountCollected,
