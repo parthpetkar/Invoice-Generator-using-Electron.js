@@ -59,7 +59,7 @@ ipcMain.on("login", async (event, data) => {
     try {
         const { username, password } = data;
         connection = await mysql.createConnection({
-            host: 'localhost',
+            host: '192.168.2.5',
             user: username,
             password: password,
             database: "invoice",
