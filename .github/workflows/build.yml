@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@master
+    - uses: actions/setup-node@v2
       with:
         node-version: 16
     - name: install dependencies
@@ -16,14 +16,14 @@ jobs:
     - name: Archive Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: electron-build
-        path: out\make\squirrel.windows\x64\invoice_gen-1.0.0 Setup.exe
+        name: electron-build-linux
+        path: out/make/squirrel.windows/x64/invoice_gen-1.0.0 Setup.exe
 
   build_on_mac:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@master
+    - uses: actions/setup-node@v2
       with:
         node-version: 16
     - name: install dependencies
@@ -33,14 +33,14 @@ jobs:
     - name: Archive Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: electron-build
-        path: out\make\squirrel.windows\x64\invoice_gen-1.0.0 Setup.exe
+        name: electron-build-mac
+        path: out/make/squirrel.windows/x64/invoice_gen-1.0.0 Setup.exe
 
   build_on_win:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@master
+    - uses: actions/setup-node@v2
       with:
         node-version: 16
     - name: install dependencies
@@ -50,5 +50,60 @@ jobs:
     - name: Archive Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: electron-build
+        name: electron-build-win
         path: out\make\squirrel.windows\x64\invoice_gen-1.0.0 Setup.exe
+
+  publish_release:
+    needs: [build_on_linux, build_on_mac, build_on_win]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/download-artifact@v2
+      with:
+        name: electron-build-linux
+        path: build/
+    - uses: actions/download-artifact@v2
+      with:
+        name: electron-build-mac
+        path: build/
+    - uses: actions/download-artifact@v2
+      with:
+        name: electron-build-win
+        path: build/
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      with:
+        tag_name: v1.0.0
+        release_name: Release v1.0.0
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset (Linux)
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: build/out/make/squirrel.windows/x64/invoice_gen-1.0.0\ Setup.exe
+        asset_name: invoice_gen-1.0.0-setup-linux.exe
+        asset_content_type: application/octet-stream
+    - name: Upload Release Asset (Mac)
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: build/out/make/squirrel.windows/x64/invoice_gen-1.0.0\ Setup.exe
+        asset_name: invoice_gen-1.0.0-setup-mac.exe
+        asset_content_type: application/octet-stream
+    - name: Upload Release Asset (Windows)
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: build/out/make/squirrel.windows/x64/invoice_gen-1.0.0\ Setup.exe
+        asset_name: invoice_gen-1.0.0-setup-win.exe
+        asset_content_type: application/octet-stream
