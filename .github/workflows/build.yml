@@ -45,6 +45,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/out/make/squirrel.windows/x64/invoice_gen-1.0.0 Setup.exe
+          asset_path: out/make/squirrel.windows/x64/invoice_gen-1.0.0 Setup.exe
           asset_name: invoice_gen-1.0.0-setup-win.exe
           asset_content_type: application/octet-stream
