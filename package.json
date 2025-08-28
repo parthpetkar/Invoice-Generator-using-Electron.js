@@ -24,6 +24,7 @@
     "@electron-forge/plugin-fuses": "^7.4.0",
     "@electron-forge/publisher-github": "^7.4.0",
     "@electron/fuses": "^1.8.0",
+    "@playwright/test": "^1.54.1",
     "dotenv": "^16.4.5",
     "electron": "^29.0.1",
     "exceljs": "^4.4.0",

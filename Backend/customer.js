@@ -12,38 +12,62 @@ $(document).ready(async () => {
 
         $('.error').remove();
 
+        // Validation patterns
+        var companyPattern = /^[a-zA-Z0-9 .&'-]{3,}$/;
+        var addressPattern = /^[a-zA-Z0-9 ,.-]{3,}$/;
+        var gstinPattern = /^[0-9A-Z]{15}$/;
+        var panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        var cinPattern = /^[A-Z]{1,}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/;
+
         if (companyName === '') {
             isValid = false;
             $('#customer_company_name').after('<span class="error">This field is required</span>');
+        } else if (!companyPattern.test(companyName)) {
+            isValid = false;
+            $('#customer_company_name').after('<span class="error">Invalid company name</span>');
         }
 
         if (address1 === '') {
             isValid = false;
             $('#customer_address1').after('<span class="error">This field is required</span>');
+        } else if (!addressPattern.test(address1)) {
+            isValid = false;
+            $('#customer_address1').after('<span class="error">Invalid address</span>');
         }
 
         if (address3 === '') {
             isValid = false;
             $('#customer_address3').after('<span class="error">This field is required</span>');
+        } else if (!addressPattern.test(address3)) {
+            isValid = false;
+            $('#customer_address3').after('<span class="error">Invalid address</span>');
         }
 
         if (gstin === '') {
             isValid = false;
             $('#customer_gstin').after('<span class="error">This field is required</span>');
+        } else if (!gstinPattern.test(gstin)) {
+            isValid = false;
+            $('#customer_gstin').after('<span class="error">Invalid GSTIN format</span>');
         }
         if (pan === '') {
             isValid = false;
             $('#customer_pan').after('<span class="error">This field is required</span>');
+        } else if (!panPattern.test(pan)) {
+            isValid = false;
+            $('#customer_pan').after('<span class="error">Invalid PAN format</span>');
         }
         if (cin === '') {
             isValid = false;
             $('#customer_cin').after('<span class="error">This field is required</span>');
+        } else if (!cinPattern.test(cin)) {
+            isValid = false;
+            $('#customer_cin').after('<span class="error">Invalid CIN format</span>');
         }
         if (!isValid) {
             alert('Form is invalid');
             return false;
         } else {
-
             return {
                 companyName: companyName,
                 address1: address1,
@@ -71,33 +95,46 @@ $(document).ready(async () => {
 
         $('.error').remove();
 
+        // Validation patterns
+        var alphaNumPattern = /^[a-zA-Z0-9 .\-]{3,}$/;
+        var datePattern = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD
+
         if (!customerName) {
             isValid = false;
             $('#customerSelect').after('<span class="error">This field is required</span>');
         }
-
         if (projectNumber === '') {
             isValid = false;
             $('#project_number').after('<span class="error">This field is required</span>');
+        } else if (!alphaNumPattern.test(projectNumber)) {
+            isValid = false;
+            $('#project_number').after('<span class="error">Invalid project number</span>');
         }
         if (projectDate === '') {
             isValid = false;
             $('#project_date').after('<span class="error">This field is required</span>');
+        } else if (!datePattern.test(projectDate)) {
+            isValid = false;
+            $('#project_date').after('<span class="error">Invalid date format (YYYY-MM-DD)</span>');
         }
         if (projectName === '') {
             isValid = false;
             $('#project_name').after('<span class="error">This field is required</span>');
+        } else if (!alphaNumPattern.test(projectName)) {
+            isValid = false;
+            $('#project_name').after('<span class="error">Invalid project name</span>');
         }
-
         if (poNo === '') {
             isValid = false;
             $('#customer_poNo').after('<span class="error">This field is required</span>');
+        } else if (!alphaNumPattern.test(poNo)) {
+            isValid = false;
+            $('#customer_poNo').after('<span class="error">Invalid PO number</span>');
         }
-
         if (totalPrice === '') {
             isValid = false;
             $('#total_price').after('<span class="error">This field is required</span>');
-        } else if (isNaN(totalPrice)) {
+        } else if (isNaN(totalPrice) || parseFloat(totalPrice) <= 0) {
             isValid = false;
             $('#total_price').after('<span class="error">Invalid price format</span>');
         }
@@ -180,10 +217,10 @@ $(document).ready(async () => {
             milestoneCell.attr("contenteditable", true);
             claimPercentageCell.attr("contenteditable", true);
 
-            milestoneCell.focus(); // Optional: focus on milestone cell to start editing
+            milestoneCell.focus();
 
-            $(this).remove(); // Remove edit button
-            row.find("td:last-child").prepend($("<button>").addClass("saveBtn").text("Save")); // Add save button
+            $(this).remove();
+            row.find("td:last-child").prepend($("<button>").addClass("saveBtn").text("Save"));
         });
 
         $("#dataTable").on("click", ".saveBtn", function () {
@@ -195,7 +232,7 @@ $(document).ready(async () => {
             claimPercentageCell.attr("contenteditable", false);
 
             $(this).remove(); // Remove save button
-            row.find("td:last-child").prepend($("<button>").addClass("editBtn").text("Edit")); // Add edit button
+            row.find("td:last-child").prepend($("<button>").addClass("editBtn").text("Edit"));  
 
             toggleAddMilestoneButton();
         });
@@ -207,34 +244,56 @@ $(document).ready(async () => {
 
         async function saveMilestones() {
             const milestones = [];
+            let totalClaim = 0;
+            let isValid = true;
+            $(".error-milestone").remove();
             $("#dataTable tbody tr").each(function () {
                 const row = $(this);
-                const milestone = row.find(".milestoneCell").text();
+                const milestone = row.find(".milestoneCell").text().trim();
                 const claimPercentage = parseFloat(row.find(".claimPercentageCell").text());
                 const amount = parseFloat(row.find(".amountCell").text());
 
-                if (!isNaN(claimPercentage) && claimPercentage > 0 && milestone.trim() !== "") {
+                // Validation: milestone name (min 3 chars, alphanumeric), claimPercentage (number, >0, <=100)
+                var milestonePattern = /^[a-zA-Z0-9 .\-]{3,}$/;
+                if (milestone === "" || !milestonePattern.test(milestone)) {
+                    isValid = false;
+                    row.find(".milestoneCell").after('<span class="error-milestone" style="color:red;">Invalid milestone name</span>');
+                }
+                if (isNaN(claimPercentage) || claimPercentage <= 0 || claimPercentage > 100) {
+                    isValid = false;
+                    row.find(".claimPercentageCell").after('<span class="error-milestone" style="color:red;">Invalid claim %</span>');
+                }
+                if (isValid) {
                     milestones.push({
                         milestone: milestone,
                         claimPercentage: claimPercentage,
                         amount: amount.toFixed(2)
                     });
+                    totalClaim += claimPercentage;
                 }
             });
 
-            if (milestones.length > 0) {
-                // Handle saving milestones
-                await window.electron.send('insertMilestone', { milestones, projectData });
-                window.electron.receive('createProjectResponse', (response) => {
-                    if (response.success) {
-                        alert(`Project created successfully with ID: ${response.internalProjectId}`,);
-                    } else {
-                        alert(`Error: ${response.message}\n${response.error}`);
-                    }
-                });
-            } else {
-                console.log("No valid milestones to save.");
+            if (!isValid) {
+                alert("Milestone data is invalid. Please correct errors.");
+                return;
             }
+            if (milestones.length === 0) {
+                alert("No valid milestones to save.");
+                return;
+            }
+            if (Math.round(totalClaim) !== 100) {
+                alert("Total claim percentage must be exactly 100%.");
+                return;
+            }
+            // Handle saving milestones
+            await window.electron.send('insertMilestone', { milestones, projectData });
+            window.electron.receive('createProjectResponse', (response) => {
+                if (response.success) {
+                    alert(`Project created successfully with ID: ${response.internalProjectId}`);
+                } else {
+                    alert(`Error: ${response.message}\n${response.error}`);
+                }
+            });
         }
         $("#add_milestone").click(function () {
             toggleAddMilestoneButton();

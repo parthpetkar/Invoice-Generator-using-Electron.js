@@ -8,21 +8,21 @@ async function setupDatabase() {
 }
 
 async function createConnection(username, password) {
-    try {
-        connection = await mysql.createConnection({
-            host: process.env.DB_HOST,
-            user: username,
-            password: password,
-            database: "invoice",
-            waitForConnections: true,
-            connectionLimit: 10,
-            queueLimit: 0
-        });
-        return connection;
-    } catch (error) {
-        throw new Error("Invalid Credentials");
-    }
+  try {
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST || "localhost",
+      port: process.env.DB_PORT || 3307,
+      user: username,
+      password: password,
+      database: process.env.DB_DATABASE || "invoice",
+    });
+    return connection;
+  } catch (error) {
+    console.error("Database connection failed:", error.message);
+    throw new Error("Invalid Credentials or Database Unreachable");
+  }
 }
+
 
 function getConnection() {
     return connection;
